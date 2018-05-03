@@ -1,0 +1,34 @@
+{
+  "name": "brave-core-crx-packager",
+  "version": "1.0.0",
+  "description": "Packages component extensions used in the Brave browser",
+  "dependencies": {
+    "ad-block": "brave/ad-block",
+    "tracking-protection": "brave/tracking-protection",
+    "request": "^2.85.0"
+  },
+  "devDependencies": {
+    "commander": "^2.15.1",
+    "crx": "^3.2.1",
+    "mkdirp": "^0.5.1",
+    "replace-in-file": "^3.4.0",
+    "rimraf": "^2.6.2"
+  },
+  "scripts": {
+    "build": "node ./scripts/build",
+    "clean": "rimraf build/ *.zip *.crx",
+    "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
+    "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
+    "package-ad-block": "node ./scripts/package --type ad-block-updater",
+    "package-tracking-protection": "node ./scripts/package --type tracking-protection-updater"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brave/brave-core-crx-packager.git"
+  },
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/brave/brave-core-crx-packager/issues"
+  },
+  "homepage": "https://github.com/brave/brave-core-crx-packager#readme"
+}
