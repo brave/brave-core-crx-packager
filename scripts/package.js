@@ -44,7 +44,7 @@ function generateCRX (commander, outputDir, datFile) {
     privateKey: fs.readFileSync(commander.key)
   })
 
-  const crxFile = commander.type + '.crx'
+  const crxFile = path.join(outputDir, commander.type + '.crx')
 
   crx.load(path.resolve(outputDir))
     .then(() => crx.loadContents())
