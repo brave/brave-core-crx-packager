@@ -4,8 +4,9 @@
   "description": "Packages component extensions used in the Brave browser",
   "dependencies": {
     "ad-block": "brave/ad-block",
-    "tracking-protection": "brave/tracking-protection",
-    "request": "^2.85.0"
+    "release-tools": "brave/release-tools",
+    "request": "^2.85.0",
+    "tracking-protection": "brave/tracking-protection"
   },
   "devDependencies": {
     "commander": "^2.15.1",
@@ -16,13 +17,14 @@
     "standard": "^11.0.1"
   },
   "scripts": {
-    "build": "node ./scripts/build",
-    "clean": "rimraf build/ *.zip *.crx",
+    "clean": "rimraf build/ *.crx",
     "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
     "lint": "standard",
     "package-ad-block": "node ./scripts/package --type ad-block-updater",
-    "package-tracking-protection": "node ./scripts/package --type tracking-protection-updater"
+    "package-tracking-protection": "node ./scripts/package --type tracking-protection-updater",
+    "upload-ad-block": "node ./scripts/upload --type ad-block-updater",
+    "upload-tracking-protection": "node ./scripts/upload--type tracking-protection-updater"
   },
   "repository": {
     "type": "git",
