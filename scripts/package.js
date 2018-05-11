@@ -60,21 +60,21 @@ function generateCRX (commander, outputDir, datFile) {
     })
 }
 
-function getDATFileFromComponentType () {
-  switch (commander.type) {
+function getDATFileFromComponentType (componentType) {
+  switch (componentType) {
     case 'ad-block-updater':
-      return 'node_modules/ad-block/out/ABPFilterParserData.dat'
+      return path.join('node_modules', 'ad-block', 'out', 'ABPFilterParserData.dat')
     case 'tracking-protection-updater':
-      return 'node_modules/tracking-protection/data/TrackingProtection.dat'
+      return path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat')
     default:
-      throw new Error('Unrecognized component extension type: ' + commander.type)
+      throw new Error('Unrecognized component extension type: ' + componentType)
   }
 }
 
 commander
   .option('-k, --key <key>', 'private key file path', 'key.pem')
-  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
   .option('-s, --set-version <x.x.x>', 'component extension version number')
+  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
   .parse(process.argv)
 
 if (!fs.existsSync(commander.key)) {
