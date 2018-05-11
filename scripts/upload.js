@@ -19,17 +19,14 @@ process.on('unhandledRejection', (err) => {
   process.exit(1)
 })
 
-function createManifestForUpload (commander) {
-  const componentManifest = path.join('manifests', commander.type + '-manifest.json')
-  const name = JSON.parse(fs.readFileSync(componentManifest)).name
-
+function createManifestForUpload (commander, id, name) {
   const manifestDir = path.join('build', commander.type, 'stable', 'extensions')
   const manifestFile = path.join(manifestDir, 'extensionManifest.json')
 
   const content =
         [
           [
-            getIDFromComponentType(commander.type),
+            id,
             commander.setVersion,
             generateSHA256HashOfFile(commander.crx),
             name
@@ -41,21 +38,28 @@ function createManifestForUpload (commander) {
   fs.writeFileSync(manifestFile, JSON.stringify(content, null, 2))
 }
 
-function generateSHA256HashOfFile (file) {
-  const data = fs.readFileSync(file)
+function parseManifest (componentType) {
+  const componentManifest = path.join('manifests', componentType + '-manifest.json')
+  return JSON.parse(fs.readFileSync(componentManifest))
+}
+
+function generateSHA256Hash (data) {
   const hash = crypto.createHash('sha256')
   return hash.update(data).digest('hex')
 }
 
-function getIDFromComponentType (componentType) {
-  switch (componentType) {
-    case 'ad-block-updater':
-      return 'cffkpbalmllkdoenhmdmpbkajipdjfam'
-    case 'tracking-protection-updater':
-      return 'afalakplffnnnlkncjhbmahjfjhmlkal'
-    default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
-  }
+function generateSHA256HashOfFile (file) {
+  return generateSHA256Hash(fs.readFileSync(file))
+}
+
+function getIDFromBase64PublicKey (key) {
+  const hash = crypto.createHash('sha256')
+  const data = Buffer.from(key, 'base64')
+  const digest = hash.update(data).digest('hex')
+  const id = digest.toString().substring(0, 32)
+  return id.replace(/[0-9a-f]/g, (c) => {
+    return 'abcdefghijklmnop'.charAt('0123456789abcdef'.indexOf(c))
+  })
 }
 
 commander
@@ -76,15 +80,20 @@ if (!commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
   throw new Error('Missing or invalid option: --set-version')
 }
 
-createManifestForUpload(commander)
+const data = parseManifest(commander.type)
+
+const id = getIDFromBase64PublicKey(data.key)
+const name = data.name
+
+createManifestForUpload(commander, id, name)
 
 let args = ''
 
 args += '--chromium 0.0.0.0 '
-args += '--id ' + getIDFromComponentType(commander.type) + ' '
-args += '--location ' + path.join('build', commander.type) + ' '
-args += '--path ' + path.join('build', commander.type, commander.type + '.crx') + ' '
-args += '--version ' + commander.setVersion + ' '
+args += `--id ${id} `
+args += `--location ${path.join('build', commander.type)} `
+args += `--path ${path.join('build', commander.type, commander.type + '.crx')} `
+args += `--version ${commander.setVersion} `
 args += '--v 0'
 
 const script = path.join('node_modules', 'release-tools', 'bin', 'updateExtensions')
