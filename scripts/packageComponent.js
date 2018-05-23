@@ -38,7 +38,7 @@ function stageFiles (commander, outputDir, datFile) {
   replace.sync(replaceOptions)
 }
 
-function generateCRX (commander, outputDir, datFile) {
+function generateCRX (commander, outputDir) {
   const ChromeExtension = require('crx')
   const crx = new ChromeExtension({
     privateKey: fs.readFileSync(commander.key)
@@ -93,4 +93,4 @@ const outputDir = path.join('build', commander.type)
 const datFile = getDATFileFromComponentType(commander.type)
 
 stageFiles(commander, outputDir, datFile)
-generateCRX(commander, outputDir, datFile)
+generateCRX(commander, outputDir)
