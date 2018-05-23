@@ -10,62 +10,97 @@ const replace = require('replace-in-file')
 
 const {generateCRXFile, installErrorHandlers} = require('./lib/util')
 
-function stageFiles (commander, outputDir, datFile) {
-  const baseDatFile = path.parse(datFile).base
+function stageFiles (datFile, outputDir) {
+  const parsedDatFile = path.parse(datFile)
 
-  const originalManifest = path.join('manifests', commander.type + '-manifest.json')
-  const updatedManifest = path.join(outputDir, 'manifest.json')
+  const datFileBase = parsedDatFile.base
+  const datFileName = getNormalizedDATFileName(parsedDatFile.name)
+
+  const originalManifest = path.join('manifests', `${commander.type}-${datFileName}-manifest.json`)
+  const outputManifest = path.join(outputDir, 'manifest.json')
 
   const replaceOptions = {
-    files: updatedManifest,
-    from: /0\.0\.0/g,
+    files: outputManifest,
+    from: /0\.0\.0/,
     to: commander.setVersion
   }
 
   mkdirp.sync(outputDir)
 
-  fs.copyFileSync(originalManifest, updatedManifest)
-  fs.copyFileSync(datFile, path.join(outputDir, baseDatFile))
+  fs.copyFileSync(originalManifest, outputManifest)
+  fs.copyFileSync(datFile, path.join(outputDir, datFileBase))
 
   replace.sync(replaceOptions)
 }
 
-function getDATFileFromComponentType (componentType) {
+function getNormalizedDATFileName (datFileName) {
+  if (datFileName === 'ABPFilterParserData' || datFileName === 'TrackingProtection') {
+    return 'default'
+  }
+  return datFileName
+}
+
+function getDATFileListByComponentType (componentType) {
+  let list = []
+
   switch (componentType) {
     case 'ad-block-updater':
-      return path.join('node_modules', 'ad-block', 'out', 'ABPFilterParserData.dat')
+      fs.readdirSync(path.join('node_modules', 'ad-block', 'out')).forEach(file => {
+        if (file === 'SafeBrowsingData.dat') { return }
+        list.push(path.join('node_modules', 'ad-block', 'out', file))
+      })
+      break
     case 'tracking-protection-updater':
-      return path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat')
+      list.push(path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat'))
+      break
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
+
+  return list
+}
+
+function processDATFile (componentType, key, datFile) {
+  const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
+  const stagingDir = path.join('build', componentType, datFileName)
+  const crxOutputDir = path.join('build', componentType)
+  const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
+
+  let privateKeyFile = ''
+
+  if (fs.lstatSync(key).isDirectory()) {
+    privateKeyFile = path.join(key, `${componentType}-${datFileName}.pem`)
+  } else {
+    privateKeyFile = key
+  }
+
+  stageFiles(datFile, stagingDir)
+  generateCRXFile(crxFile, privateKeyFile, stagingDir, crxOutputDir)
 }
 
 installErrorHandlers()
 
 commander
-  .option('-k, --key <key>', 'private key file path', 'key.pem')
+  .option('-d, --keys-directory <dir>', 'directory containing multiple private keys for signing crx files')
+  .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
   .option('-s, --set-version <x.x.x>', 'component extension version number')
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
   .parse(process.argv)
 
-if (!fs.existsSync(commander.key)) {
-  throw new Error('Missing private key file: ' + commander.key)
+let keyParam = ''
+
+if (fs.existsSync(commander.keyFile)) {
+  keyParam = commander.keyFile
+} else if (fs.existsSync(commander.keysDirectory)) {
+  keyParam = commander.keysDirectory
+} else {
+  throw new Error('Missing or invalid private key file/directory')
 }
 
-if (!commander.setVersion) {
-  throw new Error('Missing required option: --set-version')
-}
-
-if (!commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
+if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
   throw new Error('Missing or invalid option: --set-version')
 }
 
-const outputDir = path.join('build', commander.type)
-const inputDir = path.join('build', commander.type)
-const datFile = getDATFileFromComponentType(commander.type)
-const crxFile = path.join(outputDir, commander.type + '.crx')
-const privateKeyFile = commander.key
-
-stageFiles(commander, outputDir, datFile)
-generateCRXFile(crxFile, privateKeyFile, inputDir, outputDir)
+getDATFileListByComponentType(commander.type).forEach(datFile => {
+  processDATFile(commander.type, keyParam, datFile)
+})

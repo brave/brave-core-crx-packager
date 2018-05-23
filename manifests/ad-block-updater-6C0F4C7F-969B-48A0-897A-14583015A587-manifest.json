@@ -1,0 +1,7 @@
+{
+  "description": "Brave Ad Block Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4KGRug8Rw1WHk1BPfIdtdw7uwFijUac7jk1lb99lEfSq2uPV2bKCk8lLh/6ahlV/EjSN8mGiFfZIVTDFhuYhVuIO8iETrCZe1ChoI0F8ptHOPQXVPzKUFMpkRqAnH51vqx+3gG78A3+iGfAE+LjerP1j4Jx5jSvTkbN8l+RqKMtjaaL9qRHv3aRQtYB/shGgdxKeOR0f8E6yJ4tIRDHB72bDufN7wbnRoHCNnLkrAPtbIwpWRLKYcOxAB6QqKNCLx/UX/pWpGtyJmMQQBpxQgl3BT8daNp0h4Soc6VPZA9wEIQ5/a/8UpsBT9rwJGj5WdSBPSR8D54aULATPxsienQIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave Ad Block Updater (GRC: Greek AdBlock Filter)",
+  "version": "0.0.0"
+}

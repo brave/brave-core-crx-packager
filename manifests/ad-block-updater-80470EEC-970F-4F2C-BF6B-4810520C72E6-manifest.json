@@ -1,0 +1,7 @@
+{
+  "description": "Brave Ad Block Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArVVgKRE868yup0HfX4+HyZmJVIk33AKivwvRRfjHRxeC+lLnRjNiY0LKS/K65J6SNLgUsZGfT5u4h4F423O/pbZl6zdfs5kOyStlmLPXhFtF/bIXIsUtdJ0R3dEz+nSg0C2L/FnE5Qr8M4thdmq/DIP1C70mj8pCnX1939hXyR0ymQkYp573O+LJ0q1L41jBqHzNKWngfBc79I2Kbt1pLluBT2X7zZVbb+1ap3Ad/VMeFDB2yurRs88cYJZOal7mgTgI/Zkuzsh2Dnql5+UNOCHinYjcOvUifGgkdsJIJxL57PxRzbriLCNjShoOV3Fpc0XYL1KSWvIVuW0bYeLmrwIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave Ad Block Updater (RUS: RU AdList)",
+  "version": "0.0.0"
+}

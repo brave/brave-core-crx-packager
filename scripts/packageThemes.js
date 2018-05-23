@@ -59,8 +59,8 @@ commander
   .option('-s, --set-version <x.x.x>', 'extension version number')
   .parse(process.argv)
 
-if (!commander.keysDirectory || !fs.lstatSync(commander.keysDirectory)) {
-  throw new Error('Missing or invalid option: ' + commander.keysDirectory)
+if (!fs.lstatSync(commander.keysDirectory)) {
+  throw new Error('Missing or invalid option: --keys-directory')
 }
 
 if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {

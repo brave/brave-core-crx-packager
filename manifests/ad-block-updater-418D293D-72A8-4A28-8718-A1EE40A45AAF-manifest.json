@@ -1,0 +1,7 @@
+{
+  "description": "Brave Ad Block Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4cRSF2Rg5SSG6mwE6NQCnX4a0MfzC9URqNFnI4Wf3d3a7CkhmVeNZHxSCGGLxNV9SjCi5tko7NdMqIwnN/vliZV+jnEDi8Lj+zz9nftkaGXe3jNoP7tr/+Qkqphc76j3wIpsQx/vBnfVTn5lrNynZL6qpFzX5dj4ukdJ6BOx1YTNdJV9LOyMWbC5rno1mpd14aS7R2T6xfnm3+nupaZMAbUeN/1bwxDdND/mbjFzFvkPCC+4m758tI/5kSJOefy8kNvp9BM64LXPA4sF59ttJtCIOJDAyhM1P0Danyze2g/0GGnojDuzZilfeSCeEpDsc+S78Tyqz/lMtxt2LZkvoQIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave Ad Block Updater (SVN: Slovenian List)",
+  "version": "0.0.0"
+}
