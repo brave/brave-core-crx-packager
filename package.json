@@ -19,7 +19,7 @@
     "standard": "^11.0.1"
   },
   "scripts": {
-    "clean": "rimraf build/ *.crx",
+    "clean": "rimraf build/",
     "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
     "lint": "standard",

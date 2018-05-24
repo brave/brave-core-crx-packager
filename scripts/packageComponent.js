@@ -8,15 +8,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 
-process.on('uncaughtException', (err) => {
-  console.error('Caught exception:', err)
-  process.exit(1)
-})
-
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled rejection:', err)
-  process.exit(1)
-})
+const {generateCRXFile, installErrorHandlers} = require('./lib/util')
 
 function stageFiles (commander, outputDir, datFile) {
   const baseDatFile = path.parse(datFile).base
@@ -38,28 +30,6 @@ function stageFiles (commander, outputDir, datFile) {
   replace.sync(replaceOptions)
 }
 
-function generateCRX (commander, outputDir) {
-  const ChromeExtension = require('crx')
-  const crx = new ChromeExtension({
-    privateKey: fs.readFileSync(commander.key)
-  })
-
-  const crxFile = path.join(outputDir, commander.type + '.crx')
-
-  crx.load(path.resolve(outputDir))
-    .then(() => crx.loadContents())
-    .then((archiveBuffer) => {
-      crx.pack(archiveBuffer).then((crxBuffer) => {
-        fs.writeFileSync(crxFile, crxBuffer)
-        console.log('Generated ' + crxFile)
-      })
-    })
-    .catch((err) => {
-      console.error(err.stack)
-      throw err
-    })
-}
-
 function getDATFileFromComponentType (componentType) {
   switch (componentType) {
     case 'ad-block-updater':
@@ -70,6 +40,8 @@ function getDATFileFromComponentType (componentType) {
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
 }
+
+installErrorHandlers()
 
 commander
   .option('-k, --key <key>', 'private key file path', 'key.pem')
@@ -90,7 +62,10 @@ if (!commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
 }
 
 const outputDir = path.join('build', commander.type)
+const inputDir = path.join('build', commander.type)
 const datFile = getDATFileFromComponentType(commander.type)
+const crxFile = path.join(outputDir, commander.type + '.crx')
+const privateKeyFile = commander.key
 
 stageFiles(commander, outputDir, datFile)
-generateCRX(commander, outputDir)
+generateCRXFile(crxFile, privateKeyFile, inputDir, outputDir)

@@ -9,15 +9,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 
-process.on('uncaughtException', (err) => {
-  console.error('Caught exception:', err)
-  process.exit(1)
-})
-
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled rejection:', err)
-  process.exit(1)
-})
+const {generateCRXFile, installErrorHandlers} = require('./lib/util')
 
 function stageTheme (themeDir, themeName, outputDir) {
   const originalManifest = path.join(themeDir, 'manifest.json')
@@ -48,39 +40,19 @@ function stageTheme (themeDir, themeName, outputDir) {
   fsx.copySync(originalImagesDir, outputImagesDir)
 }
 
-function generateCRX (themeDir, themeName, outputDir) {
-  const privateKey = path.join(commander.keysDirectory, themeName + '.pem')
-
-  const ChromeExtension = require('crx')
-  const crx = new ChromeExtension({
-    privateKey: fs.readFileSync(privateKey)
-  })
-
-  const crxFile = path.join(outputDir, themeName + '.crx')
-
-  crx.load(path.resolve(themeDir))
-    .then(() => crx.loadContents())
-    .then((archiveBuffer) => {
-      crx.pack(archiveBuffer).then((crxBuffer) => {
-        fs.writeFileSync(crxFile, crxBuffer)
-        console.log('Generated ' + crxFile)
-      })
-    })
-    .catch((err) => {
-      console.error(err.stack)
-      throw err
-    })
-}
-
 function generateCRXFiles (outputDir) {
   const themesDir = path.join('node_modules', 'brave-chromium-themes')
   fs.readdirSync(themesDir).forEach(file => {
     if (fs.lstatSync(path.join(themesDir, file)).isDirectory()) {
+      const crxFile = path.join(outputDir, file + '.crx')
+      const privateKeyFile = path.join(commander.keysDirectory, file + '.pem')
       stageTheme(path.join(themesDir, file), file, outputDir)
-      generateCRX(path.join(outputDir, file), file, outputDir)
+      generateCRXFile(crxFile, privateKeyFile, path.join(outputDir, file), outputDir)
     }
   })
 }
+
+installErrorHandlers()
 
 commander
   .option('-k, --keys-directory <dir>', 'directory containing private key files', 'keys')
