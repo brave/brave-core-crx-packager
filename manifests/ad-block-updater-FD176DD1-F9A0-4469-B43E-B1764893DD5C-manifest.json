@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoqpe6QWKketr66AW+hKSxr5qds9gxmU72N20bG/nG8wfbPUdTwEqIG3m5e37Iq1FI0gcQir5UqwZZUgkum5dWJwgCB1SOaVvlZrWZbTbATKFcePswHqAIXMfS+wzMA/Ifoky26dE4k/rs6J/zQEbeXXon/ikjGJ7GxYeHYMBz9DAPQhcUoBlh1C0O0vhvXU+kG5DO4wdIt9W/cXJtv+8OTZ6HiTJw1j0jAliFZI/jhkYB6MW57OBpBYlWJQhMbLbK5opXq6d4ELbjC1amqI1lT3j5bl0g1OpMqL4Jtz6578G79gMJfxE3hA5tL0rGU3vAmwck/jXh7uOOzqetwdBcwIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (BGR: Bulgarian Adblock list)",
-  "version": "0.0.0"
-}

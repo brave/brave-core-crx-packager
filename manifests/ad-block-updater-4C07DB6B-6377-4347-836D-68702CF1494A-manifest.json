@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAraHfJfoceCra3QEYhK2Njl8oUvtDOiT60o/HjpSsarfEgIgCKgqF/sUGK2PVL4c2CsF+fG+YzI4eGrJ85rXL5Z47lmP666r9lZcMVoGs2L7RT8UvsVwpyxiH868kLVxeM0NBas/jIy7jAul5/fGf0fRUF0TbSIG/tghO8nR4bloYEbSri9BWcl6ccMfAKsIalNWnP3uifjC/t7BWIkY486zq/UPXdIuJbRPWqJDTS6EZH5ZXFDkLE8tta3OrRV7n3ei2HdyTnJOVj2DSskKWwAA7fpYGVnmJouBqg++kC6YqSnaW2ElVzQIaiRigwXj4keAZzMoDbTrGh7g+LSVngwIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (IN: Fanboy's India Filters)",
-  "version": "0.0.0"
-}

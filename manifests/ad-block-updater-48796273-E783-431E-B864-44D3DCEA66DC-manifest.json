@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqSwaNKhg90HCheaJu3sHocbZUjXDs90I0OmijNkDeS291wUjvXAm5YqhNE8aZmPSMVZBjBCwKXrrtTOkMA1b1uBqJ2P83fCZsgNZWbGTD8MorMrU6vyqkWCqLRc+bTTUgzAd55ckUJ/M+HVnjo6QfqUuB3kVzjpwJorQQZUYOLcgDY/Q5/tbrXI5+OGVxAb21pmnk8JHXNNWB2NvpA2o3p0ke/7WEoUH24l91ndOkXkN87eO8rSysl07Eq7gshbednYYiCxRPjuX0aPqbXMYNWXa5NdvIXFJcD2xV/l/QvXRYl+7Ca1igSXaiKc5eJyKSRqY4lf2vG0XCH6VZVxZuQIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (ISL: Icelandic ABP List)",
-  "version": "0.0.0"
-}

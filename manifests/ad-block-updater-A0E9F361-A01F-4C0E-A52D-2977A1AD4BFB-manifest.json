@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsorIQuFuMI5OaGYaYTu6+kZC4j3qPoWRoD7F9GS0IJC+VEk3XQ7UTsRXlrIxP9obmC7+pByP6hknBUzvKKS9I1v2voIqjUoydWOozbfoVoRhTLN3UiDnoDueXqXiv1MGLzY/ZcsxsxAlIiTcE7+/KdM6pJ72Mn/aLKU3escIJ5E5qOHJOFDLW9587JeWOzexaCOrtiZMclE0KWbUi7qB3Bz3auF6piSzoNGeI1NMwHSSAwhDOQ3UK09aqRKhyfBq6ugrrYyRAr3FWqmMBWkiTsr6SzrbQg3wcGbD+GDvoQmqVf8dH/WYG+srR6PyJdYH5mOQs6Yg+nu1gvwQ46Z74QIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (ITA: ABP X Files)",
-  "version": "0.0.0"
-}

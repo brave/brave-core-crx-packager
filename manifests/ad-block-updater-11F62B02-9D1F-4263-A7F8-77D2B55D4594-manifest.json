@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyahWbgHuWAI7CkBdclxOlehPVVGuG8u6bPi1vs016Kbhn9GThEVIP5qzAFQLA3jRrGy5B2nncdaCnibf7BkGsNR7nyQQuXAI2FGk9qCm36ZF7FI/yjtN0S0e6LzSswOcVhTdPnVkxYY6UDuKyzVRxgbF9Yg1aT45NFpJFZKFtKHexnLiY6KlZKV6GhY1jucjo7W77xdpLaspkYbQ69UvDlSA093InAzzikuqBdKvY0FPvC6pgiefqWTMa4M1cZU9IoIiukqrpXQn1tC9PJ8CU4XKCTshaNbpX5wxY10rUl7i/WHNcXCfmCXxKbqRZ1SyH6KiiBrDpSnfKXxrQip4GwIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (CHN: EasyList China)",
-  "version": "0.0.0"
-}

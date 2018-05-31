@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArcE90V2GoQ9InvoiVqxsEnhHhdJz68yyWA+HzQBxcxitqfF5Vu6gRiKB3+W/iTJ9XNE449krWrYAjDqVt6GF8ilpieIngwCNsl7jP5RRhrcrk65as4bawSimodit+TVi7ZpIFDWoalj5RIO+rjKfwkkBHujeM7qYr/Vm1NXre57ea80TvbdoA4XgnAYHKY5VV/WstFL8FR3Do+38EyaIzKfoiRrV97BoC440oifNdi0nJQhIgULfNjUolOh9eAQKuymId+WjZeSKSckUyKMQsQ0VVDjCbm5mwRqC5D+MT9L/8sKcdXBXuGrXyaZzp3eOmc41q01VkRLXCTrx37hGQwIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (KOR: Korean Adblock List)",
-  "version": "0.0.0"
-}

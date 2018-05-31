@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA17Vf1qj8dWwYVtGpBHWc9gLiITU1XrTnb1sDASIeuKYp9JNBtEnBwy4oBlOoZd2uWFKxXrRtaimdwqa627gi9DB17t/RgzisXSpLubXbVVelRWllaX26SioGxsGcQhS2/e1Bc0inQ8GODM6mk5FPZ9RObFN1N/QVz35anN4VNcjtETD/XpujYXE1BU3C0KGBlWwc+cQZ6sGojWEPrb7aRXSTJ5y/ugwGomTTpbT+Jt9nFrMfuAmJHvWS0Ev96dDmn1zsuoPGUExVFjGBunphRYMVCg9LUGzY0FN5+dp6fljrTJrtUOEfvh40vmjahKd0w6bKpgTAOUEaWulmVSr37QIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (SWE: Frellwit's Filter List)",
-  "version": "0.0.0"
-}

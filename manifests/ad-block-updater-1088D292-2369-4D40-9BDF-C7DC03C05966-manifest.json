@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4p+4n2wNFQCqQBBJDsvs+oqNYGzX3cbpY7fKbCjrRVE5esJK5HZJDoUUg43pPvKrCOIQ+lF+dXpBaCNnO4O/7JeFt2IFRJnKhE3ipIBAAbFymfo5T2uWFdyh6HcK0FNyJ/7FyHnANe7vYhXJS1Fqmh6jTYkAEIbrbmxtzrDMefx3XJcVhUV3XAPlP+K3MerxudIH++4fn3X0vKob5oQQQ9ZZ1PVcW6ZdZTQwQWtaVDb6prT+ULaphRRmnZpZuRXyHMv9KC8YP3K5ou+/Yd3uxxMwKmJXD67ZoNMtS/Dtr0btQsLxiEgox5Swd4iqyLM/SMxr3LqgUIlNwn7KRbMnZwIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (RUS: Adguard Russian Filter)",
-  "version": "0.0.0"
-}

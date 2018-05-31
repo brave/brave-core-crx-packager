@@ -55,8 +55,8 @@ function generateCRXFiles (outputDir) {
 installErrorHandlers()
 
 commander
-  .option('-k, --keys-directory <dir>', 'directory containing private key files', 'keys')
-  .option('-s, --set-version <x.x.x>', 'extension version number')
+  .option('-k, --keys-directory <dir>', 'directory containing private key files for signing crx files', 'keys')
+  .option('-s, --set-version <x.x.x>', 'theme extension version number')
   .parse(process.argv)
 
 if (!fs.lstatSync(commander.keysDirectory)) {

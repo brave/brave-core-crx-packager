@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuYBXbfloR5HddFlg80U8+pf5TqfFJQAf1bL4myp9KfGggwqrjuRzIkPOD8J8IvCp8tWv2f4QK9sAPHhtV6w1cnYX24lKxrQ/lHHAV6/CEcFa+2Yk7cRLKDC10H3r4FMRoCeAy/ruTjVPfIw+GuAfFYl1qYWBNxvW7XXw7cCIIYL4j82YQF6HjsWbTT+QHLCR6h66wvIyVQC9ppjJPxDaEevjt4tohEFAB1NBC+Wxt8H/P5r5ayNcLnb9Ygt75haYL8VWZOJhO/neSTyuidTFG5ox2Ruc6TXP8t0IqpVtiZUDkx1jzUakIHoKNMBc7oz3P/SQ4AanZsIliJobXFeUiQIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (CZE, SVK: EasyList Czech and Slovak)",
-  "version": "0.0.0"
-}

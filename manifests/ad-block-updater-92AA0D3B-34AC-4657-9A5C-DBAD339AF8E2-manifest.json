@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtAMyjMBZCbqNIuO01ZFJ5iKmcNFuJHXIUqhO9s6j6XnBAfak/OOk4s9k3maXyhaynXVpYATQyRHR0OEpmsQawFgKCmVm1LB68jxJ5Hh1ZITG1UyfznYnozkjBtzdkMGKeuZFBaHo5PPueHVO7yJDHvU3UFW4vCJ01twXiH4y0qaYjL1CPr58J9U0oKxptsfwEC53WcDq6mKtAKRpyxN6vbtFJ5/li2yC0Ms+8Xe3Xv5ovniM/4vNf3Jn1w0jzgrDRcW2VhxpydsH6q7oaR2igIzJ+XG6/k0g29CJhfT85dJNF31TwqvoI+Ju6hjZrEmSHmC7gbY7gN3ak+DbUrQxjwIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (CHN: CJX's EasyList Lite)",
-  "version": "0.0.0"
-}

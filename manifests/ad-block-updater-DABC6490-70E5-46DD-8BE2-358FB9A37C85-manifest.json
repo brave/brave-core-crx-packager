@@ -1,7 +1,0 @@
-{
-  "description": "Brave Ad Block Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApGBuuxC9pqx2s5hUd3K8zeFUtMFt9X+rSKR3elqWztjIQrbOdXSeezHvhAUdzgc+Wv79ZoRf4i4amYs3Mg3wg783BAqLvlu9r6FsUAbcgVQtt+MT3Z4ZepwvzWU0NjUd1q4O2pNEUsE8SPjmOeb3KHOF5WX7CA1uIHT5xGQsU5Uh3VTZC8FIOGjCskDAAnJGUeOowlMBGL2UvlNQLiqzPSvI9byjwxIMN5OfCmxXXr4R9m88oVK2D1gj7vfwBVJcRdV8ner4ZSuT68ncSyaQRtgI3/QyHc0J6giCRFmF0bHN/5kjFIWrHg5+uiBQN4Qt39TVCUU024Fi2RGInvTTdQIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave Ad Block Updater (RUS: BitBlock List)",
-  "version": "0.0.0"
-}
