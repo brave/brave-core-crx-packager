@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const childProcess = require('child_process')
 const commander = require('commander')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
@@ -10,62 +11,110 @@ const replace = require('replace-in-file')
 
 const {generateCRXFile, installErrorHandlers} = require('./lib/util')
 
-function stageFiles (commander, outputDir, datFile) {
-  const baseDatFile = path.parse(datFile).base
+function stageFiles (datFile, manifestsDir, outputDir) {
+  const parsedDatFile = path.parse(datFile)
 
-  const originalManifest = path.join('manifests', commander.type + '-manifest.json')
-  const updatedManifest = path.join(outputDir, 'manifest.json')
+  const datFileBase = parsedDatFile.base
+  const datFileName = getNormalizedDATFileName(parsedDatFile.name)
+
+  const originalManifest = path.join(manifestsDir, `${datFileName}-manifest.json`)
+  const outputManifest = path.join(outputDir, 'manifest.json')
 
   const replaceOptions = {
-    files: updatedManifest,
-    from: /0\.0\.0/g,
+    files: outputManifest,
+    from: /0\.0\.0/,
     to: commander.setVersion
   }
 
   mkdirp.sync(outputDir)
 
-  fs.copyFileSync(originalManifest, updatedManifest)
-  fs.copyFileSync(datFile, path.join(outputDir, baseDatFile))
+  fs.copyFileSync(originalManifest, outputManifest)
+  fs.copyFileSync(datFile, path.join(outputDir, datFileBase))
 
   replace.sync(replaceOptions)
 }
 
-function getDATFileFromComponentType (componentType) {
+function generateManifestFilesByComponentType (componentType) {
   switch (componentType) {
     case 'ad-block-updater':
-      return path.join('node_modules', 'ad-block', 'out', 'ABPFilterParserData.dat')
+      childProcess.execSync(`npm run --prefix ${path.join('node_modules', 'ad-block')} manifest-files`)
+      break
     case 'tracking-protection-updater':
-      return path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat')
+      // TODO(emerick): Make this work like ad-block (i.e., update the
+      // tracking-protection repo with a script to generate the
+      // manifest and then call that script here)
+      break
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
 }
 
+function getManifestsDirByComponentType (componentType) {
+  switch (componentType) {
+    case 'ad-block-updater':
+      return path.join('node_modules', 'ad-block', 'out')
+    case 'tracking-protection-updater':
+      // TODO(emerick): Make this work like ad-block
+      return path.join('manifests')
+    default:
+      throw new Error('Unrecognized component extension type: ' + componentType)
+  }
+}
+
+const getNormalizedDATFileName = (datFileName) => datFileName === 'ABPFilterParserData' || datFileName === 'TrackingProtection' ? 'default' : datFileName
+
+function getDATFileListByComponentType (componentType) {
+  switch (componentType) {
+    case 'ad-block-updater':
+      return fs.readdirSync(path.join('node_modules', 'ad-block', 'out'))
+        .filter(file => {
+          return (path.extname(file) === '.dat' && file !== 'SafeBrowsingData.dat')
+        })
+        .reduce((acc, val) => {
+          acc.push(path.join('node_modules', 'ad-block', 'out', val))
+          return acc
+        }, [])
+    case 'tracking-protection-updater':
+      return path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat').split()
+    default:
+      throw new Error('Unrecognized component extension type: ' + componentType)
+  }
+}
+
+function processDATFile (componentType, key, datFile) {
+  const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
+  const stagingDir = path.join('build', componentType, datFileName)
+  const manifestsDir = getManifestsDirByComponentType(componentType)
+  const crxOutputDir = path.join('build', componentType)
+  const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
+
+  stageFiles(datFile, manifestsDir, stagingDir)
+  generateCRXFile(crxFile, privateKeyFile, stagingDir, crxOutputDir)
+}
+
 installErrorHandlers()
 
 commander
-  .option('-k, --key <key>', 'private key file path', 'key.pem')
+  .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+  .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
   .option('-s, --set-version <x.x.x>', 'component extension version number')
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
   .parse(process.argv)
 
-if (!fs.existsSync(commander.key)) {
-  throw new Error('Missing private key file: ' + commander.key)
+let keyParam = ''
+
+if (fs.existsSync(commander.keyFile)) {
+  keyParam = commander.keyFile
+} else if (fs.existsSync(commander.keysDirectory)) {
+  keyParam = commander.keysDirectory
+} else {
+  throw new Error('Missing or invalid private key file/directory')
 }
 
-if (!commander.setVersion) {
-  throw new Error('Missing required option: --set-version')
-}
-
-if (!commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
+if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
   throw new Error('Missing or invalid option: --set-version')
 }
 
-const outputDir = path.join('build', commander.type)
-const inputDir = path.join('build', commander.type)
-const datFile = getDATFileFromComponentType(commander.type)
-const crxFile = path.join(outputDir, commander.type + '.crx')
-const privateKeyFile = commander.key
-
-stageFiles(commander, outputDir, datFile)
-generateCRXFile(crxFile, privateKeyFile, inputDir, outputDir)
+generateManifestFilesByComponentType(commander.type)
+getDATFileListByComponentType(commander.type).forEach(processDATFile.bind(null, commander.type, keyParam))

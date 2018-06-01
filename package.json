@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
-    "ad-block": "brave/ad-block",
+    "ad-block": "brave/ad-block#3.x",
     "brave-chromium-themes": "brave/brave-chromium-themes",
     "release-tools": "brave/release-tools",
     "request": "^2.85.0",

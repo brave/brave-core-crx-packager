@@ -16,21 +16,21 @@ yarn install
 
 ### Component Extensions
 
-To package a component extension, first generate the appropriate DAT file. For example, to generate the DAT file used by the Ad Block component extension use the following command:
+To package a component extension, first generate the appropriate DAT file(s). For example, to generate all of the DAT files used by the Ad Block component extension use the following command:
 
 ```bash
 yarn run data-files-ad-block
 ```
 
-Then package the component extension into a CRX file. For example, to package the Ad Block component extension use the following command:
+Then package the component extension(s) into one or more CRX files. For example, to package all of the Ad Block component extensions use the following command:
 
 ```bash
-yarn run package-ad-block --key <key> --set-version <ver>
+yarn run package-ad-block --keys-directory <dir> --set-version <ver>
 ```
 
 where:
 
-* `key` is the path to the private key file used to sign the CRX file
+* `dir` is the directory containing the associated private keys used to sign the CRX files
 * `ver` is the version number that identifies this extension
 
 The currently supported component extension types are:
@@ -48,7 +48,7 @@ yarn run package-themes --keys-directory <dir> --set-version <ver>
 
 where:
 
-* `dir` is the directory containing the private keys used to sign the CRX files
+* `dir` is the directory containing the associated private keys used to sign the CRX files
 * `ver` is the version number that identifies the extensions
 
 ## Uploading
@@ -57,15 +57,15 @@ After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`
 
 ### Component Extensions
 
-To upload a component extension, use the appropriate upload command. For example, to upload the Ad Block component extension use the following command:
+To upload a component extension, use the appropriate upload command. For example, to upload all of the Ad Block component extensions use the following command:
 
 ```bash
-yarn run upload-ad-block --crx <crx-file> --set-version <ver>
+yarn run upload-ad-block --crx-directory <dir> --set-version <ver>
 ```
 
 where:
 
-* `crx` is the path to the CRX file (as produced by running `package-ad-block`, for example)
+* `dir` is the directory containing the CRX files to upload (as produced by running `package-ad-block`, for example)
 * `ver` is the version number that identifies this extension
 
 ### Theme Extensions

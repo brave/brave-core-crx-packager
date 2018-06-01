@@ -14,7 +14,8 @@ function parseManifest (manifestFile) {
 function uploadCRXFile (crxFile) {
   const outputDir = path.join('build', commander.type)
 
-  const manifest = path.join('manifests', commander.type + '-manifest.json')
+  const crxFileName = path.parse(crxFile).name
+  const manifest = path.join('manifests', `${crxFileName}-manifest.json`)
   const data = parseManifest(manifest)
 
   const id = util.getIDFromBase64PublicKey(data.key)
@@ -33,17 +34,32 @@ function uploadCRXFile (crxFile) {
 util.installErrorHandlers()
 
 commander
-  .option('-c, --crx <crx-file>', 'crx file', 'extension.crx')
+  .option('-d, --crx-directory <dir>', 'directory containing multiple crx files to upload')
+  .option('-f, --crx-file <file>', 'crx file to upload', 'extension.crx')
   .option('-s, --set-version <x.x.x>', 'component extension version number')
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
   .parse(process.argv)
 
-if (!fs.existsSync(commander.crx)) {
-  throw new Error('Missing CRX file: ' + commander.crx)
+let crxParam = ''
+
+if (fs.existsSync(commander.crxFile)) {
+  crxParam = commander.crxFile
+} else if (fs.existsSync(commander.crxDirectory)) {
+  crxParam = commander.crxDirectory
+} else {
+  throw new Error('Missing or invalid crx file/directory')
 }
 
 if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
   throw new Error('Missing or invalid option: --set-version')
 }
 
-uploadCRXFile(commander.crx)
+if (fs.lstatSync(crxParam).isDirectory()) {
+  fs.readdirSync(crxParam).forEach(file => {
+    if (path.parse(file).ext === '.crx') {
+      uploadCRXFile(path.join(crxParam, file))
+    }
+  })
+} else {
+  uploadCRXFile(crxParam)
+}
