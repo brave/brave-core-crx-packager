@@ -61,34 +61,24 @@ function getManifestsDirByComponentType (componentType) {
   }
 }
 
-function getNormalizedDATFileName (datFileName) {
-  if (datFileName === 'ABPFilterParserData' || datFileName === 'TrackingProtection') {
-    return 'default'
-  }
-  return datFileName
-}
+const getNormalizedDATFileName = (datFileName) => datFileName === 'ABPFilterParserData' || datFileName === 'TrackingProtection' ? 'default' : datFileName
 
 function getDATFileListByComponentType (componentType) {
-  let list = []
-
   switch (componentType) {
     case 'ad-block-updater':
-      fs.readdirSync(path.join('node_modules', 'ad-block', 'out'))
+      return fs.readdirSync(path.join('node_modules', 'ad-block', 'out'))
         .filter(file => {
           return (path.extname(file) === '.dat' && file !== 'SafeBrowsingData.dat')
         })
-        .forEach(file => {
-          list.push(path.join('node_modules', 'ad-block', 'out', file))
-        })
-      break
+        .reduce((acc, val) => {
+          acc.push(path.join('node_modules', 'ad-block', 'out', val))
+          return acc
+        }, [])
     case 'tracking-protection-updater':
-      list.push(path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat'))
-      break
+      return path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat').split()
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
-
-  return list
 }
 
 function processDATFile (componentType, key, datFile) {
@@ -97,14 +87,7 @@ function processDATFile (componentType, key, datFile) {
   const manifestsDir = getManifestsDirByComponentType(componentType)
   const crxOutputDir = path.join('build', componentType)
   const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
-
-  let privateKeyFile = ''
-
-  if (fs.lstatSync(key).isDirectory()) {
-    privateKeyFile = path.join(key, `${componentType}-${datFileName}.pem`)
-  } else {
-    privateKeyFile = key
-  }
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
 
   stageFiles(datFile, manifestsDir, stagingDir)
   generateCRXFile(crxFile, privateKeyFile, stagingDir, crxOutputDir)
@@ -134,7 +117,4 @@ if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
 }
 
 generateManifestFilesByComponentType(commander.type)
-
-getDATFileListByComponentType(commander.type).forEach(datFile => {
-  processDATFile(commander.type, keyParam, datFile)
-})
+getDATFileListByComponentType(commander.type).forEach(processDATFile.bind(null, commander.type, keyParam))
