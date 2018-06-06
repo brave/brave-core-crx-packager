@@ -11,13 +11,17 @@ const replace = require('replace-in-file')
 
 const {generateCRXFile, installErrorHandlers} = require('./lib/util')
 
-function stageFiles (datFile, manifestsDir, outputDir) {
+function stageFiles (componentType, datFile, outputDir) {
   const parsedDatFile = path.parse(datFile)
 
   const datFileBase = parsedDatFile.base
   const datFileName = getNormalizedDATFileName(parsedDatFile.name)
 
-  const originalManifest = path.join(manifestsDir, `${datFileName}-manifest.json`)
+  const versionDir = (componentType === 'ad-block-updater') ? getAdBlockDataFileVersion() : ''
+  const outputDatDir = path.join(outputDir, versionDir)
+  const outputDatFile = path.join(outputDatDir, datFileBase)
+
+  const originalManifest = path.join(getManifestsDirByComponentType(componentType), `${datFileName}-manifest.json`)
   const outputManifest = path.join(outputDir, 'manifest.json')
 
   const replaceOptions = {
@@ -26,12 +30,17 @@ function stageFiles (datFile, manifestsDir, outputDir) {
     to: commander.setVersion
   }
 
-  mkdirp.sync(outputDir)
+  mkdirp.sync(outputDatDir)
 
   fs.copyFileSync(originalManifest, outputManifest)
-  fs.copyFileSync(datFile, path.join(outputDir, datFileBase))
+  fs.copyFileSync(datFile, outputDatFile)
 
   replace.sync(replaceOptions)
+}
+
+function getAdBlockDataFileVersion () {
+  const dataFileVersion = fs.readFileSync(path.join('node_modules', 'ad-block', 'data_file_version.h')).toString()
+  return dataFileVersion.match(/DATA_FILE_VERSION\s*=\s*(\d+)/)[1]
 }
 
 function generateManifestFilesByComponentType (componentType) {
@@ -84,12 +93,11 @@ function getDATFileListByComponentType (componentType) {
 function processDATFile (componentType, key, datFile) {
   const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
   const stagingDir = path.join('build', componentType, datFileName)
-  const manifestsDir = getManifestsDirByComponentType(componentType)
   const crxOutputDir = path.join('build', componentType)
   const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
   const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
 
-  stageFiles(datFile, manifestsDir, stagingDir)
+  stageFiles(componentType, datFile, stagingDir)
   generateCRXFile(crxFile, privateKeyFile, stagingDir, crxOutputDir)
 }
 
