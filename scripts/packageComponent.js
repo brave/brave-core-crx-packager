@@ -16,9 +16,9 @@ function stageFiles (componentType, datFile, outputDir) {
 
   const datFileBase = parsedDatFile.base
   const datFileName = getNormalizedDATFileName(parsedDatFile.name)
+  const datFileVersion = getDATFileVersionByComponentType(componentType)
 
-  const versionDir = (componentType === 'ad-block-updater') ? getAdBlockDataFileVersion() : ''
-  const outputDatDir = path.join(outputDir, versionDir)
+  const outputDatDir = path.join(outputDir, datFileVersion)
   const outputDatFile = path.join(outputDatDir, datFileBase)
 
   const originalManifest = path.join(getManifestsDirByComponentType(componentType), `${datFileName}-manifest.json`)
@@ -38,9 +38,18 @@ function stageFiles (componentType, datFile, outputDir) {
   replace.sync(replaceOptions)
 }
 
-function getAdBlockDataFileVersion () {
-  const dataFileVersion = fs.readFileSync(path.join('node_modules', 'ad-block', 'data_file_version.h')).toString()
-  return dataFileVersion.match(/DATA_FILE_VERSION\s*=\s*(\d+)/)[1]
+function getDATFileVersionByComponentType (componentType) {
+  switch (componentType) {
+    case 'ad-block-updater':
+      return fs.readFileSync(path.join('node_modules', 'ad-block', 'data_file_version.h')).toString()
+        .match(/DATA_FILE_VERSION\s*=\s*(\d+)/)[1]
+    case 'https-everywhere-updater':
+      return '1'
+    case 'tracking-protection-updater':
+      return '1'
+    default:
+      throw new Error('Unrecognized component extension type: ' + componentType)
+  }
 }
 
 function generateManifestFilesByComponentType (componentType) {
