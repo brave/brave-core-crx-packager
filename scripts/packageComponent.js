@@ -44,7 +44,7 @@ function getDATFileVersionByComponentType (componentType) {
       return fs.readFileSync(path.join('node_modules', 'ad-block', 'data_file_version.h')).toString()
         .match(/DATA_FILE_VERSION\s*=\s*(\d+)/)[1]
     case 'https-everywhere-updater':
-      return '1'
+      return '6.0'
     case 'tracking-protection-updater':
       return '1'
     default:
