@@ -5,6 +5,7 @@
   "dependencies": {
     "ad-block": "brave/ad-block#3.x",
     "brave-chromium-themes": "brave/brave-chromium-themes",
+    "https-everywhere-builder": "brave/https-everywhere-builder",
     "release-tools": "brave/release-tools",
     "request": "^2.85.0",
     "tracking-protection": "brave/tracking-protection"
@@ -13,6 +14,7 @@
     "commander": "^2.15.1",
     "crx": "^3.2.1",
     "fs-extra": "^6.0.1",
+    "level": "^1.7.0",
     "mkdirp": "^0.5.1",
     "replace-in-file": "^3.4.0",
     "rimraf": "^2.6.2",
@@ -21,12 +23,15 @@
   "scripts": {
     "clean": "rimraf build/",
     "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
+    "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
     "lint": "standard",
     "package-ad-block": "node ./scripts/packageComponent --type ad-block-updater",
+    "package-https-everywhere": "node ./scripts/packageComponent --type https-everywhere-updater",
     "package-themes": "node ./scripts/packageThemes",
     "package-tracking-protection": "node ./scripts/packageComponent --type tracking-protection-updater",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
+    "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
     "upload-themes": "node ./scripts/uploadThemes",
     "upload-tracking-protection": "node ./scripts/uploadComponent --type tracking-protection-updater"
   },
