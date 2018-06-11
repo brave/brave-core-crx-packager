@@ -36,6 +36,7 @@ where:
 The currently supported component extension types are:
 
 * `ad-block`
+* `https-everywhere`
 * `tracking-protection`
 
 ### Theme Extensions

@@ -11,7 +11,7 @@ const replace = require('replace-in-file')
 
 const {generateCRXFile, installErrorHandlers} = require('./lib/util')
 
-function stageFiles (componentType, datFile, outputDir) {
+const stageFiles = (componentType, datFile, outputDir) => {
   const parsedDatFile = path.parse(datFile)
 
   const datFileBase = parsedDatFile.base
@@ -38,7 +38,7 @@ function stageFiles (componentType, datFile, outputDir) {
   replace.sync(replaceOptions)
 }
 
-function getDATFileVersionByComponentType (componentType) {
+const getDATFileVersionByComponentType = (componentType) => {
   switch (componentType) {
     case 'ad-block-updater':
       return fs.readFileSync(path.join('node_modules', 'ad-block', 'data_file_version.h')).toString()
@@ -52,14 +52,15 @@ function getDATFileVersionByComponentType (componentType) {
   }
 }
 
-function generateManifestFilesByComponentType (componentType) {
+const generateManifestFilesByComponentType = (componentType) => {
   switch (componentType) {
     case 'ad-block-updater':
       childProcess.execSync(`npm run --prefix ${path.join('node_modules', 'ad-block')} manifest-files`)
       break
+    case 'https-everywhere-updater':
     case 'tracking-protection-updater':
-      // TODO(emerick): Make this work like ad-block (i.e., update the
-      // tracking-protection repo with a script to generate the
+      // TODO(emerick): Make these work like ad-block (i.e., update
+      // the corresponding repos with a script to generate the
       // manifest and then call that script here)
       break
     default:
@@ -67,21 +68,25 @@ function generateManifestFilesByComponentType (componentType) {
   }
 }
 
-function getManifestsDirByComponentType (componentType) {
+const getManifestsDirByComponentType = (componentType) => {
   switch (componentType) {
     case 'ad-block-updater':
       return path.join('node_modules', 'ad-block', 'out')
+    case 'https-everywhere-updater':
     case 'tracking-protection-updater':
-      // TODO(emerick): Make this work like ad-block
-      return path.join('manifests')
+      // TODO(emerick): Make these work like ad-block
+      return path.join('manifests', componentType)
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
 }
 
-const getNormalizedDATFileName = (datFileName) => datFileName === 'ABPFilterParserData' || datFileName === 'TrackingProtection' ? 'default' : datFileName
+const getNormalizedDATFileName = (datFileName) =>
+  datFileName === 'ABPFilterParserData' ||
+  datFileName === 'httpse.leveldb' ||
+  datFileName === 'TrackingProtection' ? 'default' : datFileName
 
-function getDATFileListByComponentType (componentType) {
+const getDATFileListByComponentType = (componentType) => {
   switch (componentType) {
     case 'ad-block-updater':
       return fs.readdirSync(path.join('node_modules', 'ad-block', 'out'))
@@ -92,6 +97,8 @@ function getDATFileListByComponentType (componentType) {
           acc.push(path.join('node_modules', 'ad-block', 'out', val))
           return acc
         }, [])
+    case 'https-everywhere-updater':
+      return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'tracking-protection-updater':
       return path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat').split()
     default:
@@ -99,7 +106,7 @@ function getDATFileListByComponentType (componentType) {
   }
 }
 
-function processDATFile (componentType, key, datFile) {
+const processDATFile = (componentType, key, datFile) => {
   const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
   const stagingDir = path.join('build', componentType, datFileName)
   const crxOutputDir = path.join('build', componentType)
