@@ -1,0 +1,7 @@
+{
+  "description": "Brave Tor Client Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAllwa5yy+v5JN4FMcImmJm6rGsrVrs4X0cnc2T9+5Kc+XyvS2Pnt/VeoCaTarL76901u7uf8Nlc0c6S4HKgbV+HacmKjf56KTGM3dqXII3UoU77XjyY7KDIxuOP5GD6GMjO2Gw62SblmANpFjcaRGy79Cks/C7WQMMoLI9ltajKMVSyKSXz+O2GyBf8F8BpHVQsO4FrZZRWdrRtwciNgpIj4HhRkGzgWly1TysecZW0u46KtN8pJyOm/LEtsPk+tdrJSpujD1f1nxM4ICwvj2prk2SIBQ9ih8y1DrOZAkGSSQf3lv3hTt6TxDQJ5S82QJZnz3ppm9M3okcPvVV6dOEQIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave Tor Client Updater (Windows)",
+  "version": "0.0.0"
+}
