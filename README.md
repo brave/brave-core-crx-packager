@@ -16,7 +16,7 @@ yarn install
 
 ### Component Extensions
 
-To package a component extension, first generate the appropriate DAT file(s). For example, to generate all of the DAT files used by the Ad Block component extension use the following command:
+To package a component extension, first generate the appropriate DAT file(s) if any. For example, to generate all of the DAT files used by the Ad Block component extension use the following command:
 
 ```bash
 yarn run data-files-ad-block
@@ -37,6 +37,7 @@ The currently supported component extension types are:
 
 * `ad-block`
 * `https-everywhere`
+* `tor-client`
 * `tracking-protection`
 
 ### Theme Extensions
