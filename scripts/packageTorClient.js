@@ -10,7 +10,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 
-const {generateCRXFile, installErrorHandlers} = require('./lib/util')
+const {generateCRXFile, installErrorHandlers} = require('../lib/util')
 
 // Downloads the current (platform-specific) Tor client from S3
 const downloadTorClient = (platform) => {

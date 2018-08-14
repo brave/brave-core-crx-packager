@@ -18,7 +18,8 @@
     "mkdirp": "^0.5.1",
     "replace-in-file": "^3.4.0",
     "rimraf": "^2.6.2",
-    "standard": "^11.0.1"
+    "standard": "^11.0.1",
+    "unzip-crx": "^0.2.0"
   },
   "scripts": {
     "clean": "rimraf build/",

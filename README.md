@@ -62,26 +62,24 @@ After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`
 To upload a component extension, use the appropriate upload command. For example, to upload all of the Ad Block component extensions use the following command:
 
 ```bash
-yarn run upload-ad-block --crx-directory <dir> --set-version <ver>
+yarn run upload-ad-block --crx-directory <dir>
 ```
 
 where:
 
 * `dir` is the directory containing the CRX files to upload (as produced by running `package-ad-block`, for example)
-* `ver` is the version number that identifies this extension
 
 ### Theme Extensions
 
 To upload all packaged theme extensions, use the following command:
 
 ```bash
-yarn run upload-themes --crx-directory <dir> --set-version <ver>
+yarn run upload-themes --crx-directory <dir>
 ```
 
 where:
 
 * `dir` is the directory containing the CRX files to upload
-* `ver` is the version number that identifies the extensions
 
 ## S3 Credentials
 
