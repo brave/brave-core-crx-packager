@@ -9,9 +9,9 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 
-const {generateCRXFile, installErrorHandlers} = require('./lib/util')
+const {generateCRXFile, installErrorHandlers} = require('../lib/util')
 
-function stageTheme (themeDir, themeName, outputDir) {
+const stageTheme = (themeDir, themeName, outputDir) => {
   const originalManifest = path.join(themeDir, 'manifest.json')
   const outputManifest = path.join(outputDir, themeName, 'manifest.json')
 
@@ -40,7 +40,7 @@ function stageTheme (themeDir, themeName, outputDir) {
   fsx.copySync(originalImagesDir, outputImagesDir)
 }
 
-function generateCRXFiles (outputDir) {
+const generateCRXFiles = (outputDir) => {
   const themesDir = path.join('node_modules', 'brave-chromium-themes')
   fs.readdirSync(themesDir).forEach(file => {
     if (fs.lstatSync(path.join(themesDir, file)).isDirectory()) {

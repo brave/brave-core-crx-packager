@@ -9,7 +9,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 
-const {generateCRXFile, installErrorHandlers} = require('./lib/util')
+const {generateCRXFile, installErrorHandlers} = require('../lib/util')
 
 const stageFiles = (componentType, datFile, outputDir) => {
   const parsedDatFile = path.parse(datFile)
