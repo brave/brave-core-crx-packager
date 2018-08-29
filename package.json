@@ -8,18 +8,17 @@
     "https-everywhere-builder": "brave/https-everywhere-builder",
     "release-tools": "brave/release-tools",
     "request": "^2.85.0",
-    "tracking-protection": "brave/tracking-protection"
+    "tracking-protection": "brave/tracking-protection",
+    "unzip-crx-3": "^0.2.0"
   },
   "devDependencies": {
     "commander": "^2.15.1",
-    "crx": "^3.2.1",
     "fs-extra": "^6.0.1",
     "level": "^1.7.0",
     "mkdirp": "^0.5.1",
     "replace-in-file": "^3.4.0",
     "rimraf": "^2.6.2",
-    "standard": "^11.0.1",
-    "unzip-crx": "^0.2.0"
+    "standard": "^11.0.1"
   },
   "scripts": {
     "clean": "rimraf build/",

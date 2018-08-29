@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Example usage:
+//  npm run package-ad-block -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ad-block-updater.pem --set-version 1.0.3
+
 const childProcess = require('child_process')
 const commander = require('commander')
 const fs = require('fs')
@@ -106,7 +109,7 @@ const getDATFileListByComponentType = (componentType) => {
   }
 }
 
-const processDATFile = (componentType, key, datFile) => {
+const processDATFile = (binary, componentType, key, datFile) => {
   const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
   const stagingDir = path.join('build', componentType, datFileName)
   const crxOutputDir = path.join('build', componentType)
@@ -114,12 +117,13 @@ const processDATFile = (componentType, key, datFile) => {
   const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
 
   stageFiles(componentType, datFile, stagingDir)
-  generateCRXFile(crxFile, privateKeyFile, stagingDir, crxOutputDir)
+  generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
 }
 
 installErrorHandlers()
 
 commander
+  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
   .option('-s, --set-version <x.x.x>', 'component extension version number')
@@ -140,5 +144,9 @@ if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
   throw new Error('Missing or invalid option: --set-version')
 }
 
+if (!commander.binary) {
+  throw new Error('Missing Chromium binary: --binary')
+}
+
 generateManifestFilesByComponentType(commander.type)
-getDATFileListByComponentType(commander.type).forEach(processDATFile.bind(null, commander.type, keyParam))
+getDATFileListByComponentType(commander.type).forEach(processDATFile.bind(null, commander.binary, commander.type, keyParam))
