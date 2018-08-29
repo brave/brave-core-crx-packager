@@ -10,6 +10,7 @@ const util = require('../lib/util')
 util.installErrorHandlers()
 
 commander
+  .option('-v, --vault-updater-path <dir>', 'directory containing the brave/vault-updater/data/')
   .option('-d, --crx-directory <dir>', 'directory containing multiple crx files to upload')
   .option('-f, --crx-file <file>', 'crx file to upload', 'extension.crx')
   .parse(process.argv)
@@ -28,9 +29,9 @@ const outputDir = path.join('build', 'tor-client-updater')
 if (fs.lstatSync(crxParam).isDirectory()) {
   fs.readdirSync(crxParam).forEach(file => {
     if (path.parse(file).ext === '.crx') {
-      util.uploadCRXFile(path.join(crxParam, file), outputDir)
+      util.uploadCRXFile(commander.vaultUpdaterPath, path.join(crxParam, file), outputDir)
     }
   })
 } else {
-  util.uploadCRXFile(crxParam, outputDir)
+  util.uploadCRXFile(commander.vaultUpdaterPath, crxParam, outputDir)
 }

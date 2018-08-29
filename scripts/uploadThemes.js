@@ -10,6 +10,7 @@ const util = require('../lib/util')
 util.installErrorHandlers()
 
 commander
+  .option('-v, --vault-updater-path <dir>', 'directory containing the brave/vault-updater/data/')
   .option('-c, --crx-directory <dir>', 'crx directory')
   .parse(process.argv)
 
@@ -20,6 +21,6 @@ if (!commander.crxDirectory || !fs.lstatSync(commander.crxDirectory).isDirectory
 const outputDir = path.join('build', 'themes')
 fs.readdirSync(commander.crxDirectory).forEach(file => {
   if (path.extname(file) === '.crx') {
-    util.uploadCRXFile(path.join(outputDir, file), outputDir)
+    util.uploadCRXFile(commander.vaultUpdaterPath, path.join(outputDir, file), outputDir)
   }
 })
