@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Example usage:
+// npm run package-tor-client -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir --set-version 1.0.1
+
 const commander = require('commander')
 const crypto = require('crypto')
 const execSync = require('child_process').execSync
@@ -59,14 +62,14 @@ const downloadTorClient = (platform) => {
   return torClient
 }
 
-const packageTorClient = (platform, key) => {
+const packageTorClient = (binary, platform, key) => {
   const stagingDir = path.join('build', 'tor-client-updater', platform)
   const torClient = downloadTorClient(platform)
   const crxOutputDir = path.join('build', 'tor-client-updater')
   const crxFile = path.join(crxOutputDir, `tor-client-updater-${platform}.crx`)
   const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
   stageFiles(platform, torClient, stagingDir)
-  generateCRXFile(crxFile, privateKeyFile, stagingDir, crxOutputDir)
+  generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
 }
 
 const stageFiles = (platform, torClient, outputDir) => {
@@ -97,7 +100,8 @@ const verifyChecksum = (file, hash) => {
 installErrorHandlers()
 
 commander
-  .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
+  .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
   .option('-s, --set-version <x.x.x>', 'component extension version number')
   .parse(process.argv)
@@ -116,6 +120,10 @@ if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
   throw new Error('Missing or invalid option: --set-version')
 }
 
-packageTorClient('darwin', keyParam)
-packageTorClient('linux', keyParam)
-packageTorClient('win32', keyParam)
+if (!commander.binary) {
+  throw new Error('Missing Chromium binary: --binary')
+}
+
+packageTorClient(commander.binary, 'darwin', keyParam)
+packageTorClient(commander.binary, 'linux', keyParam)
+packageTorClient(commander.binary, 'win32', keyParam)

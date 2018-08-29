@@ -40,14 +40,14 @@ const stageTheme = (themeDir, themeName, outputDir) => {
   fsx.copySync(originalImagesDir, outputImagesDir)
 }
 
-const generateCRXFiles = (outputDir) => {
+const generateCRXFiles = (binary, outputDir) => {
   const themesDir = path.join('node_modules', 'brave-chromium-themes')
   fs.readdirSync(themesDir).forEach(file => {
     if (fs.lstatSync(path.join(themesDir, file)).isDirectory()) {
       const crxFile = path.join(outputDir, file + '.crx')
       const privateKeyFile = path.join(commander.keysDirectory, file + '.pem')
       stageTheme(path.join(themesDir, file), file, outputDir)
-      generateCRXFile(crxFile, privateKeyFile, path.join(outputDir, file), outputDir)
+      generateCRXFile(binary, crxFile, privateKeyFile, path.join(outputDir, file))
     }
   })
 }
@@ -55,6 +55,7 @@ const generateCRXFiles = (outputDir) => {
 installErrorHandlers()
 
 commander
+  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-k, --keys-directory <dir>', 'directory containing private key files for signing crx files', 'keys')
   .option('-s, --set-version <x.x.x>', 'theme extension version number')
   .parse(process.argv)
@@ -67,6 +68,10 @@ if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
   throw new Error('Missing or invalid option: --set-version')
 }
 
+if (!commander.binary) {
+  throw new Error('Missing Chromium binary: --binary')
+}
+
 const outputDir = path.join('build', 'themes')
 
-generateCRXFiles(outputDir)
+generateCRXFiles(commander.binary, outputDir)
