@@ -12,15 +12,19 @@ util.installErrorHandlers()
 commander
   .option('-v, --vault-updater-path <dir>', 'directory containing the brave/vault-updater/data/')
   .option('-c, --crx-directory <dir>', 'crx directory')
+  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
+  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
 
 if (!commander.crxDirectory || !fs.lstatSync(commander.crxDirectory).isDirectory()) {
   throw new Error('Missing or invalid option: --crx-directory')
 }
 
-const outputDir = path.join('build', 'themes')
-fs.readdirSync(commander.crxDirectory).forEach(file => {
-  if (path.extname(file) === '.crx') {
-    util.uploadCRXFile(commander.vaultUpdaterPath, path.join(outputDir, file), outputDir)
-  }
+util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+  const outputDir = path.join('build', 'themes')
+  fs.readdirSync(commander.crxDirectory).forEach(file => {
+    if (path.extname(file) === '.crx') {
+      util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, path.join(outputDir, file), outputDir)
+    }
+  })
 })

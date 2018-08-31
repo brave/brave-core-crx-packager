@@ -14,6 +14,8 @@ commander
   .option('-d, --crx-directory <dir>', 'directory containing multiple crx files to upload')
   .option('-f, --crx-file <file>', 'crx file to upload', 'extension.crx')
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
+  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
+  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
 
 let crxParam = ''
@@ -26,13 +28,15 @@ if (fs.existsSync(commander.crxFile)) {
   throw new Error('Missing or invalid crx file/directory')
 }
 
-const outputDir = path.join('build', commander.type)
-if (fs.lstatSync(crxParam).isDirectory()) {
-  fs.readdirSync(crxParam).forEach(file => {
-    if (path.parse(file).ext === '.crx') {
-      util.uploadCRXFile(commander.vaultUpdaterPath, path.join(crxParam, file), outputDir)
-    }
-  })
-} else {
-  util.uploadCRXFile(commander.vaultUpdaterPath, crxParam, outputDir)
-}
+util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+  const outputDir = path.join('build', commander.type)
+  if (fs.lstatSync(crxParam).isDirectory()) {
+    fs.readdirSync(crxParam).forEach(file => {
+      if (path.parse(file).ext === '.crx') {
+        util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, path.join(crxParam, file), outputDir)
+      }
+    })
+  } else {
+    util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, crxParam, outputDir)
+  }
+})
