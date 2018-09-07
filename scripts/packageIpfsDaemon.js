@@ -19,14 +19,14 @@ const {generateCRXFile, installErrorHandlers} = require('../lib/util')
 const downloadIpfsDaemon = (platform) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
 
-  const ipfsDistPrefix = 'https://ipfs.io/ipns/dist.ipfs.io/go-ipfs/v0.4.17/'
-
   const ipfsVersion = '0.4.17'
-  const exeSuffix = platform === 'win32' ? '.zip' : '.tar.gz'
+  const ipfsDistPrefix = `https://ipfs.io/ipns/dist.ipfs.io/go-ipfs/v${ipfsVersion}/`
+
+  const zipSuffix = platform === 'win32' ? '.zip' : '.tar.gz'
   const myplatform = platform === 'win32' ? 'windows' : platform
 
   const ipfsFilename = `go-ipfs_v${ipfsVersion}_${myplatform}-amd64`
-  const ipfsURL = ipfsDistPrefix + ipfsFilename + exeSuffix
+  const ipfsURL = ipfsDistPrefix + ipfsFilename + zipSuffix
 
   let sha512IPFS = ''
 
@@ -47,12 +47,10 @@ const downloadIpfsDaemon = (platform) => {
   mkdirp.sync(ipfsPath)
 
   const ipfsDaemon = path.join(ipfsPath, ipfsFilename)
-
-  // Build decompression command based on system
-  const decompressUnix = ' | tar xf - -C  ' + ipfsPath + ' && cp ' + ipfsPath + '/go-ipfs/ipfs ' + ipfsDaemon
-  const decompressWindows = ' | bsdtar -xf- -C ' + ipfsPath + ' && cp ' + ipfsPath + '/go-ipfs/ipfs.exe ' + ipfsDaemon
-  const decompress = platform === 'win32' ? decompressWindows : decompressUnix
-  const cmd = 'curl -s ' + ipfsURL + decompress
+  const exeSuffix = platform === 'win32' ? '.exe' : ''
+  const decompress = `bsdtar xf - -C ${ipfsPath}`
+  const copy = `cp ${path.join(ipfsPath, 'go-ipfs', 'ipfs' + exeSuffix)} ${ipfsDaemon}`
+  const cmd = `curl -s ${ipfsURL} | ${decompress} && ${copy}`
 
   // Download and decompress the client
   execSync(cmd)
