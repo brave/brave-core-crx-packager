@@ -1,7 +1,7 @@
 {
-  "description": "Brave Ipfs Client Updater extension",
-  // "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1AYAsmR/VoRwkZCsjRpD58xjrgngW5y17H6BqQ7/CeNSpmXlcMXy6bJs2D/yeS96rhZSrQSHTzS9h/ieo/NZF5PIwcv07YsG5sRd6zF5a6m92aWCQa1OkbL6jpcpL2Tbc4mCqNxhKMErT7EtIIWL9cW+mtFUjUjvV3rJLQ3Vy9u6fEi77Y8b25kGnTJoVt3uETAIHBnyNpL7ac2f8Iq+4Qa6VFmuoBhup54tTZvMv+ikoKKaQkHzkkjTa4hV5AzdnFDKO8C9qJb3T/Ef0+MOIuZjyySVzGNcOfASeHkhxhlwMQSQuhCN5mdFW5YBnVZ/5QWx8WzbhqBny/ZynS4erQIDAQAB",
+  "description": "Brave Ipfs Daemon Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuLxVDZm1QIzpMUFMBYymzriJGzgRYWpun1n9Qgd0240h9zchyZenLnZG0d3XLk38J+tHCoObb+o5sNuSzx43f0kb3mNk8AkZd/zc8jo9bK56Ep6E1iuWHfjDkl7mCD+o+CNAmDWgdGdaaaRiBIWLm8DXskaT0EWFVlBQK6PA0patY6IJ9AHeahRcQDMz11b4DZmCK46Yy0lWquAKpHdW5WFfljFxICOKeb7S/a1I0lWu2Y4Yv/ohbzktjcpAluefz6mE5d/sSBdQGdJzJIdo/CRfYgax5nMumx0x38CmVN53GVB+5TM0mw1bhU52ASysgZjAC0++Kbl1qXeSZuWM/QIDAQAB",
   "manifest_version": 2,
-  "name": "Brave Ipfs Client Updater (Windows)",
+  "name": "Brave Ipfs Daemon Updater (Windows)",
   "version": "0.0.0"
 }
