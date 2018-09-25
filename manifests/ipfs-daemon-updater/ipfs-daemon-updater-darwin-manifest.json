@@ -1,0 +1,7 @@
+{
+  "description": "Brave Ipfs Daemon Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu4gvE67b2T0U0i5awN5Q8YTyEXkahVAIaDqZaC2GkyjqJxkfThTxNq+MfjRAfeoxdKq95XATHMQPw6bHBCRreDokesk0Yf4/2Tm+Sx+5ndrVb44bu0Qe/TM2EprxKvwyMo55pOjoHvnyhExd3E1pIS4Gq1i3LCPdkG7re+qAr2L69KyihiPzobjH50ZbjKhjIf/2P2ox5mXoZ+OpbNfuryEr9a5YL0h4vkBF2x9qSEErNj/ksDAcvKS1S+GjKVwYzJpzRG5mgWlpaqXNRIYY59uo1UEJYwr+HQ0pvt/gEdns1ccUsGEm9PAMJRptvrGX/fauIMAASvByMRG7XC27gwIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave Ipfs Daemon Updater (Mac)",
+  "version": "0.0.0"
+}

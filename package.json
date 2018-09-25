@@ -30,9 +30,11 @@
     "package-https-everywhere": "node ./scripts/packageComponent --type https-everywhere-updater",
     "package-themes": "node ./scripts/packageThemes",
     "package-tor-client": "node ./scripts/packageTorClient",
+    "package-ipfs-daemon": "node ./scripts/packageIpfsDaemon",
     "package-tracking-protection": "node ./scripts/packageComponent --type tracking-protection-updater",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
+    "upload-ipfs-daemon": "node ./scripts/uploadDaemon",
     "upload-themes": "node ./scripts/uploadThemes",
     "upload-tor-client": "node ./scripts/uploadTorClient",
     "upload-tracking-protection": "node ./scripts/uploadComponent --type tracking-protection-updater"
