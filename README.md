@@ -25,13 +25,14 @@ yarn run data-files-ad-block
 Then package the component extension(s) into one or more CRX files. For example, to package all of the Ad Block component extensions use the following command:
 
 ```bash
-yarn run package-ad-block --keys-directory <dir> --set-version <ver>
+yarn run package-ad-block --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
 ```
 
 where:
 
-* `dir` is the directory containing the associated private keys used to sign the CRX files
-* `ver` is the version number that identifies this extension
+* `keys-dir` is the directory containing the associated private keys used to sign the CRX files
+* `binary` is the full path to the Chrome web browser binary, used for packing the CRX files
+* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
 
 The currently supported component extension types are:
 
@@ -45,13 +46,14 @@ The currently supported component extension types are:
 To package all available theme extensions into CRX files, use the following command:
 
 ```bash
-yarn run package-themes --keys-directory <dir> --set-version <ver>
+yarn run package-themes --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
 ```
 
 where:
 
-* `dir` is the directory containing the associated private keys used to sign the CRX files
-* `ver` is the version number that identifies the extensions
+* `keys-dir` is the directory containing the associated private keys used to sign the CRX files
+* `binary` is the full path to the Chrome web browser binary, used for packing the CRX files
+* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
 
 ## Uploading
 
@@ -62,24 +64,30 @@ After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`
 To upload a component extension, use the appropriate upload command. For example, to upload all of the Ad Block component extensions use the following command:
 
 ```bash
-yarn run upload-ad-block --crx-directory <dir>
+yarn run upload-ad-block --crx-directory <crx-dir> --vault-updater-path <vu-dir>
 ```
 
 where:
 
-* `dir` is the directory containing the CRX files to upload (as produced by running `package-ad-block`, for example)
+* `crx-dir` is the directory containing the CRX files to upload (as produced by running `package-ad-block`, for example)
+* `vu-dir` is the full path to the local vault-updater
 
 ### Theme Extensions
 
 To upload all packaged theme extensions, use the following command:
 
 ```bash
-yarn run upload-themes --crx-directory <dir>
+yarn run upload-themes --crx-directory <dir> --vault-updater-path <vu-dir>
 ```
 
 where:
 
 * `dir` is the directory containing the CRX files to upload
+* `vu-dir` is the full path to the local vault-updater
+
+## Versioning
+
+Versioning occurs automatically. The first time an extension is packaged, it receives the version number `1.0.0`. When uploaded, that version number along with other metadata is stored in DynamoDB. Subsequent packagings increment the last component of the version number by one.
 
 ## S3 Credentials
 
