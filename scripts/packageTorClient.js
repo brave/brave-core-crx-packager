@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-// npm run package-tor-client -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir --set-version 1.0.1
+// npm run package-tor-client -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
 const commander = require('commander')
 const crypto = require('crypto')
@@ -12,8 +12,7 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
-
-const {generateCRXFile, installErrorHandlers} = require('../lib/util')
+const util = require('../lib/util')
 
 // Downloads the current (platform-specific) Tor client from S3
 const downloadTorClient = (platform) => {
@@ -62,25 +61,36 @@ const downloadTorClient = (platform) => {
   return torClient
 }
 
-const packageTorClient = (binary, platform, key) => {
-  const stagingDir = path.join('build', 'tor-client-updater', platform)
-  const torClient = downloadTorClient(platform)
-  const crxOutputDir = path.join('build', 'tor-client-updater')
-  const crxFile = path.join(crxOutputDir, `tor-client-updater-${platform}.crx`)
-  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
-  stageFiles(platform, torClient, stagingDir)
-  generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+const getOriginalManifest = (platform) => {
+  return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
 }
 
-const stageFiles = (platform, torClient, outputDir) => {
-  const originalManifest = path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
+const packageTorClient = (binary, endpoint, region, platform, key) => {
+  const originalManifest = getOriginalManifest(platform)
+  const parsedManifest = util.parseManifest(originalManifest)
+  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+
+  util.getNextVersion(endpoint, region, id).then((version) => {
+    const stagingDir = path.join('build', 'tor-client-updater', platform)
+    const torClient = downloadTorClient(platform)
+    const crxOutputDir = path.join('build', 'tor-client-updater')
+    const crxFile = path.join(crxOutputDir, `tor-client-updater-${platform}.crx`)
+    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
+    stageFiles(platform, torClient, version, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    console.log(`Generated ${crxFile} with version number ${version}`)
+  })
+}
+
+const stageFiles = (platform, torClient, version, outputDir) => {
+  const originalManifest = getOriginalManifest(platform)
   const outputManifest = path.join(outputDir, 'manifest.json')
   const outputTorClient = path.join(outputDir, path.parse(torClient).base)
 
   const replaceOptions = {
     files: outputManifest,
     from: /0\.0\.0/,
-    to: commander.setVersion
+    to: version
   }
 
   mkdirp.sync(outputDir)
@@ -97,13 +107,14 @@ const verifyChecksum = (file, hash) => {
   return hash === crypto.createHash('sha512').update(filecontent).digest('hex')
 }
 
-installErrorHandlers()
+util.installErrorHandlers()
 
 commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-s, --set-version <x.x.x>', 'component extension version number')
+  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
+  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
 
 let keyParam = ''
@@ -116,14 +127,10 @@ if (fs.existsSync(commander.keyFile)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
-  throw new Error('Missing or invalid option: --set-version')
-}
-
 if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
-packageTorClient(commander.binary, 'darwin', keyParam)
-packageTorClient(commander.binary, 'linux', keyParam)
-packageTorClient(commander.binary, 'win32', keyParam)
+packageTorClient(commander.binary, commander.endpoint, commander.region, 'darwin', keyParam)
+packageTorClient(commander.binary, commander.endpoint, commander.region, 'linux', keyParam)
+packageTorClient(commander.binary, commander.endpoint, commander.region, 'win32', keyParam)

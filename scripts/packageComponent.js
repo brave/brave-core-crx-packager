@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-//  npm run package-ad-block -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ad-block-updater.pem --set-version 1.0.3
+//  npm run package-ad-block -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ad-block-updater.pem
 
 const childProcess = require('child_process')
 const commander = require('commander')
@@ -11,10 +11,9 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
+const util = require('../lib/util')
 
-const {generateCRXFile, installErrorHandlers} = require('../lib/util')
-
-const stageFiles = (componentType, datFile, outputDir) => {
+const stageFiles = (componentType, datFile, version, outputDir) => {
   const parsedDatFile = path.parse(datFile)
 
   const datFileBase = parsedDatFile.base
@@ -24,13 +23,13 @@ const stageFiles = (componentType, datFile, outputDir) => {
   const outputDatDir = path.join(outputDir, datFileVersion)
   const outputDatFile = path.join(outputDatDir, datFileBase)
 
-  const originalManifest = path.join(getManifestsDirByComponentType(componentType), `${datFileName}-manifest.json`)
+  const originalManifest = getOriginalManifest(componentType, datFileName)
   const outputManifest = path.join(outputDir, 'manifest.json')
 
   const replaceOptions = {
     files: outputManifest,
     from: /0\.0\.0/,
-    to: commander.setVersion
+    to: version
   }
 
   mkdirp.sync(outputDatDir)
@@ -89,6 +88,10 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'httpse.leveldb' ||
   datFileName === 'TrackingProtection' ? 'default' : datFileName
 
+const getOriginalManifest = (componentType, datFileName) => {
+  return path.join(getManifestsDirByComponentType(componentType), `${datFileName}-manifest.json`)
+}
+
 const getDATFileListByComponentType = (componentType) => {
   switch (componentType) {
     case 'ad-block-updater':
@@ -109,25 +112,32 @@ const getDATFileListByComponentType = (componentType) => {
   }
 }
 
-const processDATFile = (binary, componentType, key, datFile) => {
+const processDATFile = (binary, endpoint, region, componentType, key, datFile) => {
   const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
-  const stagingDir = path.join('build', componentType, datFileName)
-  const crxOutputDir = path.join('build', componentType)
-  const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
-  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
+  const originalManifest = getOriginalManifest(componentType, datFileName)
+  const parsedManifest = util.parseManifest(originalManifest)
+  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  stageFiles(componentType, datFile, stagingDir)
-  generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+  util.getNextVersion(endpoint, region, id).then((version) => {
+    const stagingDir = path.join('build', componentType, datFileName)
+    const crxOutputDir = path.join('build', componentType)
+    const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
+    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
+    stageFiles(componentType, datFile, version, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    console.log(`Generated ${crxFile} with version number ${version}`)
+  })
 }
 
-installErrorHandlers()
+util.installErrorHandlers()
 
 commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-s, --set-version <x.x.x>', 'component extension version number')
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
+  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
+  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
 
 let keyParam = ''
@@ -140,13 +150,10 @@ if (fs.existsSync(commander.keyFile)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
-  throw new Error('Missing or invalid option: --set-version')
-}
-
 if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
 generateManifestFilesByComponentType(commander.type)
-getDATFileListByComponentType(commander.type).forEach(processDATFile.bind(null, commander.binary, commander.type, keyParam))
+getDATFileListByComponentType(commander.type)
+  .forEach(processDATFile.bind(null, commander.binary, commander.endpoint, commander.region, commander.type, keyParam))
