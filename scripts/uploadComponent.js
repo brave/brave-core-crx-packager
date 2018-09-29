@@ -29,14 +29,13 @@ if (fs.existsSync(commander.crxFile)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const outputDir = path.join('build', commander.type)
   if (fs.lstatSync(crxParam).isDirectory()) {
     fs.readdirSync(crxParam).forEach(file => {
       if (path.parse(file).ext === '.crx') {
-        util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, path.join(crxParam, file), outputDir)
+        util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, path.join(crxParam, file))
       }
     })
   } else {
-    util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, crxParam, outputDir)
+    util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, crxParam)
   }
 })

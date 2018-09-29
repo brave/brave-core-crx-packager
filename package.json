@@ -34,7 +34,7 @@
     "package-tracking-protection": "node ./scripts/packageComponent --type tracking-protection-updater",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
-    "upload-ipfs-daemon": "node ./scripts/uploadDaemon",
+    "upload-ipfs-daemon": "node ./scripts/uploadIpfsDaemon",
     "upload-themes": "node ./scripts/uploadThemes",
     "upload-tor-client": "node ./scripts/uploadTorClient",
     "upload-tracking-protection": "node ./scripts/uploadComponent --type tracking-protection-updater"

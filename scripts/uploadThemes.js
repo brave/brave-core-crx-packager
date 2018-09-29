@@ -24,7 +24,7 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const outputDir = path.join('build', 'themes')
   fs.readdirSync(commander.crxDirectory).forEach(file => {
     if (path.extname(file) === '.crx') {
-      util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, path.join(outputDir, file), outputDir)
+      util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, path.join(outputDir, file))
     }
   })
 })

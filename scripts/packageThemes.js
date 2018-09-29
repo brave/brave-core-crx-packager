@@ -8,11 +8,10 @@ const fsx = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
+const util = require('../lib/util')
 
-const {generateCRXFile, installErrorHandlers} = require('../lib/util')
-
-const stageTheme = (themeDir, themeName, outputDir) => {
-  const originalManifest = path.join(themeDir, 'manifest.json')
+const stageTheme = (themeDir, themeName, version, outputDir) => {
+  const originalManifest = getOriginalManifest(themeDir)
   const outputManifest = path.join(outputDir, themeName, 'manifest.json')
 
   const originalImagesDir = path.join(themeDir, 'images')
@@ -24,7 +23,7 @@ const stageTheme = (themeDir, themeName, outputDir) => {
   const replaceOptions = {
     files: outputManifest,
     from: [/1\.0/, /\/\/#.*/g],
-    to: [commander.setVersion, '']
+    to: [version, '']
   }
 
   mkdirp.sync(path.join(outputDir, themeName))
@@ -40,32 +39,40 @@ const stageTheme = (themeDir, themeName, outputDir) => {
   fsx.copySync(originalImagesDir, outputImagesDir)
 }
 
-const generateCRXFiles = (binary, outputDir) => {
+const generateCRXFiles = (binary, endpoint, region, outputDir) => {
   const themesDir = path.join('node_modules', 'brave-chromium-themes')
   fs.readdirSync(themesDir).forEach(file => {
+    const themeDir = path.join(themesDir, file)
     if (fs.lstatSync(path.join(themesDir, file)).isDirectory()) {
-      const crxFile = path.join(outputDir, file + '.crx')
-      const privateKeyFile = path.join(commander.keysDirectory, file + '.pem')
-      stageTheme(path.join(themesDir, file), file, outputDir)
-      generateCRXFile(binary, crxFile, privateKeyFile, path.join(outputDir, file))
+      const originalManifest = getOriginalManifest(themeDir)
+      const parsedManifest = util.parseManifest(originalManifest)
+      const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+      util.getNextVersion(endpoint, region, id).then((version) => {
+        const crxFile = path.join(outputDir, file + '.crx')
+        const privateKeyFile = path.join(commander.keysDirectory, file + '.pem')
+        stageTheme(themeDir, file, version, outputDir)
+        util.generateCRXFile(binary, crxFile, privateKeyFile, path.join(outputDir, file))
+        console.log(`Generated ${crxFile} with version number ${version}`)
+      })
     }
   })
 }
 
-installErrorHandlers()
+const getOriginalManifest = (themeDir) => {
+  return path.join(themeDir, 'manifest.json')
+}
+
+util.installErrorHandlers()
 
 commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-k, --keys-directory <dir>', 'directory containing private key files for signing crx files', 'keys')
-  .option('-s, --set-version <x.x.x>', 'theme extension version number')
+  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
+  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
 
 if (!fs.lstatSync(commander.keysDirectory)) {
   throw new Error('Missing or invalid option: --keys-directory')
-}
-
-if (!commander.setVersion || !commander.setVersion.match(/^(\d+\.\d+\.\d+)$/)) {
-  throw new Error('Missing or invalid option: --set-version')
 }
 
 if (!commander.binary) {
@@ -74,4 +81,4 @@ if (!commander.binary) {
 
 const outputDir = path.join('build', 'themes')
 
-generateCRXFiles(commander.binary, outputDir)
+generateCRXFiles(commander.binary, commander.endpoint, commander.region, outputDir)
