@@ -64,26 +64,43 @@ After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`
 To upload a component extension, use the appropriate upload command. For example, to upload all of the Ad Block component extensions use the following command:
 
 ```bash
-yarn run upload-ad-block --crx-directory <crx-dir> --vault-updater-path <vu-dir>
+yarn run upload-ad-block --crx-directory <crx-dir> --vault-updater-path <vu-dir> --endpoint <endpoint>
 ```
 
 where:
 
 * `crx-dir` is the directory containing the CRX files to upload (as produced by running `package-ad-block`, for example)
 * `vu-dir` is the full path to the local vault-updater
+* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
 
 ### Theme Extensions
 
 To upload all packaged theme extensions, use the following command:
 
 ```bash
-yarn run upload-themes --crx-directory <dir> --vault-updater-path <vu-dir>
+yarn run upload-themes --crx-directory <dir> --vault-updater-path <vu-dir> --endpoint <endpoint>
 ```
 
 where:
 
 * `dir` is the directory containing the CRX files to upload
 * `vu-dir` is the full path to the local vault-updater
+* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
+
+### Importing Chrome Web Store extensions
+
+To import the current list of supported Chrome Web Store extensions, use the following command:
+
+```bash
+yarn run import-cws-components --vault-updater-path <vu-dir> --endpoint <endpoint>
+```
+
+where:
+
+* `vu-dir` is the full path to the local vault-updater
+* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
+
+This will download the supported extensions from the Chrome Web Store and upload them to S3.
 
 ## Versioning
 
