@@ -26,6 +26,7 @@
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
     "lint": "standard",
+    "import-cws-components": "node ./scripts/importCWSComponents",
     "package-ad-block": "node ./scripts/packageComponent --type ad-block-updater",
     "package-https-everywhere": "node ./scripts/packageComponent --type https-everywhere-updater",
     "package-themes": "node ./scripts/packageThemes",
