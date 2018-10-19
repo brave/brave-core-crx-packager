@@ -154,6 +154,8 @@ if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
-generateManifestFilesByComponentType(commander.type)
-getDATFileListByComponentType(commander.type)
-  .forEach(processDATFile.bind(null, commander.binary, commander.endpoint, commander.region, commander.type, keyParam))
+util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+  generateManifestFilesByComponentType(commander.type)
+  getDATFileListByComponentType(commander.type)
+    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint, commander.region, commander.type, keyParam))
+})

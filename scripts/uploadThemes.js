@@ -10,7 +10,6 @@ const util = require('../lib/util')
 util.installErrorHandlers()
 
 commander
-  .option('-v, --vault-updater-path <dir>', 'directory containing the brave/vault-updater/data/')
   .option('-c, --crx-directory <dir>', 'crx directory')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
@@ -24,7 +23,7 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const outputDir = path.join('build', 'themes')
   fs.readdirSync(commander.crxDirectory).forEach(file => {
     if (path.extname(file) === '.crx') {
-      util.uploadCRXFile(commander.endpoint, commander.region, commander.vaultUpdaterPath, path.join(outputDir, file))
+      util.uploadCRXFile(commander.endpoint, commander.region, path.join(outputDir, file))
     }
   })
 })

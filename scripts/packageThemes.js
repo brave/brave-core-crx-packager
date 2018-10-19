@@ -81,4 +81,6 @@ if (!commander.binary) {
 
 const outputDir = path.join('build', 'themes')
 
-generateCRXFiles(commander.binary, commander.endpoint, commander.region, outputDir)
+util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+  generateCRXFiles(commander.binary, commander.endpoint, commander.region, outputDir)
+})

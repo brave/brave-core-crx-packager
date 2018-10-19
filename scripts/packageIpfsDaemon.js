@@ -136,6 +136,8 @@ if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
-packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'darwin', keyParam)
-packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'linux', keyParam)
-packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'win32', keyParam)
+util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'darwin', keyParam)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'linux', keyParam)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'win32', keyParam)
+})

@@ -131,6 +131,8 @@ if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
-packageTorClient(commander.binary, commander.endpoint, commander.region, 'darwin', keyParam)
-packageTorClient(commander.binary, commander.endpoint, commander.region, 'linux', keyParam)
-packageTorClient(commander.binary, commander.endpoint, commander.region, 'win32', keyParam)
+util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+  packageTorClient(commander.binary, commander.endpoint, commander.region, 'darwin', keyParam)
+  packageTorClient(commander.binary, commander.endpoint, commander.region, 'linux', keyParam)
+  packageTorClient(commander.binary, commander.endpoint, commander.region, 'win32', keyParam)
+})
