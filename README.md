@@ -125,3 +125,20 @@ The format for the credentials file is:
 aws_access_key_id = ACCESS_KEY
 aws_secret_access_key = SECRET_KEY
 ```
+
+## Troubleshooting
+
+Since the packager uses Chrome to pack the extensions, make sure you're not currently running Chrome when you perform the packaging step. If you don't quit Chrome before running the packaging scripts, you may see errors like the following (which are harmless, but may obscure actual problems):
+
+```
+[2400:12692:1019/161515.198:ERROR:cache_util_win.cc(19)] Unable to move the cache: 5
+[2400:12692:1019/161515.198:ERROR:cache_util.cc(140)] Unable to move cache folder C:\Users\emerick\AppData\Local\Google\Chrome\User Data\ShaderCache\GPUCache to C:\Users\emerick\AppData\Local\Google\Chrome\User Data\ShaderCache\old_GPUCache_000
+[2400:12692:1019/161515.198:ERROR:disk_cache.cc(168)] Unable to create cache
+[2400:12692:1019/161515.198:ERROR:shader_disk_cache.cc(620)] Shader Cache Creation failed: -2
+```
+
+When specifying the path for the `--binary` option on Windows, it can be tricky to get the quoting just right without confusing your shell. This syntax works correctly:
+
+```
+--binary \""C:\Program Files (x86)\Google\Chrome\Application\chrome.exe\""
+```
