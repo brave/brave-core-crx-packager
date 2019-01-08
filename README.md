@@ -25,7 +25,7 @@ npm run data-files-ad-block
 Then package the component extension(s) into one or more CRX files. For example, to package all of the Ad Block component extensions use the following command:
 
 ```bash
-npm run package-ad-block --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
+npm run package-ad-block -- --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
 ```
 
 where:
@@ -46,7 +46,7 @@ The currently supported component extension types are:
 To package all available theme extensions into CRX files, use the following command:
 
 ```bash
-npm run package-themes --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
+npm run package-themes -- --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
 ```
 
 where:
@@ -64,7 +64,7 @@ After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`
 To upload a component extension, use the appropriate upload command. For example, to upload all of the Ad Block component extensions use the following command:
 
 ```bash
-npm run upload-ad-block --crx-directory <crx-dir> --endpoint <endpoint>
+npm run upload-ad-block -- --crx-directory <crx-dir> --endpoint <endpoint>
 ```
 
 where:
@@ -77,7 +77,7 @@ where:
 To upload all packaged theme extensions, use the following command:
 
 ```bash
-npm run upload-themes --crx-directory <dir> --endpoint <endpoint>
+npm run upload-themes -- --crx-directory <dir> --endpoint <endpoint>
 ```
 
 where:
@@ -90,7 +90,7 @@ where:
 To import the current list of supported Chrome Web Store extensions, use the following command:
 
 ```bash
-npm run import-cws-components --endpoint <endpoint>
+npm run import-cws-components -- --endpoint <endpoint>
 ```
 
 where:
