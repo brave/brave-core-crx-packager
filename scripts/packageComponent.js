@@ -47,7 +47,7 @@ const getDATFileVersionByComponentType = (componentType) => {
         .match(/DATA_FILE_VERSION\s*=\s*(\d+)/)[1]
     case 'https-everywhere-updater':
       return '6.0'
-    case 'tracking-protection-updater':
+    case 'local-data-files-updater':
       return '1'
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
@@ -60,7 +60,7 @@ const generateManifestFilesByComponentType = (componentType) => {
       childProcess.execSync(`npm run --prefix ${path.join('node_modules', 'ad-block')} manifest-files`)
       break
     case 'https-everywhere-updater':
-    case 'tracking-protection-updater':
+    case 'local-data-files-updater':
       // TODO(emerick): Make these work like ad-block (i.e., update
       // the corresponding repos with a script to generate the
       // manifest and then call that script here)
@@ -75,7 +75,7 @@ const getManifestsDirByComponentType = (componentType) => {
     case 'ad-block-updater':
       return path.join('node_modules', 'ad-block', 'out')
     case 'https-everywhere-updater':
-    case 'tracking-protection-updater':
+    case 'local-data-files-updater':
       // TODO(emerick): Make these work like ad-block
       return path.join('manifests', componentType)
     default:
@@ -105,7 +105,7 @@ const getDATFileListByComponentType = (componentType) => {
         }, [])
     case 'https-everywhere-updater':
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
-    case 'tracking-protection-updater':
+    case 'local-data-files-updater':
       return path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat').split()
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
@@ -135,7 +135,7 @@ commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|tracking-protection-updater)$/i, 'ad-block-updater')
+  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
