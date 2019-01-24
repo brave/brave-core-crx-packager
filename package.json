@@ -4,7 +4,8 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
     "ad-block": "brave/ad-block",
-    "aws-sdk": "^2.338.0",
+    "ajv": "^5.5.2",
+    "aws-sdk": "^2.392.0",
     "brave-chromium-themes": "brave/brave-chromium-themes",
     "https-everywhere-builder": "brave/https-everywhere-builder",
     "request": "^2.85.0",
@@ -26,6 +27,7 @@
     "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
+    "data-files-local-data-files": "npm run data-files-tracking-protection",
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",
     "package-ad-block": "node ./scripts/packageComponent --type ad-block-updater",
@@ -33,13 +35,13 @@
     "package-themes": "node ./scripts/packageThemes",
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-ipfs-daemon": "node ./scripts/packageIpfsDaemon",
-    "package-tracking-protection": "node ./scripts/packageComponent --type tracking-protection-updater",
+    "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
     "upload-ipfs-daemon": "node ./scripts/uploadIpfsDaemon",
     "upload-themes": "node ./scripts/uploadThemes",
     "upload-tor-client": "node ./scripts/uploadTorClient",
-    "upload-tracking-protection": "node ./scripts/uploadComponent --type tracking-protection-updater"
+    "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater"
   },
   "repository": {
     "type": "git",

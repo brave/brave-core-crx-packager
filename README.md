@@ -39,7 +39,7 @@ The currently supported component extension types are:
 * `ad-block`
 * `https-everywhere`
 * `tor-client`
-* `tracking-protection`
+* `local-data-files` (formerly `tracking-protection`)
 
 ### Theme Extensions
 
