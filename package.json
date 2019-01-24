@@ -4,7 +4,8 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
     "ad-block": "brave/ad-block",
-    "aws-sdk": "^2.338.0",
+    "ajv": "^5.5.2",
+    "aws-sdk": "^2.392.0",
     "brave-chromium-themes": "brave/brave-chromium-themes",
     "https-everywhere-builder": "brave/https-everywhere-builder",
     "request": "^2.85.0",
