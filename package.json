@@ -5,6 +5,7 @@
   "dependencies": {
     "ad-block": "brave/ad-block",
     "ajv": "^5.5.2",
+    "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.392.0",
     "brave-chromium-themes": "brave/brave-chromium-themes",
     "https-everywhere-builder": "brave/https-everywhere-builder",
@@ -27,7 +28,8 @@
     "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
-    "data-files-local-data-files": "npm run data-files-tracking-protection",
+    "data-files-autoplay-whitelist": "npm run --prefix ./node_modules/autoplay-whitelist data-files",
+    "data-files-local-data-files": "npm run data-files-tracking-protection && npm run data-files-autoplay-whitelist",
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",
     "package-ad-block": "node ./scripts/packageComponent --type ad-block-updater",
