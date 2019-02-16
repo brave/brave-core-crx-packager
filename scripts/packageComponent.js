@@ -107,8 +107,8 @@ const getDATFileListByComponentType = (componentType) => {
     case 'https-everywhere-updater':
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
-      return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat').split(),
-              path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat').split()]
+      return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
+              path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat')]
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
