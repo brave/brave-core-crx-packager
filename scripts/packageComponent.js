@@ -87,6 +87,7 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ABPFilterParserData' ||
   datFileName === 'httpse.leveldb' ||
   datFileName === 'TrackingProtection' ||
+  datFileName === 'ExtensionWhitelist' ||
   datFileName === 'AutoplayWhitelist' ? 'default' : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
