@@ -10,7 +10,7 @@
     "brave-chromium-themes": "brave/brave-chromium-themes",
     "extension-whitelist": "github:brave/extension-whitelist",
     "https-everywhere-builder": "brave/https-everywhere-builder",
-    "referrer-whitelist": "github:brave/referrer-whitelist#mpilgrim_initial_data",
+    "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "^2.85.0",
     "s3-node-client": "^4.4.4",
     "tracking-protection": "brave/tracking-protection",
