@@ -87,6 +87,7 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ABPFilterParserData' ||
   datFileName === 'httpse.leveldb' ||
   datFileName === 'TrackingProtection' ||
+  datFileName === 'StorageTrackingProtection' ||
   datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'AutoplayWhitelist' ? 'default' : datFileName
@@ -112,7 +113,8 @@ const getDATFileListByComponentType = (componentType) => {
       return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
               path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
               path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json'),
-              path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat')]
+              path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat'),
+              path.join('node_modules', 'tracking-protection', 'data', 'StorageTrackingProtection.dat')]
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
