@@ -1,6 +1,6 @@
 # Brave Core CRX Packager
 
-The CRX Packager creates and packages CRX files for the component and theme extensions included with the Brave browser.
+The CRX Packager creates and packages CRX files for the components and extensions included with the Brave browser.
 
 ## Cloning and Installation
 
@@ -41,20 +41,6 @@ The currently supported component extension types are:
 * `tor-client`
 * `local-data-files` (formerly `tracking-protection`)
 
-### Theme Extensions
-
-To package all available theme extensions into CRX files, use the following command:
-
-```bash
-npm run package-themes -- --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
-```
-
-where:
-
-* `keys-dir` is the directory containing the associated private keys used to sign the CRX files
-* `binary` is the full path to the Chrome web browser binary, used for packing the CRX files
-* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
-
 ## Uploading
 
 After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`brave-extensions`).
@@ -70,19 +56,6 @@ npm run upload-ad-block -- --crx-directory <crx-dir> --endpoint <endpoint>
 where:
 
 * `crx-dir` is the directory containing the CRX files to upload (as produced by running `package-ad-block`, for example)
-* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
-
-### Theme Extensions
-
-To upload all packaged theme extensions, use the following command:
-
-```bash
-npm run upload-themes -- --crx-directory <dir> --endpoint <endpoint>
-```
-
-where:
-
-* `dir` is the directory containing the CRX files to upload
 * `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
 
 ### Importing Chrome Web Store extensions
