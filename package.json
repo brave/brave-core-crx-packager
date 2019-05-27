@@ -4,6 +4,7 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
     "ad-block": "brave/ad-block",
+    "adblock-rs": "^0.1.13",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.449.0",
@@ -26,6 +27,7 @@
   },
   "scripts": {
     "clean": "rimraf build/",
+    "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
