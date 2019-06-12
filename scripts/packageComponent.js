@@ -90,6 +90,7 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'StorageTrackingProtection' ||
   datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
+  datFileName === 'Greaselion' ||
   datFileName === 'AutoplayWhitelist' ? 'default' : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
