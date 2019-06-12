@@ -112,6 +112,7 @@ const getDATFileListByComponentType = (componentType) => {
     case 'local-data-files-updater':
       return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
         path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
+        path.join('node_modules', 'brave-site-specific-scripts', 'Greaselion.json'),
         path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json'),
         path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat'),
         path.join('node_modules', 'tracking-protection', 'data', 'StorageTrackingProtection.dat')]
