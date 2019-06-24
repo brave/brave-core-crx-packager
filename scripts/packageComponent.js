@@ -35,6 +35,7 @@ const stageFiles = (componentType, datFile, version, outputDir) => {
   mkdirp.sync(outputDatDir)
 
   fs.copyFileSync(originalManifest, outputManifest)
+  console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
   fs.copyFileSync(datFile, outputDatFile)
 
   replace.sync(replaceOptions)
