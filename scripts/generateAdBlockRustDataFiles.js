@@ -47,7 +47,6 @@ const getListFilterFunction = (uuid) => {
   return undefined
 }
 
-
 /**
  * Parses the passed in filter rule data and serializes a data file to disk.
  *
@@ -114,7 +113,7 @@ const generateDataFileFromURL = (listURL, langs, uuid, outputDATFilename, filter
 const generateDataFilesForAllRegions = () => {
   console.log('Processing per region list updates...')
   let p = Promise.resolve()
-  new lists("regions").forEach((region) => {
+  new lists('regions').forEach((region) => { // eslint-disable-line
     p = p.then(generateDataFileFromURL.bind(null, region.url,
       region.langs, region.uuid, `rs-${region.uuid}.dat`))
   })
@@ -139,7 +138,7 @@ const generateDataFilesForList = (lists, filename) => {
 }
 
 const generateDataFilesForDefaultAdblock =
-  generateDataFilesForList.bind(null, new lists("default"), 'rs-ABPFilterParserData.dat')
+  generateDataFilesForList.bind(null, new lists('default'), 'rs-ABPFilterParserData.dat')  // eslint-disable-line
 
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile1 =

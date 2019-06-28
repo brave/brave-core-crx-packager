@@ -12,7 +12,7 @@ util.installErrorHandlers()
 commander
   .option('-d, --crx-directory <dir>', 'directory containing multiple crx files to upload')
   .option('-f, --crx-file <file>', 'crx file to upload', 'extension.crx')
-  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater)$/i, 'ad-block-updater')
+  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
@@ -24,7 +24,7 @@ if (fs.existsSync(commander.crxFile)) {
 } else if (fs.existsSync(commander.crxDirectory)) {
   crxParam = commander.crxDirectory
 } else {
-  throw new Error('Missing or invalid crx file/directory')
+  throw new Error('Missing or invalid crx file/directory', commander.crxFile, commander.crxDirectory)
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
