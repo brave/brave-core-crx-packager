@@ -46,6 +46,7 @@
     "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
+    "upload-ad-block-raw": "node ./scripts/uploadRawAdblock",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
     "upload-ipfs-daemon": "node ./scripts/uploadIpfsDaemon",
     "upload-tor-client": "node ./scripts/uploadTorClient",
