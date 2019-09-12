@@ -6,6 +6,7 @@ const { Engine, lists } = require('adblock-rs')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
+const uBlockResources = 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resources.txt'
 
 /**
  * Returns a promise that which resolves with the list data
@@ -14,7 +15,7 @@ const request = require('request')
  * @param filter The filter function to apply to the body
  * @return a promise that resolves with the content of the list or rejects with an error message.
  */
-const getListBufferFromURL = (listURL, filter) => {
+const getBufferFromURL = (listURL, filter) => {
   return new Promise((resolve, reject) => {
     request.get(listURL, function (error, response, body) {
       if (error) {
@@ -48,6 +49,25 @@ const getListFilterFunction = (uuid) => {
 }
 
 /**
+ * Obtains the output path to store a file given the specied name and subdir
+ */
+const getOutPath = (outputFilename, outSubdir) => {
+  let outPath = path.join('build')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  outPath = path.join(outPath, 'ad-block-updater')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  outPath = path.join(outPath, outSubdir)
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  return path.join(outPath, outputFilename)
+}
+
+/**
  * Parses the passed in filter rule data and serializes a data file to disk.
  *
  * @param filterRuleData The filter rule data to parse, or an array of such strings.
@@ -62,23 +82,22 @@ const generateDataFileFromString = (filterRuleData, outputDATFilename, outSubdir
   }
   const client = new Engine(rules.split('\n'))
   const arrayBuffer = client.serialize()
-  let outPath = path.join('build')
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  outPath = path.join(outPath, 'ad-block-updater')
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  outPath = path.join(outPath, outSubdir)
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  fs.writeFileSync(path.join(outPath, outputDATFilename), Buffer.from(arrayBuffer))
+  const outPath = getOutPath(outputDATFilename, outSubdir)
+  fs.writeFileSync(outPath, Buffer.from(arrayBuffer))
 }
 
 /**
- * Convenience function that uses getListBufferFromURL and generateDataFileFromString
+ * Generates a reosources.txt file for the specified buffer and subdir
+ *
+ * @param resourcesData The data to store in the resources.txt file
+ */
+const generateResourcesFileFromString = (resourcesData) => {
+  const outPath = getOutPath('resources.txt', 'default')
+  fs.writeFileSync(outPath, resourcesData, 'utf8')
+}
+
+/**
+ * Convenience function that uses getBufferFromURL and generateDataFileFromString
  * to construct a DAT file from a URL while applying a specific filter.
  *
  * @param listURL the URL of the list to fetch.
@@ -128,12 +147,14 @@ const generateDataFilesForList = (lists, filename) => {
   lists.forEach((l) => {
     console.log(`${l.url}...`)
     const filterFn = getListFilterFunction(l.uuid)
-    promises.push(getListBufferFromURL(l.url, filterFn))
+    promises.push(getBufferFromURL(l.url, filterFn))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
     generateDataFileFromString(listBuffers, filename, 'default')
   })
+  p = p.then(getBufferFromURL.bind(null, uBlockResources))
+    .then(generateResourcesFileFromString)
   return p
 }
 
