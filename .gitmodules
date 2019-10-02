@@ -1,0 +1,3 @@
+[submodule "submodules/uBlock"]
+	path = submodules/uBlock
+	url = https://github.com/brave/uBlock
