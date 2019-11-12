@@ -2,10 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Engine, lists } = require('adblock-rs')
+const { Engine, lists, uBlockResources } = require('adblock-rs')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
+
+const uBlockRevision = '978f04219a1f41f3fab7ad5c38ec2a1a021920fe'
+const uBlockGitArchiveURL = `https://github.com/gorhill/uBlock/archive/${uBlockRevision}.zip`
+
+const uBlockLocalRoot = 'submodules/uBlock'
+const uBlockWebAccessibleResources = path.join(uBlockLocalRoot, 'src/web_accessible_resources')
+const uBlockRedirectEngine = path.join(uBlockLocalRoot, 'src/js/redirect-engine.js')
+const uBlockScriptlets = path.join(uBlockLocalRoot, 'assets/resources/scriptlets.js')
+
+/**
+ * Returns a promise that generates a resources file from the uBlock Origin
+ * repo hosted on GitHub
+ */
+const generateResourcesFile = (uBlockArchiveZip) => {
+  return new Promise((resolve, reject) => {
+    const jsonData = JSON.stringify(uBlockResources(
+      uBlockWebAccessibleResources,
+      uBlockRedirectEngine,
+      uBlockScriptlets
+    ))
+    fs.writeFileSync(getOutPath('resources.json', 'default'), jsonData, 'utf8')
+  })
+}
 
 /**
  * Returns a promise that which resolves with the list data
@@ -48,6 +71,25 @@ const getListFilterFunction = (uuid) => {
 }
 
 /**
+ * Obtains the output path to store a file given the specied name and subdir
+ */
+const getOutPath = (outputFilename, outSubdir) => {
+  let outPath = path.join('build')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  outPath = path.join(outPath, 'ad-block-updater')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  outPath = path.join(outPath, outSubdir)
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  return path.join(outPath, outputFilename)
+}
+
+/**
  * Parses the passed in filter rule data and serializes a data file to disk.
  *
  * @param filterRuleData The filter rule data to parse, or an array of such strings.
@@ -62,19 +104,8 @@ const generateDataFileFromString = (filterRuleData, outputDATFilename, outSubdir
   }
   const client = new Engine(rules.split('\n'))
   const arrayBuffer = client.serialize()
-  let outPath = path.join('build')
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  outPath = path.join(outPath, 'ad-block-updater')
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  outPath = path.join(outPath, outSubdir)
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  fs.writeFileSync(path.join(outPath, outputDATFilename), Buffer.from(arrayBuffer))
+  const outPath = getOutPath(outputDATFilename, outSubdir)
+  fs.writeFileSync(outPath, Buffer.from(arrayBuffer))
 }
 
 /**
@@ -121,7 +152,7 @@ const generateDataFilesForAllRegions = () => {
 }
 
 /**
- * Convenience function that generates a DAT file for the default list
+ * Convenience function that generates a DAT file and resources file for the default list
  */
 const generateDataFilesForList = (lists, filename) => {
   let promises = []
@@ -134,6 +165,7 @@ const generateDataFilesForList = (lists, filename) => {
   p = p.then((listBuffers) => {
     generateDataFileFromString(listBuffers, filename, 'default')
   })
+  p = p.then(generateResourcesFile)
   return p
 }
 
