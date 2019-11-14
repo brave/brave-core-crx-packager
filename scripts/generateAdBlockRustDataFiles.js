@@ -7,9 +7,6 @@ const path = require('path')
 const fs = require('fs')
 const request = require('request')
 
-const uBlockRevision = '978f04219a1f41f3fab7ad5c38ec2a1a021920fe'
-const uBlockGitArchiveURL = `https://github.com/gorhill/uBlock/archive/${uBlockRevision}.zip`
-
 const uBlockLocalRoot = 'submodules/uBlock'
 const uBlockWebAccessibleResources = path.join(uBlockLocalRoot, 'src/web_accessible_resources')
 const uBlockRedirectEngine = path.join(uBlockLocalRoot, 'src/js/redirect-engine.js')
