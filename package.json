@@ -5,6 +5,7 @@
   "dependencies": {
     "ad-block": "brave/ad-block",
     "adblock-rs": "^0.1.36",
+    "adm-zip": "^0.4.13",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.449.0",
@@ -36,6 +37,7 @@
     "data-files-autoplay-whitelist": "npm run --prefix ./node_modules/autoplay-whitelist data-files",
     "data-files-extension-whitelist": "npm run --prefix ./node_modules/extension-whitelist data-files",
     "data-files-local-data-files": "npm run data-files-tracking-protection && npm run data-files-autoplay-whitelist && npm run data-files-extension-whitelist",
+    "generate-ntp-sponsored-images": "node scripts/generateNTPSponsoredImages.js",
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",
     "package-ethereum-remote-client": "node ./scripts/packageComponent --type ethereum-remote-client",
@@ -44,13 +46,15 @@
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-ipfs-daemon": "node ./scripts/packageIpfsDaemon",
     "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
+    "package-ntp-sponsored-images": "node ./scripts/packageNTPSponsoredImagesComponents",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
     "upload-ad-block-raw": "node ./scripts/uploadRawAdblock",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
     "upload-ipfs-daemon": "node ./scripts/uploadIpfsDaemon",
     "upload-tor-client": "node ./scripts/uploadTorClient",
-    "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater"
+    "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater",
+    "upload-ntp-sponsored-images-components": "node ./scripts/uploadComponent --type ntp-sponsored-images"
   },
   "repository": {
     "type": "git",
