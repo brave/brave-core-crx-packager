@@ -9,18 +9,27 @@ const request = require('request')
 const commander = require('commander')
 const admZip = require('adm-zip')
 
-const generateNTPSponsoredImages = (dataUrl) => {
-  const targetResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources')
-  mkdirp.sync(targetResourceDir)
+const getRegionList = () => {
+  return [ 'en-US' ]
+}
 
-  const dataZipFile = path.join(targetResourceDir, 'data.zip')
-  request(dataUrl)
-    .pipe(fs.createWriteStream(dataZipFile))
-    .on('finish', () => {
-      let zip = new admZip(dataZipFile)
-      zip.extractAllTo(targetResourceDir)
-      console.log(`Downloaded to ${dataZipFile} and unzipped`)
-    })
+const generateNTPSponsoredImages = (dataUrl) => {
+  const rootResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources')
+  mkdirp.sync(rootResourceDir)
+
+  getRegionList().forEach((region) => {
+    const targetResourceDir = path.join(rootResourceDir, region)
+    mkdirp.sync(targetResourceDir)
+    const dataZipFile = path.join(rootResourceDir, `${region}.zip`)
+    const url = `${dataUrl}${region}.zip`
+    request(url)
+      .pipe(fs.createWriteStream(dataZipFile))
+      .on('finish', () => {
+        let zip = new admZip(dataZipFile)
+        zip.extractAllTo(targetResourceDir)
+        console.log(`Downloaded ${url} to ${dataZipFile} and unzipped`)
+      })
+  })
 }
 
 commander
