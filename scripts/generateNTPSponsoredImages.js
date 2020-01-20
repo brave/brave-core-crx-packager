@@ -7,7 +7,6 @@ const mkdirp = require('mkdirp')
 const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
-const admZip = require('adm-zip')
 
 const getRegionList = () => {
   return [ 'AF', 'AL', 'DZ', 'AS', 'AD', 'AO', 'AI', 'AQ', 'AG', 'AR', 'AM', 'AW', 'AU', 'AT', 'AZ', 'BS',
@@ -28,31 +27,55 @@ const getRegionList = () => {
            'EH', 'YE', 'ZM', 'ZW' ]
 }
 
+const createPhotoJsonFile = (path, body) => {
+  fs.writeFileSync(path, body)
+}
+
+const getImageFileNameListFrom = (photoJsonObj) => {
+  let fileList = []
+  if (photoJsonObj.logo)
+    fileList.push(photoJsonObj.logo.imageUrl)
+
+  if (photoJsonObj.wallpapers) {
+    photoJsonObj.wallpapers.forEach((wallpaper) => {
+      fileList.push(wallpaper.imageUrl)
+    })
+  }
+  return fileList
+}
+
 const generateNTPSponsoredImages = (dataUrl) => {
   const rootResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources')
   mkdirp.sync(rootResourceDir)
+  const jsonFileName = 'photo.json'
 
   getRegionList().forEach((region) => {
     const targetResourceDir = path.join(rootResourceDir, region)
     mkdirp.sync(targetResourceDir)
-    const dataZipFile = path.join(rootResourceDir, `${region}.zip`)
-    const url = `${dataUrl}${region}.zip`
-    request(url)
-      .pipe(fs.createWriteStream(dataZipFile))
-      .on('finish', () => {
-        try {
-          let zip = new admZip(dataZipFile)
-          zip.extractAllTo(targetResourceDir)
-          console.log(`Downloaded ${url} to ${dataZipFile} and unzipped`)
-          fs.unlinkSync(dataZipFile)
-        } catch (error) {
-          console.log(`${error} - maybe due to missing zip file (${region}.zip)`)
-          // Generate empty photo.json for generating crx file with it.
-          const emptyPhotoJsonFile = path.join(targetResourceDir, 'photo.json')
-          fs.writeFileSync(emptyPhotoJsonFile, '{}')
-          fs.unlinkSync(dataZipFile)
-        }
+    const jsonFileUrl = `${dataUrl}${region}/${jsonFileName}`
+    const jsonFilePath = path.join(targetResourceDir, jsonFileName)
+    let jsonFileBody = '{}'
+
+    // Download and parse photo.json.
+    // If it doesn't exist, create with empty object.
+    request(jsonFileUrl, function (error, response, body) {
+      if (response && response.statusCode === 200) {
+        jsonFileBody = body
+      }
+      createPhotoJsonFile(jsonFilePath, jsonFileBody)
+
+      // Download image files that specified in photo.json
+      const imageFileNameList = getImageFileNameListFrom(JSON.parse(jsonFileBody))
+      imageFileNameList.forEach((imageFileName) => {
+        const targetImageFilePath = path.join(targetResourceDir, imageFileName)
+        const targetImageFileUrl = `${dataUrl}${region}/${imageFileName}`
+        request(targetImageFileUrl)
+          .pipe(fs.createWriteStream(targetImageFilePath))
+          .on('finish', () => {
+            console.log(targetImageFileUrl)
+          })
       })
+    })
   })
 }
 
