@@ -8,6 +8,8 @@ const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
 
+const jsonSchemaVersion = 1
+
 const getRegionList = () => {
   return [ 'AF', 'AL', 'DZ', 'AS', 'AD', 'AO', 'AI', 'AQ', 'AG', 'AR', 'AM', 'AW', 'AU', 'AT', 'AZ', 'BS',
            'BH', 'BD', 'BB', 'BY', 'BE', 'BZ', 'BJ', 'BM', 'BT', 'BO', 'BQ', 'BA', 'BW', 'BV', 'BR', 'IO',
@@ -62,10 +64,25 @@ const generateNTPSponsoredImages = (dataUrl) => {
       if (response && response.statusCode === 200) {
         jsonFileBody = body
       }
-      createPhotoJsonFile(jsonFilePath, jsonFileBody)
+
+      const photoData = JSON.parse(jsonFileBody)
+      // Make sure the data has a schema version so that clients can opt to parse or not
+      const incomingSchemaVersion = photoData.schemaVersion
+      if (!incomingSchemaVersion) {
+        // Source has no schema version, assume and set current version.
+        // TODO(petemill): Don't allow this once the source is established to always
+        // have a schema version.
+        photoData.schemaVersion = jsonSchemaVersion
+      } else if (incomingSchemaVersion !== jsonSchemaVersion) {
+        // We don't support this file format
+        console.error(`Error: Cannot parse JSON data for region ${region} since it has a schema version of ${incomingSchemaVersion} but we expected ${jsonSchemaVersion}! This region will not be updated.`)
+        return
+      }
+
+      createPhotoJsonFile(jsonFilePath, JSON.stringify(photoData))
 
       // Download image files that specified in photo.json
-      const imageFileNameList = getImageFileNameListFrom(JSON.parse(jsonFileBody))
+      const imageFileNameList = getImageFileNameListFrom(photoData)
       imageFileNameList.forEach((imageFileName) => {
         const targetImageFilePath = path.join(targetResourceDir, imageFileName)
         const targetImageFileUrl = `${dataUrl}${region}/${imageFileName}`
