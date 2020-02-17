@@ -41,6 +41,20 @@ The currently supported component extension types are:
 * `tor-client`
 * `local-data-files` (formerly `tracking-protection`)
 
+### NTP SI component
+
+To pacakge NTP SI components, download assets from passed url at first. It will download assets to `./build/ntp-sponsored-images/resources/`
+
+```bash
+npm run generate-ntp-sponsored-images -- --data-url <s3 buckets url>
+```
+
+Then, package assets to crx files per region. It will generate component crx files for each region at `./build/ntp-sponsored-images/output`. Passed args to `--keys-directory` should include all PEM files that has private key for supported regions. 
+
+```bash
+npm run package-ntp-sponsored-images -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --keys-directory keys/
+```
+
 ## Uploading
 
 After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`brave-extensions`).
@@ -57,6 +71,12 @@ where:
 
 * `crx-dir` is the directory containing the CRX files to upload (as produced by running `package-ad-block`, for example)
 * `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
+
+### NTP SI component
+To upload NTP SI components, pass crx directory that has all generated crx files and endpoint as arguments.
+```bash
+npm run upload-ntp-sponsored-images-components -- --crx-directory ./build/ntp-sponsored-images/output
+```
 
 ### Importing Chrome Web Store extensions
 
