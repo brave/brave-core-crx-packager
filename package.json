@@ -51,7 +51,7 @@
     "upload-ad-block-raw": "node ./scripts/uploadRawAdblock",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
     "upload-ipfs-daemon": "node ./scripts/uploadIpfsDaemon",
-    "upload-tor-client": "node ./scripts/uploadTorClient",
+    "upload-tor-client": "node ./scripts/uploadComponent --type tor-client-updater",
     "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater",
     "upload-ntp-sponsored-images-components": "node ./scripts/uploadComponent --type ntp-sponsored-images"
   },
