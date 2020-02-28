@@ -8,6 +8,7 @@ const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
 
+const jsonFileName = 'photo.json'
 const jsonSchemaVersion = 1
 
 const getRegionList = () => {
@@ -46,21 +47,18 @@ const getImageFileNameListFrom = (photoJsonObj) => {
   return fileList
 }
 
-const generateNTPSponsoredImages = (dataUrl) => {
-  const rootResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources')
-  mkdirp.sync(rootResourceDir)
-  const jsonFileName = 'photo.json'
-
-  getRegionList().forEach((region) => {
-    const targetResourceDir = path.join(rootResourceDir, region)
-    mkdirp.sync(targetResourceDir)
-    const jsonFileUrl = `${dataUrl}${region}/${jsonFileName}`
+function downloadForRegion (jsonFileUrl, targetResourceDir) {
+  return new Promise(function (resolve, reject) {
     const jsonFilePath = path.join(targetResourceDir, jsonFileName)
     let jsonFileBody = '{}'
 
     // Download and parse photo.json.
     // If it doesn't exist, create with empty object.
-    request(jsonFileUrl, function (error, response, body) {
+    request(jsonFileUrl, async function (error, response, body) {
+      if (error) {
+        console.error(`Error from ${jsonFileUrl}:`, error)
+        return reject(error)
+      }
       if (response && response.statusCode === 200) {
         jsonFileBody = body
       }
@@ -75,25 +73,41 @@ const generateNTPSponsoredImages = (dataUrl) => {
         photoData.schemaVersion = jsonSchemaVersion
       } else if (incomingSchemaVersion !== jsonSchemaVersion) {
         // We don't support this file format
-        console.error(`Error: Cannot parse JSON data for region ${region} since it has a schema version of ${incomingSchemaVersion} but we expected ${jsonSchemaVersion}! This region will not be updated.`)
-        return
+        console.error(`Error: Cannot parse JSON data at ${jsonFileUrl} since it has a schema version of ${incomingSchemaVersion} but we expected ${jsonSchemaVersion}! This region will not be updated.`)
+        return reject(error)
       }
 
       createPhotoJsonFile(jsonFilePath, JSON.stringify(photoData))
 
       // Download image files that specified in photo.json
       const imageFileNameList = getImageFileNameListFrom(photoData)
-      imageFileNameList.forEach((imageFileName) => {
+      const downloadOps = imageFileNameList.map((imageFileName) => new Promise(resolve => {
         const targetImageFilePath = path.join(targetResourceDir, imageFileName)
-        const targetImageFileUrl = `${dataUrl}${region}/${imageFileName}`
+        const targetImageFileUrl = new URL(imageFileName, jsonFileUrl).href
         request(targetImageFileUrl)
           .pipe(fs.createWriteStream(targetImageFilePath))
           .on('finish', () => {
             console.log(targetImageFileUrl)
+            resolve()
           })
-      })
+      }))
+      await Promise.all(downloadOps)
+      resolve()
     })
   })
+}
+
+async function generateNTPSponsoredImages (dataUrl) {
+  const rootResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources')
+  mkdirp.sync(rootResourceDir)
+
+  for (const region of getRegionList()) {
+    console.log(`Downloading ${region}...`)
+    const targetResourceDir = path.join(rootResourceDir, region)
+    mkdirp.sync(targetResourceDir)
+    const jsonFileUrl = `${dataUrl}${region}/${jsonFileName}`
+    await downloadForRegion(jsonFileUrl, targetResourceDir)
+  }
 }
 
 commander
