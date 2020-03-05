@@ -35,7 +35,7 @@ const downloadTorClient = (platform) => {
       sha512Tor = '351d9d8bc75b6d99d8ca01db76b92a88e314bbb6c5b8ab84bd17a882cd1e83e681de3b409cba6ae37574d698613c5376417c7e49a368684129a8b3b812226988'
       break
     case 'win32':
-      sha512Tor = '5519dada1932ca8b946d77c6ab14de533c5634ce14ff30c8b9d791351af6f0b4282abe82a4fa4018e50a7fd2f557e9c1abf86849583b2a686aa4ac6e5d6bbc0b'
+      sha512Tor = 'c34aeee10067fd676f4591e1f81f7ac6efdc466837551074e820bb6c604508c82fb9db20f354ec548537b87ae4b0cb947b87aa65c75efa220eed8674bfa69afa'
       break
     default:
       throw new Error('Tor client download failed; unrecognized platform: ' + platform)
