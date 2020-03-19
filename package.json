@@ -11,7 +11,7 @@
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "ethereum-remote-client": "^0.1.51",
     "extension-whitelist": "github:brave/extension-whitelist",
-    "https-everywhere-builder": "brave/https-everywhere-builder",
+    "https-everywhere-builder": "brave/https-everywhere-builder#revert_npm_audit",
     "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "^2.88.0",
     "s3-node-client": "^4.4.4",
