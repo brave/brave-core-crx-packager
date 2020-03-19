@@ -29,7 +29,7 @@
   },
   "scripts": {
     "clean": "rimraf build/",
-    "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
+    "data-files-ad-block-rust": "npm --prefix ./node_modules/adblock-rs install && node scripts/generateAdBlockRustDataFiles.js",
     "data-files-ad-block": "npm run --prefix ./node_modules/ad-block data-files",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-tracking-protection": "cd ./node_modules/tracking-protection/scripts && node ./genDataFile",
