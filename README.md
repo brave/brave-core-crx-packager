@@ -52,7 +52,7 @@ The currently supported component extension types are:
 * `tor-client`
 * `local-data-files` (formerly `tracking-protection`)
 
-### NTP SI component
+### NTP Sponsored Images(SI) component
 
 To pacakge NTP SI components, download assets from passed url at first. It will download assets to `./build/ntp-sponsored-images/resources/`
 
@@ -60,10 +60,26 @@ To pacakge NTP SI components, download assets from passed url at first. It will 
 npm run generate-ntp-sponsored-images -- --data-url <s3 buckets url>
 ```
 
-Then, package assets to crx files per region. It will generate component crx files for each region at `./build/ntp-sponsored-images/output`. Passed args to `--keys-directory` should include all PEM files that has private key for supported regions. 
+Then, package assets to crx files per region. It will generate component crx files for each region at `./build/ntp-sponsored-images/output`. Passed args to `--keys-directory` should include all PEM files that has private key for supported regions.
 
 ```bash
 npm run package-ntp-sponsored-images -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --keys-directory keys/
+```
+
+### NTP Super Referrer(SR) component
+
+Generate private key file as ntp-super-referrer-{super-referrer-code}.pem and add it as secret file to Builder. See above instruction how to generate private key file.
+
+To pacakge NTP SR components, download assets from passed url at first. It will download assets to `./build/ntp-super-referrer/resources/{super-referrer-code}`
+
+```bash
+npm run generate-ntp-super-referrer -- --data-url <s3 buckets url> --super-referrer-name <super-referrer-code>
+```
+
+Then, package assets to crx file for specific super referrer. It will generate component crx file at `./build/ntp-super-referrer/output`.
+
+```bash
+npm run package-ntp-super-referrer -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --key ntp-super-referrer-{super-referrer-code}.pem --super-referrer-name <super-referrer-code>
 ```
 
 ## Uploading
@@ -87,6 +103,12 @@ where:
 To upload NTP SI components, pass crx directory that has all generated crx files and endpoint as arguments.
 ```bash
 npm run upload-ntp-sponsored-images-components -- --crx-directory ./build/ntp-sponsored-images/output
+```
+
+### NTP SR component
+To upload NTP SR components, pass crx directory that has generated crx file and endpoint as arguments.
+```bash
+npm run upload-ntp-super-referrer-component -- --crx-directory ./build/ntp-super-referrer/output
 ```
 
 ### Importing Chrome Web Store extensions
