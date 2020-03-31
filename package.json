@@ -38,6 +38,7 @@
     "data-files-local-data-files": "npm run data-files-tracking-protection && npm run data-files-autoplay-whitelist && npm run data-files-extension-whitelist",
     "generate-ntp-sponsored-images": "node scripts/generateNTPSponsoredImages.js",
     "generate-ntp-super-referrer": "node scripts/generateNTPSuperReferrer.js",
+    "generate-parameter-updates": "node scripts/generateClientModelParameterFiles.js",
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",
     "package-ethereum-remote-client": "node ./scripts/packageComponent --type ethereum-remote-client",
@@ -49,6 +50,7 @@
     "package-ntp-sponsored-images": "node ./scripts/packageNTPSponsoredImagesComponents",
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
+    "package-parameter-updates": "node ./scripts/packageClientModelParameterComponent",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
     "upload-ad-block-raw": "node ./scripts/uploadRawAdblock",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
@@ -56,7 +58,8 @@
     "upload-tor-client": "node ./scripts/uploadComponent --type tor-client-updater",
     "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater",
     "upload-ntp-sponsored-images-components": "node ./scripts/uploadComponent --type ntp-sponsored-images",
-    "upload-ntp-super-referrer-component": "node ./scripts/uploadComponent --type ntp-super-referrer"
+    "upload-ntp-super-referrer-component": "node ./scripts/uploadComponent --type ntp-super-referrer",
+    "upload-parameter-updates": "node ./scripts/uploadComponent --type client-model-parameters"
   },
   "repository": {
     "type": "git",
