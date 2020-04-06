@@ -15,6 +15,7 @@
     "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "^2.88.0",
     "s3-node-client": "^4.4.4",
+    "speedreader": "github:brave-experiments/SpeedReader",
     "tracking-protection": "brave/tracking-protection",
     "unzip-crx-3": "^0.2.0"
   },
@@ -36,6 +37,7 @@
     "data-files-autoplay-whitelist": "npm run --prefix ./node_modules/autoplay-whitelist data-files",
     "data-files-extension-whitelist": "npm run --prefix ./node_modules/extension-whitelist data-files",
     "data-files-local-data-files": "npm run data-files-tracking-protection && npm run data-files-autoplay-whitelist && npm run data-files-extension-whitelist",
+    "data-files-speedreader": "npm run --prefix ./node_modules/speedreader data-files",
     "generate-ntp-sponsored-images": "node scripts/generateNTPSponsoredImages.js",
     "generate-ntp-super-referrer": "node scripts/generateNTPSuperReferrer.js",
     "generate-parameter-updates": "node scripts/generateClientModelParameterFiles.js",

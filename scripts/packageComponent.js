@@ -64,6 +64,13 @@ const getDATFileVersionByComponentType = (componentType) => {
       return '6.0'
     case 'local-data-files-updater':
       return '1'
+    case 'speedreader-updater':
+      return JSON.parse(fs.readFileSync(
+        path.join(
+          'node_modules',
+          'speedreader',
+          'data',
+          'speedreader-updater-manifest.json')).toString())['data_file_version'];
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
@@ -83,6 +90,9 @@ const generateManifestFilesByComponentType = (componentType) => {
       // the corresponding repos with a script to generate the
       // manifest and then call that script here)
       break
+    case 'speedreader-updater':
+      // Provides its own manifest file
+      break
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
@@ -98,6 +108,8 @@ const getManifestsDirByComponentType = (componentType) => {
     case 'local-data-files-updater':
       // TODO(emerick): Make these work like ad-block
       return path.join('manifests', componentType)
+    case 'speedreader-updater':
+      return path.join('node_modules', 'speedreader', 'data')
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
@@ -138,6 +150,8 @@ const getDATFileListByComponentType = (componentType) => {
         path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json'),
         path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat'),
         path.join('node_modules', 'tracking-protection', 'data', 'StorageTrackingProtection.dat')]
+    case 'speedreader-updater':
+      return path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat').split()
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
@@ -166,7 +180,7 @@ commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client)$/i, 'ad-block-updater')
+  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|speedreader-updater)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
   .parse(process.argv)
