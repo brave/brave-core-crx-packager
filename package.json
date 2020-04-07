@@ -51,6 +51,7 @@
     "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
     "package-ntp-sponsored-images": "node ./scripts/packageNTPSponsoredImagesComponents",
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
+    "package-speedreader": "node ./scripts/packageComponent --type speedreader-updater",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "package-parameter-updates": "node ./scripts/packageClientModelParameterComponent",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
@@ -61,7 +62,8 @@
     "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater",
     "upload-ntp-sponsored-images-components": "node ./scripts/uploadComponent --type ntp-sponsored-images",
     "upload-ntp-super-referrer-component": "node ./scripts/uploadComponent --type ntp-super-referrer",
-    "upload-parameter-updates": "node ./scripts/uploadComponent --type client-model-parameters"
+    "upload-parameter-updates": "node ./scripts/uploadComponent --type client-model-parameters",
+    "upload-speedreader": "node ./scripts/uploadComponent --type speedreader-updater"
   },
   "repository": {
     "type": "git",
