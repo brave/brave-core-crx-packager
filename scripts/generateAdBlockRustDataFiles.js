@@ -24,6 +24,7 @@ const generateResourcesFile = (uBlockArchiveZip) => {
       uBlockScriptlets
     ))
     fs.writeFileSync(getOutPath('resources.json', 'default'), jsonData, 'utf8')
+    resolve()
   })
 }
 
