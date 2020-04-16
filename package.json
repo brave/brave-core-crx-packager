@@ -40,6 +40,7 @@
     "data-files-speedreader": "npm run --prefix ./node_modules/speedreader data-files",
     "generate-ntp-sponsored-images": "node scripts/generateNTPSponsoredImages.js",
     "generate-ntp-super-referrer": "node scripts/generateNTPSuperReferrer.js",
+    "generate-ntp-super-referrer-mapping-table": "node scripts/generateNTPSuperReferrerMappingTable.js",
     "generate-parameter-updates": "node scripts/generateClientModelParameterFiles.js",
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",
@@ -51,6 +52,7 @@
     "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
     "package-ntp-sponsored-images": "node ./scripts/packageNTPSponsoredImagesComponents",
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
+    "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
     "package-speedreader": "node ./scripts/packageComponent --type speedreader-updater",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "package-parameter-updates": "node ./scripts/packageClientModelParameterComponent",
@@ -62,6 +64,7 @@
     "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater",
     "upload-ntp-sponsored-images-components": "node ./scripts/uploadComponent --type ntp-sponsored-images",
     "upload-ntp-super-referrer-component": "node ./scripts/uploadComponent --type ntp-super-referrer",
+    "upload-ntp-super-referrer-component-mapping-table": "node ./scripts/uploadComponent --type ntp-super-referrer-mapping-table",
     "upload-parameter-updates": "node ./scripts/uploadComponent --type client-model-parameters",
     "upload-speedreader": "node ./scripts/uploadComponent --type speedreader-updater"
   },
