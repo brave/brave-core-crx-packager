@@ -8,7 +8,6 @@ const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
 
-const jsonFileName = 'data.json'
 const jsonSchemaVersion = 1
 
 const createDataJsonFile = (path, body) => {
@@ -35,7 +34,6 @@ const getImageFileNameListFrom = (dataJsonObj) => {
 
 function downloadForRegion (jsonFileUrl, targetResourceDir) {
   return new Promise(function (resolve, reject) {
-    const jsonFilePath = path.join(targetResourceDir, jsonFileName)
     let jsonFileBody = '{}'
 
     // Download and parse data.json.
@@ -63,7 +61,7 @@ function downloadForRegion (jsonFileUrl, targetResourceDir) {
         return reject(error)
       }
 
-      createDataJsonFile(jsonFilePath, JSON.stringify(data))
+      createDataJsonFile(path.join(targetResourceDir, 'photo.json'), JSON.stringify(data))
 
       // Download image files that specified in data.json
       const imageFileNameList = getImageFileNameListFrom(data)
@@ -90,7 +88,7 @@ async function generateNTPSuperReferrer (dataUrl, referrerName) {
   console.log(`Downloading for ${referrerName}...`)
   const targetResourceDir = path.join(rootResourceDir, referrerName)
   mkdirp.sync(targetResourceDir)
-  const jsonFileUrl = `${dataUrl}superreferrer/${referrerName}/${jsonFileName}`
+  const jsonFileUrl = `${dataUrl}superreferrer/${referrerName}/data.json`
   await downloadForRegion(jsonFileUrl, targetResourceDir)
 }
 
