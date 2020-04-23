@@ -200,15 +200,15 @@ generateDataFilesForDefaultAdblock()
   })
   .catch((e) => {
     console.error(`Something went wrong, aborting: ${e}`)
-    process.exit(1)
+    throw e
   })
 
 process.on('uncaughtException', (err) => {
   console.error('Caught exception:', err)
-  process.exit(1)
+  throw err
 })
 
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled rejection:', err)
-  process.exit(1)
+  throw err
 })
