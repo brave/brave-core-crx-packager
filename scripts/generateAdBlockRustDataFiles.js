@@ -197,6 +197,7 @@ generateDataFilesForDefaultAdblock()
   .then(generateDataFilesForAllRegions)
   .then(() => {
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')
+    throw new Error("Whoops!");
   })
   .catch((e) => {
     console.error(`Something went wrong, aborting: ${e}`)
