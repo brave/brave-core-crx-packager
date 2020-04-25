@@ -14,6 +14,7 @@
     "https-everywhere-builder": "brave/https-everywhere-builder",
     "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "^2.88.0",
+    "s3-client": "^4.4.2",
     "s3-node-client": "^4.4.4",
     "speedreader": "github:brave-experiments/SpeedReader",
     "tracking-protection": "brave/tracking-protection",
