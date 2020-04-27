@@ -15,7 +15,7 @@
     { locale: 'US',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA22Pjefa2d1B1Ms3n3554kpGQK9hgnoGgkKnGOODNB9+pwnXIbUBQ0UPNzfxUnqU16++y3JAbmDpLKswlioRrCY8ZX0uhnotU1ZfqtNd48MEPg/DqJGU37XDxa2lxSoUQq3ppGUm6j384Ma90WEAW05ZIwfe9fu1AUpO5RRoad79LG5C+Ol2HbIQQga5YJjpFuAM5KHqbXkrYZfoDOOEAoDiV4YkmZpmsrntB45LoX0eFaQAMkd7wSujzJ261jSRmc5fBpWni3DCWjeVMqYhv40tNAjtPqwwqXEG2p3QO3wlT5LLW6mIw/SXSgecW/fzcA7gKwMsoEIumN13j21WH8wIDAQAB',
       id: 'cchgndhfgmkkfmhjhmdenpgdbcdjfmgh' },
-    { locale: 'UK',
+    { locale: 'GB',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoo+aDr4xxpKJQjgiuN/YDRJA9U5r/oTCgCRjxUBzu+LShtxyfue77RQY+xu0PVZpTznvbR4NLs3jBHiIGDHTzXOFMjO5Pn+8DNKtvNAGjBHoJUvIx6h+fK7++m8IW1RlEd8U1rrjzdfPSh2akzqCY3mM7yk4SXFeN5F+1uFdX9ZJTMWme1gvH4YDziJSjr42AKphTihlFQzddGqgfTdJaTbY7ka6rkdub5w46lle5xw2VNChVhhybnOKSZ+vXAw2yeYUzfik2PZaqAwlrxx6U3AHgv612rcZbHd1SnnTeBm2CWeaAwqa/JCiyXswWi+wHnEppiHSb4UPLHq9elTQRwIDAQAB', 
       id: 'oldkbaailkiinmopalbhaidpjdndifpa' }
   ]
