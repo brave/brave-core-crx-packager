@@ -12,7 +12,7 @@
  const jsonSchemaVersion = 1
  
  const getRegionList = () => {
-   return [ 'US', 'UK' ]
+   return [ 'US', 'GB' ]
  }
  
  const createParameterUpdateJsonFile = (path, body) => {
