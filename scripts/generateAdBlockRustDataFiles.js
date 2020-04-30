@@ -2,31 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Engine, lists, uBlockResources } = require('adblock-rs')
+const { Engine, lists } = require('adblock-rs')
+const { generateResourcesFile } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
-
-const uBlockLocalRoot = 'submodules/uBlock'
-const uBlockWebAccessibleResources = path.join(uBlockLocalRoot, 'src/web_accessible_resources')
-const uBlockRedirectEngine = path.join(uBlockLocalRoot, 'src/js/redirect-engine.js')
-const uBlockScriptlets = path.join(uBlockLocalRoot, 'assets/resources/scriptlets.js')
-
-/**
- * Returns a promise that generates a resources file from the uBlock Origin
- * repo hosted on GitHub
- */
-const generateResourcesFile = (uBlockArchiveZip) => {
-  return new Promise((resolve, reject) => {
-    const jsonData = JSON.stringify(uBlockResources(
-      uBlockWebAccessibleResources,
-      uBlockRedirectEngine,
-      uBlockScriptlets
-    ))
-    fs.writeFileSync(getOutPath('resources.json', 'default'), jsonData, 'utf8')
-    resolve()
-  })
-}
 
 /**
  * Returns a promise that which resolves with the list data
@@ -163,7 +143,7 @@ const generateDataFilesForList = (lists, filename) => {
   p = p.then((listBuffers) => {
     generateDataFileFromString(listBuffers, filename, 'default')
   })
-  p = p.then(generateResourcesFile)
+  p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
   return p
 }
 
