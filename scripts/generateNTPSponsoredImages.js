@@ -97,11 +97,24 @@ function downloadForRegion (jsonFileUrl, targetResourceDir) {
   })
 }
 
-async function generateNTPSponsoredImages (dataUrl) {
+function getTargetRegionList(targetRegions, excludedTargetRegions) {
+  targetRegionList = []
+  if (targetRegions === '')
+    targetRegionList = getRegionList()
+  else
+    targetRegionList = targetRegions.split(',')
+
+  if (excludedTargetRegions === '')
+    return targetRegionList
+
+  return targetRegionList.filter(region => !excludedTargetRegions.includes(region))
+}
+
+async function generateNTPSponsoredImages (dataUrl, targetRegions, excludedTargetRegions) {
   const rootResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources')
   mkdirp.sync(rootResourceDir)
 
-  for (const region of getRegionList()) {
+  for (const region of getTargetRegionList(targetRegions, excludedTargetRegions)) {
     console.log(`Downloading ${region}...`)
     const targetResourceDir = path.join(rootResourceDir, region)
     mkdirp.sync(targetResourceDir)
@@ -112,6 +125,19 @@ async function generateNTPSponsoredImages (dataUrl) {
 
 commander
   .option('-d, --data-url <url>', 'url that refers to data that has ntp sponsored images')
+  .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU,US,GB"', '')
+  .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU,US,GB"', '')
   .parse(process.argv)
 
-generateNTPSponsoredImages(commander.dataUrl)
+let targetRegions = ""
+if (commander.targetRegions) {
+  // Stripping unrelated chars.
+  // Only upper case and commas are allowed.
+  targetRegions = commander.targetRegions.replace(/[^A-Z,]/g, "")
+}
+let excludedTargetRegions = ""
+if (commander.excludedTargetRegions) {
+  excludedTargetRegions = commander.excludedTargetRegions.replace(/[^A-Z,]/g, "")
+}
+
+generateNTPSponsoredImages(commander.dataUrl, targetRegions, excludedTargetRegions)
