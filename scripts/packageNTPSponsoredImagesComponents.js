@@ -779,8 +779,8 @@ const generateManifestFile = (componentData) => {
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-const generateManifestFiles = () => {
-  getComponentDataList().forEach(generateManifestFile)
+const generateManifestFiles = (targetRegions, excludedTargetRegions) => {
+  getTargetComponentDataList(targetRegions, excludedTargetRegions).forEach(generateManifestFile)
 }
 
 const getManifestsDir = () => {
@@ -810,6 +810,19 @@ const generateCRXFile = (binary, endpoint, region, keyDir, componentData) => {
   })
 }
 
+const getTargetComponentDataList = (targetRegions, excludedTargetRegions) => {
+  targetComponentDataList = []
+  if (targetRegions === '')
+    targetComponentDataList = getComponentDataList()
+  else
+    targetComponentDataList = getComponentDataList().filter(component => targetRegions.includes(component.locale))
+
+  if (excludedTargetRegions === '')
+    return targetComponentDataList
+
+  return targetComponentDataList.filter(component => !excludedTargetRegions.includes(component.locale))
+}
+
 util.installErrorHandlers()
 
 commander
@@ -817,6 +830,8 @@ commander
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
+  .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU,US,GB"', '')
+  .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU,US,GB"', '')
   .parse(process.argv)
 
 let keyDir = ''
@@ -830,7 +845,19 @@ if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
+let targetRegions = ""
+if (commander.targetRegions) {
+  // Stripping unrelated chars.
+  // Only upper case and commas are allowed.
+  targetRegions = commander.targetRegions.replace(/[^A-Z,]/g, "")
+}
+let excludedTargetRegions = ""
+if (commander.excludedTargetRegions) {
+  excludedTargetRegions = commander.excludedTargetRegions.replace(/[^A-Z,]/g, "")
+}
+
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  generateManifestFiles()
-  getComponentDataList().forEach(generateCRXFile.bind(null, commander.binary, commander.endpoint, commander.region, keyDir))
+  generateManifestFiles(targetRegions, excludedTargetRegions)
+  getTargetComponentDataList(targetRegions, excludedTargetRegions).forEach(
+      generateCRXFile.bind(null, commander.binary, commander.endpoint, commander.region, keyDir))
 })
