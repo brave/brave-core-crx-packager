@@ -9,7 +9,7 @@
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.449.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
-    "ethereum-remote-client": "^0.1.51",
+    "ethereum-remote-client": "^0.1.52",
     "extension-whitelist": "github:brave/extension-whitelist",
     "https-everywhere-builder": "brave/https-everywhere-builder",
     "referrer-whitelist": "github:brave/referrer-whitelist",
