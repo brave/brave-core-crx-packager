@@ -4,7 +4,7 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
     "ad-block": "brave/ad-block",
-    "adblock-rs": "^0.2.8",
+    "adblock-rs": "^0.2.9",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.449.0",
