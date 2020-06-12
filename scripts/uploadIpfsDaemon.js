@@ -26,14 +26,30 @@ if (fs.existsSync(commander.crxFile)) {
   throw new Error('Missing or invalid crx file/directory')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  if (fs.lstatSync(crxParam).isDirectory()) {
-    fs.readdirSync(crxParam).forEach(file => {
-      if (path.parse(file).ext === '.crx') {
-        util.uploadCRXFile(commander.endpoint, commander.region, path.join(crxParam, file))
-      }
-    })
-  } else {
-    util.uploadCRXFile(commander.endpoint, commander.region, crxParam)
-  }
+let uploadJobs = []
+if (fs.lstatSync(crxParam).isDirectory()) {
+  fs.readdirSync(crxParam).forEach(file => {
+    if (path.parse(file).ext === '.crx') {
+      uploadJobs.push(util.uploadCRXFile(commander.endpoint, commander.region, path.join(crxParam, file)))
+    }
+  })
+} else {
+  uploadJobs.push(util.uploadCRXFile(commander.endpoint, commander.region, crxParam))
+}
+
+Promise.all(uploadJobs).then(() => {
+  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+    if (fs.lstatSync(crxParam).isDirectory()) {
+      fs.readdirSync(crxParam).forEach(file => {
+        if (path.parse(file).ext === '.crx') {
+          util.updateDBForCRXFile(commander.endpoint, commander.region, path.join(crxParam, file))
+        }
+      })
+    } else {
+      util.updateDBForCRXFile(commander.endpoint, commander.region, crxParam)
+    }
+  })
+}).catch((err) => {
+  console.error('Caught exception:', err)
+  process.exit(1)
 })

@@ -52,4 +52,5 @@ Promise.all(uploadJobs).then(() => {
   })
 }).catch((err) => {
   console.error('Caught exception:', err)
+  process.exit(1)
 })
