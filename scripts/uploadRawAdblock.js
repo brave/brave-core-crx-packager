@@ -26,8 +26,8 @@ const client = s3.createClient({
 })
 
 const uploadFile = (key, filePath, filename) => {
-  console.log('uploadFile')
   return new Promise((resolve, reject) => {
+    console.log('uploadFile', filename)
     var params = {
       localFile: filePath,
       // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
@@ -55,9 +55,13 @@ let p = Promise.resolve()
 const basePath = path.join('build', 'ad-block-updater')
 const dirs = fs.readdirSync(basePath)
 dirs.forEach((dir) => {
-  const dataFilenames = fs.readdirSync(path.join(basePath, dir))
+  const dataFileDir = path.join(basePath, dir);
+  if (!fs.statSync(dataFileDir).isDirectory()) {
+    return
+  }
+  const dataFilenames = fs.readdirSync(dataFileDir)
   dataFilenames.forEach((filename) => {
-    const currentPath = path.join(basePath, dir, filename)
+    const currentPath = path.join(dataFileDir, filename)
     if (filename.startsWith('rs-')) {
       p = p.then(uploadFile.bind(null, dataFileVersion, currentPath, filename))
     }
