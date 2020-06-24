@@ -42,6 +42,7 @@
     "data-files-extension-whitelist": "npm run --prefix ./node_modules/extension-whitelist data-files",
     "data-files-local-data-files": "npm run data-files-tracking-protection && npm run data-files-autoplay-whitelist && npm run data-files-extension-whitelist",
     "data-files-speedreader": "npm run --prefix ./node_modules/speedreader data-files",
+    "download-ipfs-daemon": "node scripts/downloadIpfsDaemon.js",
     "generate-ntp-sponsored-images": "node scripts/generateNTPSponsoredImages.js",
     "generate-ntp-super-referrer": "node scripts/generateNTPSuperReferrer.js",
     "generate-ntp-super-referrer-mapping-table": "node scripts/generateNTPSuperReferrerMappingTable.js",
