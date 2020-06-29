@@ -20,13 +20,19 @@ const stageFiles = (componentType, datFile, version, outputDir) => {
   // ad-block components are in the correct folder
   // we don't need to stage the crx files
   if(componentType == 'ad-block-updater') {
+    const resourceFileName = 'resources.json'
+    const resourceJsonPath = path.join('build', componentType, 'default', resourceFileName)
     const outputManifest = path.join(outputDir, 'manifest.json')
+    const outputResourceJSON = path.join(outputDir, resourceFileName)
     const replaceOptions = {
       files: outputManifest,
       from: /0\.0\.0/,
       to: version
     }
     replace.sync(replaceOptions)
+    if (resourceJsonPath != outputResourceJSON) {
+      fs.copyFileSync(resourceJsonPath, outputResourceJSON)
+    }
     return;
   }
 
