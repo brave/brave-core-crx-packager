@@ -24,7 +24,7 @@
  const stageFiles = (locale, version, outputDir) => {
    // Copy resources and manifest file to outputDir.
    // Copy resource files
-   const resourceDir = path.join(path.resolve(), 'build', 'client-model-parameters', 'resources', locale, '/')
+   const resourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/')
    console.log('copy dir:', resourceDir, ' to:', outputDir)
    fs.copySync(resourceDir, outputDir)
  
@@ -44,10 +44,10 @@
  const generateManifestFile = (componentData) => {
    const manifestFile = getOriginalManifest(componentData.locale)
    const manifestContent = {
-     description: 'Brave Client Model Parameters Component',
+     description: 'Brave User Model Installer Component',
      key: componentData.key,
      manifest_version: 2,
-     name: 'Brave Client Model Parameters',
+     name: 'Brave User Model Installer',
      version: '0.0.0'
    }
    fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
@@ -58,7 +58,7 @@
  }
  
  const getManifestsDir = () => {
-   const targetResourceDir = path.join(path.resolve(), 'build', 'client-model-parameters', 'manifiest-files')
+   const targetResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'manifiest-files')
    mkdirp.sync(targetResourceDir)
    return targetResourceDir
  }
@@ -70,14 +70,14 @@
  const generateCRXFile = (binary, endpoint, region, keyDir, componentData) => {
    const originalManifest = getOriginalManifest(componentData.locale)
    const locale = componentData.locale
-   const rootBuildDir = path.join(path.resolve(), 'build', 'client-model-parameters')
+   const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
    const stagingDir = path.join(rootBuildDir, 'staging', locale)
    const crxOutputDir = path.join(rootBuildDir, 'output')
    mkdirp.sync(stagingDir)
    mkdirp.sync(crxOutputDir)
    util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-     const crxFile = path.join(crxOutputDir, `client-model-parameters-${locale}.crx`)
-     const privateKeyFile = path.join(keyDir, `client-model-parameters-${locale}.pem`)
+     const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
+     const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
      stageFiles(locale, version, stagingDir)
      util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
      console.log(`Generated ${crxFile} with version number ${version}`)
