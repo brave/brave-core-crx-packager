@@ -81,7 +81,7 @@
  }
  
  async function generateClientModelParameterUpdates (dataUrl) {
-   const rootResourceDir = path.join(path.resolve(), 'build', 'client-model-parameters', 'resources')
+   const rootResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'resources')
    mkdirp.sync(rootResourceDir)
  
    for (const region of getRegionList()) {
