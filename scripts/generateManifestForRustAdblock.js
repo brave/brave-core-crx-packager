@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { lists } = require('adblock-rs')
+const { lists } = require('adblock-rust')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
