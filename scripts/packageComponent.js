@@ -10,11 +10,32 @@ const commander = require('commander')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
+const recursive = require("recursive-readdir-sync");
 const replace = require('replace-in-file')
 const util = require('../lib/util')
 
 const stageFiles = (componentType, datFile, version, outputDir) => {
   let datFileName
+  
+  // ad-block components are in the correct folder
+  // we don't need to stage the crx files
+  if(componentType == 'ad-block-updater') {
+    const resourceFileName = 'resources.json'
+    const resourceJsonPath = path.join('build', componentType, 'default', resourceFileName)
+    const outputManifest = path.join(outputDir, 'manifest.json')
+    const outputResourceJSON = path.join(outputDir, resourceFileName)
+    const replaceOptions = {
+      files: outputManifest,
+      from: /0\.0\.0/,
+      to: version
+    }
+    replace.sync(replaceOptions)
+    if (resourceJsonPath != outputResourceJSON) {
+      fs.copyFileSync(resourceJsonPath, outputResourceJSON)
+    }
+    return;
+  }
+
   if (componentNeedsStraightCopyFromUnpackedDir(componentType)) {
     const originalDir = getManifestsDirByComponentType(componentType)
     console.log('Copy dir:', originalDir, ' to:', outputDir)
@@ -58,8 +79,7 @@ const getDATFileVersionByComponentType = (componentType) => {
     case 'ethereum-remote-client':
       return '0'
     case 'ad-block-updater':
-      return fs.readFileSync(path.join('node_modules', 'ad-block', 'data_file_version.h')).toString()
-        .match(/DATA_FILE_VERSION\s*=\s*(\d+)/)[1]
+      return ''
     case 'https-everywhere-updater':
       return '6.0'
     case 'local-data-files-updater':
@@ -82,7 +102,6 @@ const generateManifestFilesByComponentType = (componentType) => {
       // Provides its own manifest file
       break
     case 'ad-block-updater':
-      childProcess.execSync(`npm run --prefix ${path.join('node_modules', 'ad-block')} manifest-files`)
       break
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
@@ -103,7 +122,7 @@ const getManifestsDirByComponentType = (componentType) => {
     case 'ethereum-remote-client':
       return path.join('node_modules', 'ethereum-remote-client')
     case 'ad-block-updater':
-      return path.join('node_modules', 'ad-block', 'out')
+      return path.join('build', 'ad-block-updater')
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
       // TODO(emerick): Make these work like ad-block
@@ -118,27 +137,29 @@ const getManifestsDirByComponentType = (componentType) => {
 const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ABPFilterParserData' ||
   datFileName === 'httpse.leveldb' ||
-  datFileName === 'TrackingProtection' ||
-  datFileName === 'StorageTrackingProtection' ||
   datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
   datFileName === 'AutoplayWhitelist' ? 'default' : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
+  if (componentType == 'ad-block-updater') {
+    return path.join(getManifestsDirByComponentType(componentType), datFileName, 'manifest.json')
+  }
   return path.join(getManifestsDirByComponentType(componentType), datFileName ? `${datFileName}-manifest.json` : 'manifest.json')
 }
+
 const getDATFileListByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
       return ['']
     case 'ad-block-updater':
-      return fs.readdirSync(path.join('node_modules', 'ad-block', 'out'))
+      return recursive(path.join('build', 'ad-block-updater'))
         .filter(file => {
-          return (path.extname(file) === '.dat' && file !== 'SafeBrowsingData.dat')
+          return (path.extname(file) === '.dat' && !file.includes('test-data'))
         })
         .reduce((acc, val) => {
-          acc.push(path.join('node_modules', 'ad-block', 'out', val))
+          acc.push(path.join(val))
           return acc
         }, [])
     case 'https-everywhere-updater':
@@ -147,9 +168,7 @@ const getDATFileListByComponentType = (componentType) => {
       return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
         path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
         path.join('node_modules', 'brave-site-specific-scripts', 'Greaselion.json'),
-        path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json'),
-        path.join('node_modules', 'tracking-protection', 'data', 'TrackingProtection.dat'),
-        path.join('node_modules', 'tracking-protection', 'data', 'StorageTrackingProtection.dat')]
+        path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json')]
     case 'speedreader-updater':
       return path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat').split()
     default:
@@ -158,7 +177,12 @@ const getDATFileListByComponentType = (componentType) => {
 }
 
 const processDATFile = (binary, endpoint, region, componentType, key, datFile) => {
-  const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
+  var datFileName = getNormalizedDATFileName(path.parse(datFile).name)
+  if (componentType == 'ad-block-updater') {
+    // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
+    datFileName = path.dirname(datFile).split(path.sep).pop()
+  }
+
   const originalManifest = getOriginalManifest(componentType, datFileName)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
