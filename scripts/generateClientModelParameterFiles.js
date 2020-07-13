@@ -12,7 +12,9 @@
  const jsonSchemaVersion = 1
  
  const getRegionList = () => {
-   return [ 'iso_3166_1_gb', 'iso_3166_1_jp', 'iso_3166_1_us', 'iso_639_1_de', 'iso_639_1_en', 'iso_639_1_fr' ]
+   return [ 'iso_3166_1_gb', 'iso_3166_1_jp', 'iso_3166_1_us',
+            'iso_639_1_de', 'iso_639_1_en', 'iso_639_1_fr',
+            'iso_639_1_ja', 'iso_639_1_pt', 'iso_639_1_es' ]
  }
  
  const createParameterUpdateJsonFile = (path, body) => {

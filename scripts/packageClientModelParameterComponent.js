@@ -29,7 +29,16 @@
       id: 'emgmepnebbddgnkhfmhdhmjifkglkamo' },
     { locale: 'iso_639_1_fr',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx1/9cmzkLNdnqefKfXfJseIA6Js0e1PC2pkCnkXbMIRBCtvvq86LhUDvERrJZ4UD/zd2YNoRUu9nqMTNpj6IZKfXwKtNwMo5yY1B2KmdOQo4MgIIf+uLVOTc18ylq0WrmLvcKW2cSvD9jR1nY1IR7eZ8n7MAriMJufckAKMpvI72/ylTYUAT5mg+o9JOghx7mixa2OGn1LC3tPlF6kqdBD06z8XBO+mpF5xlLk9CiCYiTdF1V+GiVniDX8XoJ5+nFWJolw0GVEjckFSlZiYCazUox3M2BlURLxxSjZBm77GjdMVosV5+0n0tPJ/Fjb+NnPmslcjo944DmGgzLQ1nQQIDAQAB',
-      id: 'hbejpnagkgeeohiojniljejpdpojmfdp' }
+      id: 'hbejpnagkgeeohiojniljejpdpojmfdp' },
+    { locale: 'iso_639_1_ja',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvJFbfap/j/4+DJ4FFY2zZHbm14SxpZIyoRwtCSoNKh9HsO9mt+9blnntHmaLDhZ7ITCCux8xy8pQZ/7ztsfm+DplzpDBIasS2T1FsE8VXBE/vL2xzlvo+FTXmgHg+3H6GW/0r7bzGuYml9fZv1aHBGTeajBH7LebLMYV6qlSL3K/iuiHEh+Qq95dqUKcrY28CPPriUzpyLWpQQKV0M3Z5++o04rf0jbOswHN8LSSG3HYB1BzxhPhaEco1Pn3fuxNVM69GXr5huQm8fWxViQHFcWWCd/emRC7MAPHBLuUy5i1QvIjfzfa2DZqwl03hw6m/NzzGIGMYXU3SniystOC4QIDAQAB',
+      id: 'ncnmgkcadooabjhgjlkkdipdnfokpjnm' },
+    { locale: 'iso_639_1_pt',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtZsD7mfrycGNo2orydis1b/tBCCuPzZdW5TjIgsridYH+hi9C4YkYgvfQ3WNFZHUnvQEsYhOSKr7hhDfGJB8kuZrPMnLnAX6ADjvPQSPPwYhbyBgpkmkVRi649oupVfuqEgJxFAJST7H/vLEMJA+gDHjxxyh+7J/EQbMNho+MgG+aGcQDvCDmax+g3+MXh97r0B/1mrOyskF4zP0q+zclcJVOsefgRGr+h0DbTHtMLWrrvbBO3rsM+7TaX5QTyYm5XgWI7Zt4VoiAzdS3YQCpQf5Simj1yFVFC0TfI8+LXuElBT72bADfRfLh/pVmcx1h2Uv7uK/9eYTVxmbmKxRcQIDAQAB',
+      id: 'ikpplkdenofcphgejneekjmhepajgopf' },
+    { locale: 'iso_639_1_es',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAonX2Nny33Q7yAmw8OIuaofnbejVaueiBA+lOqTCaMtxB4JcKa5G/FIzs7OQJiIkY7OiPAT7GvaitJP3IUAJNMRZ3O00ZvG7Gg7hkzrQLRk6920d2U/muw0DiY122JUdzadawm67C5WPznzNgOUxSmejkKcvv7Sj9AXf0wbjAd0BSfdPJKOsbtI4A9HAy9Hi88vMTvni/dic3VHnwo6tttz84yUgWEyweT3YKjrdsokJwmJZTV3Bi+o0ZeNOQigPBg0KFwxUCUWA82ZIJ4C/FyE8oZQ0gGE1LPnFw5pXVWfxlGqxGYr5hiPUZFDBIlpTye2utwrjsY3erjJ3zy93HUwIDAQAB',
+      id: 'ahiocclicnhmiobhocikfdamfccbehhn' }
   ]
  }
  
