@@ -7,6 +7,7 @@ const mkdirp = require('mkdirp')
 const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
+const util = require('../lib/util')
 
 const jsonFileName = 'photo.json'
 const jsonSchemaVersion = 1
@@ -62,8 +63,13 @@ function downloadForRegion (jsonFileUrl, targetResourceDir) {
       if (response && response.statusCode === 200) {
         jsonFileBody = body
       }
-
-      const photoData = JSON.parse(jsonFileBody)
+      let photoData = {}
+      try {
+        photoData = JSON.parse(jsonFileBody)
+      } catch (err) {
+        console.error(`Invalid json file ${jsonFileUrl}`)
+        return reject(error)
+      }
       // Make sure the data has a schema version so that clients can opt to parse or not
       const incomingSchemaVersion = photoData.schemaVersion
       if (!incomingSchemaVersion) {
@@ -122,6 +128,8 @@ async function generateNTPSponsoredImages (dataUrl, targetRegions, excludedTarge
     await downloadForRegion(jsonFileUrl, targetResourceDir)
   }
 }
+
+util.installErrorHandlers()
 
 commander
   .option('-d, --data-url <url>', 'url that refers to data that has ntp sponsored images')

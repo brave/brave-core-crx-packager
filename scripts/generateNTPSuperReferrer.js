@@ -7,6 +7,7 @@ const mkdirp = require('mkdirp')
 const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
+const util = require('../lib/util')
 
 const jsonSchemaVersion = 1
 
@@ -47,7 +48,13 @@ function downloadForRegion (jsonFileUrl, targetResourceDir) {
         jsonFileBody = body
       }
 
-      const data = JSON.parse(jsonFileBody)
+      let data = {}
+      try {
+        data = JSON.parse(jsonFileBody)
+      } catch (err) {
+        console.error(`Invalid json file ${jsonFileUrl}`)
+        return reject(error)
+      }
       // Make sure the data has a schema version so that clients can opt to parse or not
       const incomingSchemaVersion = data.schemaVersion
       if (!incomingSchemaVersion) {
@@ -91,6 +98,8 @@ async function generateNTPSuperReferrer (dataUrl, referrerName) {
   const jsonFileUrl = `${dataUrl}superreferrer/${referrerName}/data.json`
   await downloadForRegion(jsonFileUrl, targetResourceDir)
 }
+
+util.installErrorHandlers()
 
 commander
   .option('-d, --data-url <url>', 'url that refers to data that has ntp super referrer')
