@@ -7,6 +7,7 @@ const mkdirp = require('mkdirp')
 const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
+const util = require('../lib/util')
 
 const jsonSchemaVersion = 1
 
@@ -56,6 +57,8 @@ async function generateNTPSuperReferrerMappingTable (dataUrl) {
   const targetFilePath = path.join(rootResourceDir, 'mapping-table.json')
   await downloadMappingTableJsonFile(dataUrl, targetFilePath)
 }
+
+util.installErrorHandlers()
 
 commander
   .option('-d, --data-url <url>', 'url that refers to data that has ntp super referrer')
