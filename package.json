@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
-    "adblock-rust": "github:brave/adblock-rust#650d472987c173bb638b0d5638895dd175ff1246",
+    "adblock-rust": "github:brave/adblock-rust#6800c3c7b44f290c80b68c03285b510e0e0389cc",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.449.0",
