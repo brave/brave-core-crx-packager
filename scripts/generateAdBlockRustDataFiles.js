@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Engine, lists } = require('adblock-rust')
+const { Engine, FilterFormat, FilterSet, lists } = require('adblock-rust')
 const { generateResourcesFile } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
@@ -70,32 +70,31 @@ const getOutPath = (outputFilename, outSubdir) => {
 /**
  * Parses the passed in filter rule data and serializes a data file to disk.
  *
- * @param filterRuleData The filter rule data to parse, or an array of such strings.
+ * @param filterRuleData An array of { format, data } where format is one of `adblock-rust`'s supported filter parsing formats and data is a newline-separated list of such filters.
  * @param outputDATFilename The filename of the DAT file to create.
  */
-const generateDataFileFromString = (filterRuleData, outputDATFilename, outSubdir) => {
-  let rules
-  if (filterRuleData.constructor === Array) {
-    rules = filterRuleData.join('\n')
-  } else {
-    rules = filterRuleData
+const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir) => {
+  const filterSet = new FilterSet(false)
+  for (const { format, data } of filterRuleData) {
+    filterSet.addFilters(data.split('\n'), format)
   }
-  const client = new Engine(rules.split('\n'))
+  const client = new Engine(filterSet, true)
   const arrayBuffer = client.serialize()
   const outPath = getOutPath(outputDATFilename, outSubdir)
   fs.writeFileSync(outPath, Buffer.from(arrayBuffer))
 }
 
 /**
- * Convenience function that uses getListBufferFromURL and generateDataFileFromString
+ * Convenience function that uses getListBufferFromURL and generateDataFileFromLists
  * to construct a DAT file from a URL while applying a specific filter.
  *
  * @param listURL the URL of the list to fetch.
+ * @param the format of the filter list at the given URL.
  * @param outputDATFilename the DAT filename to write to.
  * @param filter The filter function to apply.
  * @return a Promise which resolves if successful or rejects if there's an error.
  */
-const generateDataFileFromURL = (listURL, langs, uuid, outputDATFilename, filter) => {
+const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename, filter) => {
   return new Promise((resolve, reject) => {
     console.log(`${langs} ${listURL}...`)
     request.get(listURL, function (error, response, body) {
@@ -110,7 +109,7 @@ const generateDataFileFromURL = (listURL, langs, uuid, outputDATFilename, filter
       if (filter) {
         body = filter(body)
       }
-      generateDataFileFromString([body], outputDATFilename, uuid)
+      generateDataFileFromLists([{ format, data: body }], outputDATFilename, uuid)
       resolve()
     })
   })
@@ -124,7 +123,7 @@ const generateDataFilesForAllRegions = () => {
   let p = Promise.resolve()
   new lists('regions').forEach((region) => { // eslint-disable-line
     p = p.then(generateDataFileFromURL.bind(null, region.url,
-      region.langs, region.uuid, `rs-${region.uuid}.dat`))
+      region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`))
   })
   return p
 }
@@ -137,11 +136,11 @@ const generateDataFilesForList = (lists, filename) => {
   lists.forEach((l) => {
     console.log(`${l.url}...`)
     const filterFn = getListFilterFunction(l.uuid)
-    promises.push(getListBufferFromURL(l.url, filterFn))
+    promises.push(getListBufferFromURL(l.url, filterFn).then(data => ({ format: l.format, data })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
-    generateDataFileFromString(listBuffers, filename, 'default')
+    generateDataFileFromLists(listBuffers, filename, 'default')
   })
   p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
   return p
@@ -152,21 +151,21 @@ const generateDataFilesForDefaultAdblock =
 
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile1 =
-  generateDataFileFromString.bind(null, 'ad-banner', 'ad-banner.dat', 'test-data')
+  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad-banner' }], 'ad-banner.dat', 'test-data')
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile2 =
-  generateDataFileFromString.bind(null, 'ad-banner$tag=abc', 'ad-banner-tag-abc.dat', 'test-data')
+  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad-banner$tag=abc' }], 'ad-banner-tag-abc.dat', 'test-data')
 // For brave-core ./data/adblock-data/adblock-default/rs-ABPFilterParserData.dat
 // For brave-core ./data/adblock-data/adblock-v3/rs-ABPFilterParserData.dat
 const generateTestDataFile3 =
-  generateDataFileFromString.bind(null, 'adbanner\nad_banner', 'rs-default.dat', 'test-data')
+  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'adbanner\nad_banner' }], 'rs-default.dat', 'test-data')
 // For brave-core ./data/adblock-data/adblock-v4/rs-ABPFilterParserData.dat
 const generateTestDataFile4 =
-  generateDataFileFromString.bind(null, 'v4_specific_banner.png', 'rs-v4.dat', 'test-data')
+  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'v4_specific_banner.png' }], 'rs-v4.dat', 'test-data')
 // For brave-core ./brave/test/data/adblock-data/adblock-regional/
 // 9852EFC4-99E4-4F2D-A915-9C3196C7A1DE/rs-9852EFC4-99E4-4F2D-A915-9C3196C7A1DE.dat
 const generateTestDataFile5 =
-  generateDataFileFromString.bind(null, 'ad_fr.png', 'rs-9852EFC4-99E4-4F2D-A915-9C3196C7A1DE.dat', 'test-data')
+  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad_fr.png' }], 'rs-9852EFC4-99E4-4F2D-A915-9C3196C7A1DE.dat', 'test-data')
 
 generateDataFilesForDefaultAdblock()
   .then(generateTestDataFile1)
