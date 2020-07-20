@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Engine, FilterFormat, FilterSet, lists } = require('adblock-rust')
+const { Engine, FilterFormat, FilterSet } = require('adblock-rust')
 const { generateResourcesFile } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
+
+const defaultListsUrl = 'https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/default.json'
+const regionalListsUrl = 'https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/regional.json'
 
 /**
  * Returns a promise that which resolves with the list data
@@ -120,11 +123,22 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
  */
 const generateDataFilesForAllRegions = () => {
   console.log('Processing per region list updates...')
-  let p = Promise.resolve()
-  new lists('regions').forEach((region) => { // eslint-disable-line
-    p = p.then(generateDataFileFromURL.bind(null, region.url,
-      region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`))
-  })
+  let p = new Promise((resolve, reject) => {
+    request.get(regionalListsUrl, function (error, response, body) {
+      if (error) {
+        reject(new Error(`Request error: ${error}`))
+        return
+      }
+      if (response.statusCode !== 200) {
+        reject(new Error(`Error status code ${response.statusCode} returned for URL: ${regionalListsUrl}`))
+        return
+      }
+      resolve(JSON.parse(body))
+    })
+  }).then(regions => Promise.all(regions.map(region =>
+    generateDataFileFromURL(region.url,
+      region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`)
+  )))
   return p
 }
 
@@ -146,8 +160,22 @@ const generateDataFilesForList = (lists, filename) => {
   return p
 }
 
-const generateDataFilesForDefaultAdblock =
-  generateDataFilesForList.bind(null, new lists('default'), 'rs-ABPFilterParserData.dat')  // eslint-disable-line
+const getDefaultLists = () => new Promise((resolve, reject) => {
+  request.get(defaultListsUrl, function (error, response, body) {
+    if (error) {
+      reject(new Error(`Request error: ${error}`))
+      return
+    }
+    if (response.statusCode !== 200) {
+      reject(new Error(`Error status code ${response.statusCode} returned for URL: ${defaultListsUrl}`))
+      return
+    }
+    resolve(JSON.parse(body))
+  })
+})
+
+const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
+    generateDataFilesForList(defaultLists, 'rs-ABPFilterParserData.dat'))
 
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile1 =
