@@ -12,6 +12,29 @@ const defaultListsUrl = 'https://raw.githubusercontent.com/brave/adblock-resourc
 const regionalListsUrl = 'https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/regional.json'
 
 /**
+ * Returns a promise that which resolves with the body parsed as JSON
+ *
+ * @param url The URL to fetch from
+ * @return a promise that resolves with the content of the list or rejects with an error message.
+ */
+const requestJSON = (url) => new Promise((resolve, reject) => {
+  request.get(url, function (error, response, body) {
+    if (error) {
+      reject(new Error(`Request error: ${error}`))
+      return
+    }
+    if (response.statusCode !== 200) {
+      reject(new Error(`Error status code ${response.statusCode} returned for URL: ${url}`))
+      return
+    }
+    resolve(JSON.parse(body))
+  })
+})
+
+const getDefaultLists = requestJSON.bind(null, defaultListsUrl)
+const getRegionalLists = requestJSON.bind(null, regionalListsUrl)
+
+/**
  * Returns a promise that which resolves with the list data
  *
  * @param listURL The URL of the list to fetch
@@ -119,27 +142,20 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
 }
 
 /**
- * Convenience function that generates a DAT file for each region
+ * Convenience function that generates a DAT file for each region, and writes
+ * the catalog of available regional lists to the default list directory.
  */
 const generateDataFilesForAllRegions = () => {
   console.log('Processing per region list updates...')
-  let p = new Promise((resolve, reject) => {
-    request.get(regionalListsUrl, function (error, response, body) {
-      if (error) {
-        reject(new Error(`Request error: ${error}`))
-        return
-      }
-      if (response.statusCode !== 200) {
-        reject(new Error(`Error status code ${response.statusCode} returned for URL: ${regionalListsUrl}`))
-        return
-      }
-      resolve(JSON.parse(body))
-    })
-  }).then(regions => Promise.all(regions.map(region =>
-    generateDataFileFromURL(region.url,
-      region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`)
-  )))
-  return p
+  return getRegionalLists().then(regions => {
+    return new Promise((resolve, reject) => {
+      fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), JSON.stringify(regions))
+      resolve()
+    }).then(Promise.all(regions.map(region =>
+      generateDataFileFromURL(region.url,
+        region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`)
+    )))
+  })
 }
 
 /**
@@ -159,20 +175,6 @@ const generateDataFilesForList = (lists, filename) => {
   p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
   return p
 }
-
-const getDefaultLists = () => new Promise((resolve, reject) => {
-  request.get(defaultListsUrl, function (error, response, body) {
-    if (error) {
-      reject(new Error(`Request error: ${error}`))
-      return
-    }
-    if (response.statusCode !== 200) {
-      reject(new Error(`Error status code ${response.statusCode} returned for URL: ${defaultListsUrl}`))
-      return
-    }
-    resolve(JSON.parse(body))
-  })
-})
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
     generateDataFilesForList(defaultLists, 'rs-ABPFilterParserData.dat'))
