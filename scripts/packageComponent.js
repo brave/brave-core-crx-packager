@@ -170,7 +170,8 @@ const getDATFileListByComponentType = (componentType) => {
         path.join('node_modules', 'brave-site-specific-scripts', 'Greaselion.json'),
         path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json')]
     case 'speedreader-updater':
-      return path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat').split()
+      return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
+        path.join('node_modules', 'speedreader', 'data', 'content-stylesheet.css')]
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
