@@ -90,7 +90,7 @@ const getDATFileVersionByComponentType = (componentType) => {
           'node_modules',
           'speedreader',
           'data',
-          'speedreader-updater-manifest.json')).toString())['data_file_version'];
+          'default-manifest.json')).toString())['data_file_version'];
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
@@ -140,7 +140,9 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
-  datFileName === 'AutoplayWhitelist' ? 'default' : datFileName
+  datFileName === 'AutoplayWhitelist' || 
+  datFileName === 'speedreader-updater' || 
+  datFileName === 'content-stylesheet' ? 'default' : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
   if (componentType == 'ad-block-updater') {
