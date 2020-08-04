@@ -57,6 +57,7 @@
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
     "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
     "package-speedreader": "node ./scripts/packageComponent --type speedreader-updater",
+    "package-youtubedown": "node scripts/packageYoutubedown.js",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "package-user-model-installer-updates": "node ./scripts/packageClientModelParameterComponent",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
