@@ -8,11 +8,23 @@ const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
+const request = require('request')
 const util = require('../lib/util')
 
+const getOutPath = (outputFilename) => {
+  let outPath = path.join('build')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  outPath = path.join(outPath, 'youtubedown')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  return path.join(outPath, outputFilename)
+}
+
 const stageFiles = (version, outputDir) => {
-  const scriptFile = path.join(path.resolve(), 'build', 'youtubedown', 'youtubedown.js')
-  //..
+  const scriptFile = getOutPath('youtubedown.js')
   const outputScriptFile = path.join(outputDir, 'youtubedown.js')
   console.log('copy ', scriptFile, ' to:', outputScriptFile)
   fs.copyFileSync(scriptFile, outputScriptFile)
@@ -36,16 +48,14 @@ const generateManifestFile = (publicKey) => {
     description: 'Brave wrapper for youtubedown (jwz.org)',
     key: publicKey,
     manifest_version: 2,
-    name: `youtubedown`,
+    name: 'youtubedown',
     version: '0.0.0'
   }
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-const downloadLatestYoutubedown = () => {
+function downloadFileSync (downloadUrl, destPath) {
   return new Promise(function (resolve, reject) {
-    const downloadUrl = 'https://www.jwz.org/hacks/youtubedown.js'
-
     request(downloadUrl, async function (error, response, body) {
       if (error) {
         console.error(`Error trying to download ${downloadUrl}:`, error)
@@ -53,42 +63,50 @@ const downloadLatestYoutubedown = () => {
       }
 
       if (response && response.statusCode === 200) {
-        const targetScriptFile = path.join(path.resolve(), 'build', 'youtubedown', 'youtubedown.js')
-        fs.writeFileSync(targetScriptFile, body)
+        fs.writeFileSync(destPath, body)
         resolve()
       }
 
       const errorText = response
-         ? `Invalid response code: ${response.statusCode}:`
-         : 'Response was null or empty'
+        ? `Invalid response code: ${response.statusCode}:`
+        : 'Response was null or empty'
       console.error(errorText)
       return reject(errorText)
-    }
+    })
+  })
+}
+
+async function downloadLatestYoutubedown () {
+  // TODO(bsclifton): doesn't handle errors (ex: 403)
+  // script is currently getting a 403 when fetched :(
+  await downloadFileSync(
+    'https://www.jwz.org/hacks/youtubedown.js', getOutPath('youtubedown.js'))
 }
 
 const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'build','youtubedown', 'youtubedown-manifest.json')
+  return getOutPath('youtubedown-manifest.json')
 }
 
 const generatePublicKeyAndID = (privateKeyFile) => {
   childProcess.execSync(`openssl rsa -in ${privateKeyFile} -pubout -out public.pub`)
   try {
-      // read contents of the file
-      const data = fs.readFileSync('public.pub', 'UTF-8');
+    // read contents of the file
+    const data = fs.readFileSync('public.pub', 'UTF-8')
 
-      // split the contents by new line
-      const lines = data.split(/\r?\n/);
-      let pubKeyString = ''
-      lines.forEach((line) => {
-          if (!line.includes('-----'))
-            pubKeyString += line
-      });
-      console.log(`publicKey: ${pubKeyString}`)
-      const id = util.getIDFromBase64PublicKey(pubKeyString)
-      console.log(`componentID: ${id}`)
-      return [pubKeyString, id]
+    // split the contents by new line
+    const lines = data.split(/\r?\n/)
+    let pubKeyString = ''
+    lines.forEach((line) => {
+      if (!line.includes('-----')) {
+        pubKeyString += line
+      }
+    })
+    console.log(`publicKey: ${pubKeyString}`)
+    const id = util.getIDFromBase64PublicKey(pubKeyString)
+    console.log(`componentID: ${id}`)
+    return [pubKeyString, id]
   } catch (err) {
-      console.error(err);
+    console.error(err)
   }
 }
 
@@ -100,7 +118,7 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) 
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, `youtubedown.crx`)
+    const crxFile = path.join(crxOutputDir, 'youtubedown.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
@@ -130,6 +148,6 @@ if (!commander.binary) {
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
-  await downloadLatestYoutubedown()
+  downloadLatestYoutubedown()
   generateCRXFile(commander.binary, commander.endpoint, commander.region, componentID, privateKeyFile)
 })
