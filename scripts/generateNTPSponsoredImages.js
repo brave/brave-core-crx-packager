@@ -8,6 +8,7 @@ const fs = require('fs-extra')
 const request = require('request')
 const commander = require('commander')
 const util = require('../lib/util')
+const ntpSIUtil = require('../lib/ntpSponsoredImagesUtil')
 
 const jsonFileName = 'photo.json'
 const jsonSchemaVersion = 1
@@ -148,4 +149,9 @@ if (commander.excludedTargetRegions) {
   excludedTargetRegions = commander.excludedTargetRegions.replace(/[^A-Z,]/g, "")
 }
 
-generateNTPSponsoredImages(commander.dataUrl, targetRegions, excludedTargetRegions)
+(async () => {
+  const tagFileJson = await ntpSIUtil.getTargetRegionFromTagFile(commander.dataUrl)
+  if (tagFileJson.regions.length !== 0) {
+    generateNTPSponsoredImages(commander.dataUrl, tagFileJson.regions.join(','), '')
+  }
+})()

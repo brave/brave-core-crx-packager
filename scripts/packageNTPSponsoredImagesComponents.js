@@ -9,6 +9,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
+const ntpSIUtil = require('../lib/ntpSponsoredImagesUtil')
 
 const getComponentDataList = () => {
   return [
@@ -826,6 +827,7 @@ const getTargetComponentDataList = (targetRegions, excludedTargetRegions) => {
 util.installErrorHandlers()
 
 commander
+  .option('-d, --data-url <url>', 'url that refers to data that has ntp sponsored images')
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
@@ -856,8 +858,18 @@ if (commander.excludedTargetRegions) {
   excludedTargetRegions = commander.excludedTargetRegions.replace(/[^A-Z,]/g, "")
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  generateManifestFiles(targetRegions, excludedTargetRegions)
-  getTargetComponentDataList(targetRegions, excludedTargetRegions).forEach(
-      generateCRXFile.bind(null, commander.binary, commander.endpoint, commander.region, keyDir))
-})
+(async () => {
+  const tagFileJson = await ntpSIUtil.getTargetRegionFromTagFile(commander.dataUrl)
+  if (tagFileJson.regions.length !== 0) {
+    targetRegionsFromTagFile = tagFileJson.regions.join(',')
+    util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+      generateManifestFiles(targetRegionsFromTagFile, '')
+      getTargetComponentDataList(targetRegionsFromTagFile, '').forEach(
+          generateCRXFile.bind(null, commander.binary, commander.endpoint, commander.region, keyDir))
+    })
+  } else {
+    // Craete empty output dir. Upload scripts determines it as an error if ouput dir is not existed.
+    const crxOutputDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'output')
+    mkdirp.sync(crxOutputDir)
+  }
+})()
