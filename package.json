@@ -10,7 +10,7 @@
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "ethereum-remote-client": "^0.1.74",
     "extension-whitelist": "github:brave/extension-whitelist",
-    "https-everywhere-builder": "brave/https-everywhere-builder",
+    "https-everywhere-builder": "github:brave/https-everywhere-builder#httpse-rust",
     "recursive-readdir-sync": "^1.0.6",
     "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "^2.88.0",

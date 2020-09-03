@@ -1,6 +1,6 @@
 {
   "description": "Brave HTTPS Everywhere Updater extension",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvn9zSMjTmhkQyrZu5UdN350nPqLoSeCYngcC7yDFwaUHjoBQXCZqGeDC69ciCQ2mlRhcV2nxXqlUDkiC6+7m651nI+gi4oVqHagc7EFUyGA0yuIk7qIMvCBdH7wbET27de0rzbRzRht9EKzEjIhCBtoPnmyrO/8qPrH4XR4cPfnFPuJssBBxC1B35H7rh0Br9qePhPDDe9OjyqYxPuio+YcC9obL4g5krVrfrlKLfFNpIewUcJyBpSlCgfxEyEhgDkK9cILTMUi5vC7GxS3POtZqgfRg8Da4i+NwmjQqrz0JFtPMMSyUnmeMj+mSOL4xZVWr8fU2/GOCXs9gczDpJwIDAQAB",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnlSgb99knPRN5YtflR0xgi6eO3K4XYzF1shgACd40ccwSGyuYwqdBK6f8jAJOL5leBnmvXgHTeiXc1K+l0K8FgQMO9Y1EtzBHfdXxN3u7NKoQmCO9m5dlz771m4Qgg+JtB6hsmqNAMkqee50wQn3q8+tcS8xM63zOGM0E9ub/tFAxPTAfLJlka2Qn0iFj7ON2OzfpJNQguPx4rJS34ziBfXagFF+tlNzdy0BOHIHOiqtZ09sOgHaptIZdWVef6Y9v4fjOlVNlrn45rt98whrYFAgbOutakZNf6PEQ/brga6zAhu6B/0kIOEFZhDC198gqqaAacV8bHmryUxjWPEiqwIDAQAB",
   "manifest_version": 2,
   "name": "Brave HTTPS Everywhere Updater",
   "version": "0.0.0"
