@@ -45,7 +45,15 @@ const stageFiles = (componentType, datFile, version, outputDir) => {
     const datFileBase = parsedDatFile.base
     datFileName = getNormalizedDATFileName(parsedDatFile.name)
     const datFileVersion = getDATFileVersionByComponentType(componentType)
-    const outputDatDir = path.join(outputDir, datFileVersion)
+    let outputDatDir = path.join(outputDir, datFileVersion)
+    if (componentType == 'local-data-files-updater') {
+      const index = datFile.indexOf('/dist/')
+      if (index !== -1) {
+	let baseDir = datFile.substring(index + '/dist/'.length)
+	baseDir = baseDir.substring(0, baseDir.lastIndexOf('/'))
+	outputDatDir = path.join(outputDatDir, baseDir)
+      }
+    }
     const outputDatFile = path.join(outputDatDir, datFileBase)
     mkdirp.sync(outputDatDir)
     console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
@@ -142,7 +150,8 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'Greaselion' ||
   datFileName === 'AutoplayWhitelist' || 
   datFileName === 'speedreader-updater' || 
-  datFileName === 'content-stylesheet' ? 'default' : datFileName
+  datFileName === 'content-stylesheet' ||
+  datFileName.endsWith('.bundle') ? 'default' : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
   if (componentType == 'ad-block-updater') {
@@ -168,9 +177,9 @@ const getDATFileListByComponentType = (componentType) => {
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
       return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
-        path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
-        path.join('node_modules', 'brave-site-specific-scripts', 'Greaselion.json'),
-        path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json')]
+	      path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
+	      path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json')].concat(
+		recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
     case 'speedreader-updater':
       return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
         path.join('node_modules', 'speedreader', 'data', 'content-stylesheet.css')]
