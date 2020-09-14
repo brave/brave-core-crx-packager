@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { lists } = require('adblock-rust')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
+
+const { getRegionalLists } = require('../lib/adBlockRustUtils')
 
 var outPath = path.join('build', 'ad-block-updater');
 
@@ -38,9 +39,10 @@ const generateManifestFileForDefaultAdblock =
 
 const generateManifestFilesForAllRegions = () => {
   let p = Promise.resolve()
-  new lists('regions').forEach((region) => { // eslint-disable-line
-    p = p.then(generateManifestFile.bind(null, region.title,
-      region.base64_public_key, region.uuid))
+  getRegionalLists().then(regions => {
+    regions.forEach((region) => {
+      p = p.then(generateManifestFile.bind(null, region.title, region.base64_public_key, region.uuid))
+    })
   })
 }
 

@@ -3,36 +3,10 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { Engine, FilterFormat, FilterSet } = require('adblock-rust')
-const { generateResourcesFile } = require('../lib/adBlockRustUtils')
+const { generateResourcesFile, getDefaultLists, getRegionalLists } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
-
-const defaultListsUrl = 'https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/default.json'
-const regionalListsUrl = 'https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/regional.json'
-
-/**
- * Returns a promise that which resolves with the body parsed as JSON
- *
- * @param url The URL to fetch from
- * @return a promise that resolves with the content of the list or rejects with an error message.
- */
-const requestJSON = (url) => new Promise((resolve, reject) => {
-  request.get(url, function (error, response, body) {
-    if (error) {
-      reject(new Error(`Request error: ${error}`))
-      return
-    }
-    if (response.statusCode !== 200) {
-      reject(new Error(`Error status code ${response.statusCode} returned for URL: ${url}`))
-      return
-    }
-    resolve(JSON.parse(body))
-  })
-})
-
-const getDefaultLists = requestJSON.bind(null, defaultListsUrl)
-const getRegionalLists = requestJSON.bind(null, regionalListsUrl)
 
 /**
  * Returns a promise that which resolves with the list data
