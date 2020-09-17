@@ -10,6 +10,7 @@ const path = require('path')
 const replace = require('replace-in-file')
 const request = require('request')
 const util = require('../lib/util')
+const ntpUtil = require('../lib/ntpUtil')
 
 const getOutPath = (outputFilename) => {
   let outPath = path.join('build')
@@ -56,58 +57,48 @@ const generateManifestFile = (publicKey) => {
 
 function downloadFileSync (downloadUrl, destPath) {
   return new Promise(function (resolve, reject) {
-    request(downloadUrl, async function (error, response, body) {
-      if (error) {
-        console.error(`Error trying to download ${downloadUrl}:`, error)
-        return reject(error)
-      }
+    // Not sure why below code doesn't work. callback is not called.
+    // request(downloadUrl, async function (error, response, body) {
+    //   if (error) {
+    //     console.error(`Error trying to download ${downloadUrl}:`, error)
+    //     return reject(error)
+    //   }
 
-      if (response && response.statusCode === 200) {
-        fs.writeFileSync(destPath, body)
+    //   if (response && response.statusCode === 200) {
+    //     fs.writeFileSync(destPath, body)
+    //     resolve()
+    //   }
+
+    //   const errorText = response
+    //     ? `Invalid response code: ${response.statusCode}:`
+    //     : 'Response was null or empty'
+    //   console.error(errorText)
+    //   return reject(errorText)
+    // })
+
+    request
+      .get(downloadUrl)
+      .on('response', function(response) {
         resolve()
-      }
-
-      const errorText = response
-        ? `Invalid response code: ${response.statusCode}:`
-        : 'Response was null or empty'
-      console.error(errorText)
-      return reject(errorText)
-    })
+      })
+      .on('error' , function(error) {
+        return reject()
+      })
+      .pipe(fs.createWriteStream(destPath))
   })
 }
 
-async function downloadLatestYoutubedown () {
+async function downloadLatestYoutubedown (bucketUrl) {
   // TODO(bsclifton): doesn't handle errors (ex: 403)
   // script is currently getting a 403 when fetched :(
+  // Because of 403 from 'https://www.jwz.org/hacks/youtubedown.js', we copied
+  // youtubedown.js to s3 bucket.
   await downloadFileSync(
-    'https://www.jwz.org/hacks/youtubedown.js', getOutPath('youtubedown.js'))
+    bucketUrl + 'playlist/youtubedown.js', getOutPath('youtubedown.js'))
 }
 
 const getOriginalManifest = () => {
   return getOutPath('youtubedown-manifest.json')
-}
-
-const generatePublicKeyAndID = (privateKeyFile) => {
-  childProcess.execSync(`openssl rsa -in ${privateKeyFile} -pubout -out public.pub`)
-  try {
-    // read contents of the file
-    const data = fs.readFileSync('public.pub', 'UTF-8')
-
-    // split the contents by new line
-    const lines = data.split(/\r?\n/)
-    let pubKeyString = ''
-    lines.forEach((line) => {
-      if (!line.includes('-----')) {
-        pubKeyString += line
-      }
-    })
-    console.log(`publicKey: ${pubKeyString}`)
-    const id = util.getIDFromBase64PublicKey(pubKeyString)
-    console.log(`componentID: ${id}`)
-    return [pubKeyString, id]
-  } catch (err) {
-    console.error(err)
-  }
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) => {
@@ -129,6 +120,7 @@ util.installErrorHandlers()
 
 commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
+  .option('-d, --bucket-url <url>', 'url that refers to the bucket that has youtubedown.js')
   .option('-k, --key <file>', 'file containing private key for signing crx file')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
@@ -145,9 +137,13 @@ if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
+if (!commander.bucketUrl) {
+  throw new Error('Missing Bucket url --bucket-url')
+}
+
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [publicKey, componentID] = generatePublicKeyAndID(privateKeyFile)
+  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
-  downloadLatestYoutubedown()
+  downloadLatestYoutubedown(commander.bucketUrl)
   generateCRXFile(commander.binary, commander.endpoint, commander.region, componentID, privateKeyFile)
 })

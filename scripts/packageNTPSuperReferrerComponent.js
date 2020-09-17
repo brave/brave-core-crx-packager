@@ -9,6 +9,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
+const ntpUtil = require('../lib/ntpUtil')
 
 const stageFiles = (superReferrerName, version, outputDir) => {
   // Copy resources and manifest file to outputDir.
@@ -44,28 +45,6 @@ const generateManifestFile = (superReferrerName, publicKey) => {
 
 const getOriginalManifest = (superReferrerName) => {
   return path.join(path.resolve(), 'build','ntp-super-referrer', `${superReferrerName}-manifest.json`)
-}
-
-const generatePublicKeyAndID = (privateKeyFile) => {
-  childProcess.execSync(`openssl rsa -in ${privateKeyFile} -pubout -out public.pub`)
-  try {
-      // read contents of the file
-      const data = fs.readFileSync('public.pub', 'UTF-8');
-
-      // split the contents by new line
-      const lines = data.split(/\r?\n/);
-      let pubKeyString = ''
-      lines.forEach((line) => {
-          if (!line.includes('-----'))
-            pubKeyString += line
-      });
-      console.log(`publicKey: ${pubKeyString}`)
-      const id = util.getIDFromBase64PublicKey(pubKeyString)
-      console.log(`componentID: ${id}`)
-      return [pubKeyString, id]
-  } catch (err) {
-      console.error(err);
-  }
 }
 
 const generateCRXFile = (binary, endpoint, region, superReferrerName, componentID, privateKeyFile) => {
@@ -105,7 +84,7 @@ if (!commander.binary) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [publicKey, componentID] = generatePublicKeyAndID(privateKeyFile)
+  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(commander.superReferrerName, publicKey)
   generateCRXFile(commander.binary, commander.endpoint, commander.region, commander.superReferrerName, componentID, privateKeyFile)
 })
