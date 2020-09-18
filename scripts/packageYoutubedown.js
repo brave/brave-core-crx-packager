@@ -12,6 +12,8 @@ const request = require('request')
 const util = require('../lib/util')
 const ntpUtil = require('../lib/ntpUtil')
 
+const YoutubeDownJSURL = 'https://www.jwz.org/hacks/youtubedown.js'
+
 const getOutPath = (outputFilename) => {
   let outPath = path.join('build')
   if (!fs.existsSync(outPath)) {
@@ -57,27 +59,14 @@ const generateManifestFile = (publicKey) => {
 
 function downloadFileSync (downloadUrl, destPath) {
   return new Promise(function (resolve, reject) {
-    // Not sure why below code doesn't work. callback is not called.
-    // request(downloadUrl, async function (error, response, body) {
-    //   if (error) {
-    //     console.error(`Error trying to download ${downloadUrl}:`, error)
-    //     return reject(error)
-    //   }
-
-    //   if (response && response.statusCode === 200) {
-    //     fs.writeFileSync(destPath, body)
-    //     resolve()
-    //   }
-
-    //   const errorText = response
-    //     ? `Invalid response code: ${response.statusCode}:`
-    //     : 'Response was null or empty'
-    //   console.error(errorText)
-    //   return reject(errorText)
-    // })
-
+    const options = {
+      url: downloadUrl,
+      headers: {
+       'User-Agent': 'Request',
+      }
+    }
     request
-      .get(downloadUrl)
+      .get(options)
       .on('response', function(response) {
         resolve()
       })
@@ -88,13 +77,8 @@ function downloadFileSync (downloadUrl, destPath) {
   })
 }
 
-async function downloadLatestYoutubedown (bucketUrl) {
-  // TODO(bsclifton): doesn't handle errors (ex: 403)
-  // script is currently getting a 403 when fetched :(
-  // Because of 403 from 'https://www.jwz.org/hacks/youtubedown.js', we copied
-  // youtubedown.js to s3 bucket.
-  await downloadFileSync(
-    bucketUrl + 'playlist/youtubedown.js', getOutPath('youtubedown.js'))
+async function downloadLatestYoutubedown () {
+  await downloadFileSync(YoutubeDownJSURL, getOutPath('youtubedown.js'))
 }
 
 const getOriginalManifest = () => {
@@ -120,7 +104,6 @@ util.installErrorHandlers()
 
 commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-  .option('-d, --bucket-url <url>', 'url that refers to the bucket that has youtubedown.js')
   .option('-k, --key <file>', 'file containing private key for signing crx file')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
@@ -137,13 +120,9 @@ if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
-if (!commander.bucketUrl) {
-  throw new Error('Missing Bucket url --bucket-url')
-}
-
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
-  downloadLatestYoutubedown(commander.bucketUrl)
+  downloadLatestYoutubedown()
   generateCRXFile(commander.binary, commander.endpoint, commander.region, componentID, privateKeyFile)
 })
