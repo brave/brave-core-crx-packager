@@ -44,6 +44,7 @@
     "generate-ntp-sponsored-images": "node scripts/generateNTPSponsoredImages.js",
     "generate-ntp-super-referrer": "node scripts/generateNTPSuperReferrer.js",
     "generate-ntp-super-referrer-mapping-table": "node scripts/generateNTPSuperReferrerMappingTable.js",
+    "generate-youtubedown": "node ./scripts/generateYoutubedown.js",
     "generate-user-model-installer-updates": "node scripts/generateClientModelParameterFiles.js",
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",

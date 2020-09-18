@@ -45,42 +45,6 @@ const stageFiles = (version, outputDir) => {
   replace.sync(replaceOptions)
 }
 
-const generateManifestFile = (publicKey) => {
-  const manifestFile = getOriginalManifest()
-  const manifestContent = {
-    description: 'Brave wrapper for youtubedown (jwz.org)',
-    key: publicKey,
-    manifest_version: 2,
-    name: 'youtubedown',
-    version: '0.0.0'
-  }
-  fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
-}
-
-function downloadFileSync (downloadUrl, destPath) {
-  return new Promise(function (resolve, reject) {
-    const options = {
-      url: downloadUrl,
-      headers: {
-       'User-Agent': 'Request',
-      }
-    }
-    request
-      .get(options)
-      .on('response', function(response) {
-        resolve()
-      })
-      .on('error' , function(error) {
-        return reject()
-      })
-      .pipe(fs.createWriteStream(destPath))
-  })
-}
-
-async function downloadLatestYoutubedown () {
-  await downloadFileSync(YoutubeDownJSURL, getOutPath('youtubedown.js'))
-}
-
 const getOriginalManifest = () => {
   return getOutPath('youtubedown-manifest.json')
 }
@@ -122,7 +86,5 @@ if (!commander.binary) {
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateManifestFile(publicKey)
-  downloadLatestYoutubedown()
   generateCRXFile(commander.binary, commander.endpoint, commander.region, componentID, privateKeyFile)
 })
