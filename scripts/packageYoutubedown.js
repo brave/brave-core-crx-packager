@@ -8,18 +8,32 @@ const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
+const request = require('request')
 const util = require('../lib/util')
 const ntpUtil = require('../lib/ntpUtil')
 
-const stageFiles = (superReferrerName, version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  // Copy resource files
-  const resourceDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', superReferrerName, '/')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
+const YoutubeDownJSURL = 'https://www.jwz.org/hacks/youtubedown.js'
+
+const getOutPath = (outputFilename) => {
+  let outPath = path.join('build')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  outPath = path.join(outPath, 'youtubedown')
+  if (!fs.existsSync(outPath)) {
+    fs.mkdirSync(outPath)
+  }
+  return path.join(outPath, outputFilename)
+}
+
+const stageFiles = (version, outputDir) => {
+  const scriptFile = getOutPath('youtubedown.js')
+  const outputScriptFile = path.join(outputDir, 'youtubedown.js')
+  console.log('copy ', scriptFile, ' to:', outputScriptFile)
+  fs.copyFileSync(scriptFile, outputScriptFile)
 
   // Fix up the manifest version
-  const originalManifest = getOriginalManifest(superReferrerName)
+  const originalManifest = getOriginalManifest()
   const outputManifest = path.join(outputDir, 'manifest.json')
   console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
   const replaceOptions = {
@@ -31,32 +45,20 @@ const stageFiles = (superReferrerName, version, outputDir) => {
   replace.sync(replaceOptions)
 }
 
-const generateManifestFile = (superReferrerName, publicKey) => {
-  const manifestFile = getOriginalManifest(superReferrerName)
-  const manifestContent = {
-    description: 'Brave NTP Super Referrer component',
-    key: publicKey,
-    manifest_version: 2,
-    name: `Brave NTP Super Referrer (${superReferrerName})`,
-    version: '0.0.0'
-  }
-  fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
+const getOriginalManifest = () => {
+  return getOutPath('youtubedown-manifest.json')
 }
 
-const getOriginalManifest = (superReferrerName) => {
-  return path.join(path.resolve(), 'build','ntp-super-referrer', `${superReferrerName}-manifest.json`)
-}
-
-const generateCRXFile = (binary, endpoint, region, superReferrerName, componentID, privateKeyFile) => {
-  const originalManifest = getOriginalManifest(superReferrerName)
-  const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer')
-  const stagingDir = path.join(rootBuildDir, 'staging', superReferrerName)
+const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) => {
+  const originalManifest = getOriginalManifest()
+  const rootBuildDir = path.join(path.resolve(), 'build', 'youtubedown')
+  const stagingDir = path.join(rootBuildDir, 'staging')
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-super-referrer-${superReferrerName}.crx`)
-    stageFiles(superReferrerName, version, stagingDir)
+    const crxFile = path.join(crxOutputDir, 'youtubedown.crx')
+    stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
@@ -66,7 +68,6 @@ util.installErrorHandlers()
 
 commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-  .option('-n, --super-referrer-name <name>', 'super referrer name for this component')
   .option('-k, --key <file>', 'file containing private key for signing crx file')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
@@ -85,6 +86,5 @@ if (!commander.binary) {
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateManifestFile(commander.superReferrerName, publicKey)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region, commander.superReferrerName, componentID, privateKeyFile)
+  generateCRXFile(commander.binary, commander.endpoint, commander.region, componentID, privateKeyFile)
 })

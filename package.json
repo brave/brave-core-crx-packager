@@ -44,6 +44,7 @@
     "generate-ntp-sponsored-images": "node scripts/generateNTPSponsoredImages.js",
     "generate-ntp-super-referrer": "node scripts/generateNTPSuperReferrer.js",
     "generate-ntp-super-referrer-mapping-table": "node scripts/generateNTPSuperReferrerMappingTable.js",
+    "generate-youtubedown": "node ./scripts/generateYoutubedown.js",
     "generate-user-model-installer-updates": "node scripts/generateClientModelParameterFiles.js",
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",
@@ -57,6 +58,7 @@
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
     "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
     "package-speedreader": "node ./scripts/packageComponent --type speedreader-updater",
+    "package-youtubedown": "node ./scripts/packageYoutubedown.js",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "package-user-model-installer-updates": "node ./scripts/packageClientModelParameterComponent",
     "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
@@ -68,6 +70,7 @@
     "upload-ntp-sponsored-images-components": "node ./scripts/uploadComponent --type ntp-sponsored-images",
     "upload-ntp-super-referrer-component": "node ./scripts/uploadComponent --type ntp-super-referrer",
     "upload-ntp-super-referrer-component-mapping-table": "node ./scripts/uploadComponent --type ntp-super-referrer-mapping-table",
+    "upload-youtubedown-component": "node ./scripts/uploadComponent --type playlist-youtubedown",
     "upload-user-model-installer-updates": "node ./scripts/uploadComponent --type user-model-installer",
     "upload-speedreader": "node ./scripts/uploadComponent --type speedreader-updater"
   },
