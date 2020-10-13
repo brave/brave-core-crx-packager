@@ -148,6 +148,7 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
+  datFileName === 'messages' ||
   datFileName === 'AutoplayWhitelist' || 
   datFileName === 'speedreader-updater' || 
   datFileName === 'content-stylesheet' ||
