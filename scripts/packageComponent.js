@@ -219,7 +219,7 @@ commander
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|speedreader-updater)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
+  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .parse(process.argv)
 
 let keyParam = ''

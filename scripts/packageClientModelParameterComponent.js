@@ -111,7 +111,7 @@
    .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
    .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-   .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
+   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
    .parse(process.argv)
  
  let keyDir = ''

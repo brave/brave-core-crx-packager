@@ -17,7 +17,7 @@ const util = require('../lib/util')
 // Downloads the current (platform-specific) Tor client from S3
 const downloadTorClient = (platform) => {
   const torPath = path.join('build', 'tor-client-updater', 'downloads')
-  const torS3Prefix = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/'
+  const torS3Prefix = 'https://s3.us-west-2.amazonaws.com/demo-tor-binaries/'
 
   const torVersion = '0.3.5.11'
   const braveVersion = '0'
@@ -114,7 +114,7 @@ commander
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
+  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .parse(process.argv)
 
 let keyParam = ''
