@@ -14,7 +14,7 @@ commander
   .option('-f, --crx-file <file>', 'crx file to upload', 'extension.crx')
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|ntp-sponsored-images|ntp-super-referrer|ntp-super-referrer-mapping-table|playlist-youtubedown|speedreader-updater|tor-client-updater|ipfs-client-updater|user-model-installer)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
+  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .parse(process.argv)
 
 let crxParam = ''

@@ -11,7 +11,7 @@ util.installErrorHandlers()
 
 commander
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-east-2')
+  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .parse(process.argv)
 
 // The list of components to import from the Chrome Web Store
