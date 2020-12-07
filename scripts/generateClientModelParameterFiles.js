@@ -12,9 +12,32 @@
  const jsonSchemaVersion = 1
  
  const getRegionList = () => {
-   return [ 'iso_3166_1_gb', 'iso_3166_1_jp', 'iso_3166_1_us',
-            'iso_639_1_de', 'iso_639_1_en', 'iso_639_1_fr',
-            'iso_639_1_ja', 'iso_639_1_pt', 'iso_639_1_es' ]
+   return [
+      'iso_3166_1_gb',
+      'iso_3166_1_jp',
+      'iso_3166_1_us',
+      'iso_639_1_de',
+      'iso_639_1_en',
+      'iso_639_1_fr',
+      'iso_639_1_ja',
+      'iso_639_1_pt',
+      'iso_639_1_es',
+      'iso_639_1_ar',
+      'iso_639_1_zh',
+      'iso_639_1_nl',
+      'iso_639_1_fi',
+      'iso_639_1_el',
+      'iso_639_1_he',
+      'iso_639_1_hi',
+      'iso_639_1_it',
+      'iso_639_1_ko',
+      'iso_639_1_pl',
+      'iso_639_1_ro',
+      'iso_639_1_ru',
+      'iso_639_1_sv',
+      'iso_639_1_tl',
+      'iso_639_1_tr'
+   ]
  }
  
  const createParameterUpdateJsonFile = (path, body) => {
