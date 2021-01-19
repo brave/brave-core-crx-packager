@@ -1,7 +1,7 @@
 {
-  "description": "Brave Ipfs Daemon Updater extension",
+  "description": "Brave IPFS local node component",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuLxVDZm1QIzpMUFMBYymzriJGzgRYWpun1n9Qgd0240h9zchyZenLnZG0d3XLk38J+tHCoObb+o5sNuSzx43f0kb3mNk8AkZd/zc8jo9bK56Ep6E1iuWHfjDkl7mCD+o+CNAmDWgdGdaaaRiBIWLm8DXskaT0EWFVlBQK6PA0patY6IJ9AHeahRcQDMz11b4DZmCK46Yy0lWquAKpHdW5WFfljFxICOKeb7S/a1I0lWu2Y4Yv/ohbzktjcpAluefz6mE5d/sSBdQGdJzJIdo/CRfYgax5nMumx0x38CmVN53GVB+5TM0mw1bhU52ASysgZjAC0++Kbl1qXeSZuWM/QIDAQAB",
   "manifest_version": 2,
-  "name": "Brave Ipfs Daemon Updater (Windows)",
+  "name": "Brave IPFS local node (Windows)",
   "version": "0.0.0"
 }
