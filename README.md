@@ -111,6 +111,25 @@ To upload NTP SR components, pass crx directory that has generated crx file and 
 npm run upload-ntp-super-referrer-component -- --crx-directory ./build/ntp-super-referrer/output
 ```
 
+### User Model Installer component
+Upload data file to bucket brave-user-model-installer-input(-dev) using AWS console or setting up AWS credential and use AWS CLI
+
+```
+[profile extensions-dev-role]
+source_profile = mhaller
+role_arn = arn:aws:iam::658387850589:role/extensions-dev-developer-role
+mfa_serial = arn:aws:iam::658387850589:mfa/mhaller
+region = us-west-2
+```
+```
+aws s3 cp --recursive iso_3166_1_gb s3://brave-user-model-installer-input-dev/iso_3166_1_gb/ --profile extensions-dev-role
+```
+
+To upload the component, pass crx directory that has generated crx file and endpoint as arguments.
+```bash
+npm run upload-user-model-installer-updates -- --crx-directory ./build/user-model-installer/output
+```
+
 ### Importing Chrome Web Store extensions
 
 To import the current list of supported Chrome Web Store extensions, use the following command:
