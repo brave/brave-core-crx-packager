@@ -34,7 +34,8 @@ const uploadFile = (key, filePath, filename) => {
       s3Params: {
         Bucket: 'adblock-data',
         Key: `${key}/${filename}`,
-        ACL: 'public-read'
+        GrantFullControl: process.env.S3_CANONICAL_ID,
+        GrantRead: process.env.CLOUDFRONT_CANONICAL_ID
       }
     }
     var uploader = client.uploadFile(params)
