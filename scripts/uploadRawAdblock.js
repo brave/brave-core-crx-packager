@@ -32,9 +32,10 @@ const uploadFile = (key, filePath, filename) => {
       localFile: filePath,
       // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
       s3Params: {
-        Bucket: 'adblock-data',
+        Bucket: process.env.S3_ADBLOCK_BUCKET,
         Key: `${key}/${filename}`,
-        ACL: 'public-read'
+        GrantFullControl: process.env.S3_CANONICAL_ID,
+        GrantRead: process.env.CLOUDFRONT_CANONICAL_ID
       }
     }
     var uploader = client.uploadFile(params)
