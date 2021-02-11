@@ -44,7 +44,7 @@ const downloadTorClient = (platform) => {
   mkdirp.sync(torPath)
 
   const torClient = path.join(torPath, torFilename)
-  const cmd = 'aws s3 cp ' + torClient + ' ' + torURL + ' .'
+  const cmd = 'aws s3 cp ' + torURL + ' .'
 
   // Download the client
   execSync(cmd)
