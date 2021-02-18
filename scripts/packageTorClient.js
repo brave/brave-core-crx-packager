@@ -17,7 +17,7 @@ const util = require('../lib/util')
 // Downloads the current (platform-specific) Tor client from S3
 const downloadTorClient = (platform) => {
   const torPath = path.join('build', 'tor-client-updater', 'downloads')
-  const torS3Prefix = 'https://s3.us-east-2.amazonaws.com/demo-tor-binaries/'
+  const torS3Prefix = process.env.S3_DEMO_TOR_PREFIX
 
   const torVersion = '0.4.5.6'
   const braveVersion = '0'
@@ -44,7 +44,7 @@ const downloadTorClient = (platform) => {
   mkdirp.sync(torPath)
 
   const torClient = path.join(torPath, torFilename)
-  const cmd = 'curl -o ' + torClient + ' ' + torURL
+  const cmd = 'aws s3 cp ' + torURL + ' ' + torClient
 
   // Download the client
   execSync(cmd)
