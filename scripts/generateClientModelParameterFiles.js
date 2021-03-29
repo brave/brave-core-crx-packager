@@ -7,16 +7,17 @@
  const fs = require('fs-extra')
  const request = require('request')
  const commander = require('commander')
- 
+
  const jsonFileName = 'models.json'
  const jsonSchemaVersion = 1
- 
+
  const getRegionList = () => {
    return [
       'iso_3166_1_gb',
       'iso_3166_1_jp',
       'iso_3166_1_us',
       'iso_3166_1_ca',
+      'iso_3166_1_de',
       'iso_639_1_de',
       'iso_639_1_en',
       'iso_639_1_fr',
@@ -40,14 +41,14 @@
       'iso_639_1_tr'
    ]
  }
- 
+
  const createParameterUpdateJsonFile = (path, body) => {
    fs.writeFileSync(path, body)
  }
- 
+
  const getModelFileNameListFrom = (modelsJsonObj) => {
    let fileList = []
- 
+
    if (modelsJsonObj.models) {
     modelsJsonObj.models.forEach((model) => {
        fileList.push(model.filename)
@@ -55,12 +56,12 @@
    }
    return fileList
  }
- 
+
  function downloadForRegion (jsonFileUrl, targetResourceDir) {
    return new Promise(function (resolve, reject) {
      const jsonFilePath = path.join(targetResourceDir, jsonFileName)
      let jsonFileBody = '{}'
- 
+
      // Download and parse models.json.
      // If it doesn't exist, create with empty object.
      request(jsonFileUrl, async function (error, response, body) {
@@ -71,7 +72,7 @@
        if (response && response.statusCode === 200) {
          jsonFileBody = body
        }
- 
+
        const modelsData = JSON.parse(jsonFileBody)
        // Make sure the data has a schema version so that clients can opt to parse or not
        const incomingSchemaVersion = modelsData.schemaVersion
@@ -85,9 +86,9 @@
          console.error(`Error: Cannot parse JSON data at ${jsonFileUrl} since it has a schema version of ${incomingSchemaVersion} but we expected ${jsonSchemaVersion}! This region will not be updated.`)
          return reject(error)
        }
- 
+
        createParameterUpdateJsonFile(jsonFilePath, JSON.stringify(modelsData))
- 
+
        // Download parameter files that specified in models.json
        const modelFileNameList = getModelFileNameListFrom(modelsData)
        const downloadOps = modelFileNameList.map((modelFileName) => new Promise(resolve => {
@@ -105,11 +106,11 @@
      })
    })
  }
- 
+
  async function generateClientModelParameterUpdates (dataUrl) {
    const rootResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'resources')
    mkdirp.sync(rootResourceDir)
- 
+
    for (const region of getRegionList()) {
      console.log(`Downloading ${region}...`)
      const targetResourceDir = path.join(rootResourceDir, region)
@@ -118,9 +119,9 @@
      await downloadForRegion(jsonFileUrl, targetResourceDir)
    }
  }
- 
+
  commander
    .option('-d, --data-url <url>', 'url referring to client model parameter updates')
    .parse(process.argv)
- 
+
  generateClientModelParameterUpdates(commander.dataUrl)

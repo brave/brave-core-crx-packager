@@ -9,7 +9,7 @@
  const path = require('path')
  const replace = require('replace-in-file')
  const util = require('../lib/util')
- 
+
  const getComponentDataList = () => {
   return [
     { locale: 'iso_3166_1_gb',
@@ -24,6 +24,9 @@
     { locale: 'iso_3166_1_ca',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxhI2yhy1vb6QcmKS+atjzXnNPbtDPX0svPt/A0SPWbCpcMAupfhlKLBOOnc0pSWJM7HtfUoHqXxgYV56EiBvhgNDWinW8gXmQoIXRJigYS8g9MgV1TRaQ3CdHCaPD6SrY6QZ0EQZHpWvd2OH+LQ+hGbyP8xVCEIiATWn0PPyzcw96pV7o3TLX7pSxPOxphsPOIWkB8Ca224FRzgQUo3FEgA2XgArVX09l5jmFMTagdcpfOH0Hba+q1Z+Vt4B7Jy9/QagqgwnzVnYWYyPGaZVJrhhNHk8Rllzfde/zlnoJYYNXCZoX/QPjgtEHtEHjPweJ+GL+o4UH4k23L+267f99wIDAQAB',
       id: 'gpaihfendegmjoffnpngjjhbipbioknd' },
+    { locale: 'iso_3166_1_de',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwdQCKsrqWCC4IFMCjEvm5rK7uZQlKGg9JwwjcUm7/A4SRmKMgmjxqo64DpejJylLemQQf0Z/o00d6hqon+QjjfZb5ers+lx9d1RVk3NAjzkBWrLQ64JK9fAfhnABvfaI06tbSfGthLteJyeoP4yDUHy4iElbrZMJM7yohkkyvNfExomlZ0vIqfii6nNKPuPsa5N1gQMUh9pZ+OeRfMCko1QIyEuLwoP94Hv2Ho1hc+t38sKIXDESwaabXc+1Q+qoq/e12jJzEImYcsJnqXp7kUJOA2l7pEun6Kbio5Zqvdj0KdUWhoBh8WlGp6ykhSoHsp2flwhaK7b8HQx+R7oeiQIDAQAB',
+      id: 'dgkplhfdbkdogfblcghcfcgfalanhomi' },
     { locale: 'iso_639_1_de',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw6fYL/onqsR2Eqr2lif68RY8/KSB9e0r6rOXlo6qclUckngboamWnQGZnW8LNrN7fyVjUnsK0OCLzRkOEyEm3hOnmUlROYgk2NvSIzrAhq5PA8M2xc9siU00myQ+IOhbVcNDSOxpbrX9w3e6rA9MwrytywGtL58nDWyOcFgMwfkzQHfxVxeu/rkQODkNEgXZl2t9Jd+1eHCSfleuJeNVfb9OaZ1rjVWwETHwk+Y3w2LHcS2JtFXcA7O9QI/w+s4uYGMogZKwrZG7sYZtAftOOERPrSFJDux/MNjVtm8Rpk0ZWFRIUmVWf6PnFbX6UjtJY2qAN0Nsq27TNvVKCpdz5wIDAQAB',
       id: 'eclclcmhpefndfimkgjknaenojpdffjp' },
@@ -89,14 +92,14 @@
       id: 'kpdcfihnokkbialolpedfamclbdlgopi' }
   ]
  }
- 
+
  const stageFiles = (locale, version, outputDir) => {
    // Copy resources and manifest file to outputDir.
    // Copy resource files
    const resourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/')
    console.log('copy dir:', resourceDir, ' to:', outputDir)
    fs.copySync(resourceDir, outputDir)
- 
+
    // Fix up the manifest version
    const originalManifest = getOriginalManifest(locale)
    const outputManifest = path.join(outputDir, 'manifest.json')
@@ -109,7 +112,7 @@
    fs.copyFileSync(originalManifest, outputManifest)
    replace.sync(replaceOptions)
  }
- 
+
  const generateManifestFile = (componentData) => {
    const manifestFile = getOriginalManifest(componentData.locale)
    const manifestContent = {
@@ -121,21 +124,21 @@
    }
    fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
  }
- 
+
  const generateManifestFiles = () => {
    getComponentDataList().forEach(generateManifestFile)
  }
- 
+
  const getManifestsDir = () => {
    const targetResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'manifiest-files')
    mkdirp.sync(targetResourceDir)
    return targetResourceDir
  }
- 
+
  const getOriginalManifest = (locale) => {
    return path.join(getManifestsDir(), `${locale}-manifest.json`)
  }
- 
+
  const generateCRXFile = (binary, endpoint, region, keyDir, componentData) => {
    const originalManifest = getOriginalManifest(componentData.locale)
    const locale = componentData.locale
@@ -152,27 +155,27 @@
      console.log(`Generated ${crxFile} with version number ${version}`)
    })
  }
- 
+
  util.installErrorHandlers()
- 
+
  commander
    .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
    .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
    .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
    .parse(process.argv)
- 
+
  let keyDir = ''
  if (fs.existsSync(commander.keysDirectory)) {
    keyDir = commander.keysDirectory
  } else {
    throw new Error('Missing or invalid private key directory')
  }
- 
+
  if (!commander.binary) {
    throw new Error('Missing Chromium binary: --binary')
  }
- 
+
  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
    generateManifestFiles()
    getComponentDataList().forEach(generateCRXFile.bind(null, commander.binary, commander.endpoint, commander.region, keyDir))
