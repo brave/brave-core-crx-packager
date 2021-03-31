@@ -89,7 +89,7 @@ const getDATFileVersionByComponentType = (componentType) => {
     case 'ad-block-updater':
       return ''
     case 'https-everywhere-updater':
-      return '6.0'
+      return '7.0'
     case 'local-data-files-updater':
       return '1'
     case 'speedreader-updater':
@@ -144,7 +144,7 @@ const getManifestsDirByComponentType = (componentType) => {
 
 const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ABPFilterParserData' ||
-  datFileName === 'httpse.leveldb' ||
+  datFileName === 'httpse-rs.json' ||
   datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
@@ -175,7 +175,7 @@ const getDATFileListByComponentType = (componentType) => {
           return acc
         }, [])
     case 'https-everywhere-updater':
-      return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
+      return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse-rs.json.zip').split()
     case 'local-data-files-updater':
       return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
 	      path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
