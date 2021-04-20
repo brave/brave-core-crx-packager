@@ -186,7 +186,7 @@
      key: componentData.key,
      manifest_version: 2,
      name: 'Brave Ads Resources',
-     version: '1.0.0'
+     version: '0.0.0'
    }
    fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
  }
