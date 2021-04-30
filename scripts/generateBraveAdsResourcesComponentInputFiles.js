@@ -8,6 +8,8 @@
  const request = require('request')
  const commander = require('commander')
 
+ const manifestFileNameDeprecated = "models.json"
+
  const getComponentList = () => {
    return [
       'iso_639_1_ar_deprecated',
@@ -92,6 +94,9 @@
              })
           }
         } else {
+          // Place duplicate with deprecated manifest filename in non-deprecated folder to support
+          // iOS with deprecated b-c version to be able to pull directly from bucket
+          fs.writeFileSync(`${outDir}/${manifestFileNameDeprecated}`, JSON.stringify(manifestJson))
           if (manifestJson.resources) {
             manifestJson.resources.forEach((resource) => {
                fileList.push(resource.filename)
@@ -129,7 +134,7 @@
      manifestFileName = "resources.json"
      // TODO(Moritz Haller): Delete conditional once deprecated components are phased out
      if (component.includes("deprecated")) {
-      manifestFileName = "models.json"
+      manifestFileName = manifestFileNameDeprecated
      }
      const manifestUrl = `${dataUrl}${component}/${manifestFileName}`
      await downloadComponentInputFiles(manifestFileName, manifestUrl, outDir)
