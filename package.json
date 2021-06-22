@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
-    "adblock-rs": "0.3.7",
+    "adblock-rs": "^0.3.13",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.449.0",
