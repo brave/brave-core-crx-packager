@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
+    "@metamask/contract-metadata": "git+https://github.com/MetaMask/contract-metadata.git",
     "adblock-rs": "^0.3.13",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
@@ -54,6 +55,7 @@
     "package-https-everywhere": "node ./scripts/packageComponent --type https-everywhere-updater",
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-ipfs-daemon": "node ./scripts/packageIpfsDaemon",
+    "package-wallet-data-files": "node ./scripts/packageComponent --type wallet-data-files-updater",
     "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
     "package-ntp-background-images": "node ./scripts/packageNTPBackgroundImagesComponent",
     "package-ntp-sponsored-images": "node ./scripts/packageNTPSponsoredImagesComponents",
@@ -67,6 +69,7 @@
     "upload-ad-block-raw": "node ./scripts/uploadRawAdblock",
     "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
     "upload-ipfs-daemon": "node ./scripts/uploadComponent --type ipfs-client-updater",
+    "upload-wallet-data-files": "node ./scripts/uploadComponent --type wallet-data-files-updater",
     "upload-tor-client": "node ./scripts/uploadComponent --type tor-client-updater",
     "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater",
     "upload-ntp-background-images-components": "node ./scripts/uploadComponent --type ntp-background-images",
