@@ -65,7 +65,7 @@ const stageFiles = (platform, ipfsDaemon, fsRepoTool, version, outputDir) => {
   fs.copyFileSync(ipfsDaemon, outputIpfsClient)
   if (platform === 'darwin' && fsRepoTool) {
     const outputFsRepoTool = path.join(outputDir, path.parse(fsRepoTool).base)
-    fs.copyFileSync(outputFsRepoTool, outputFsRepoTool)
+    fs.copyFileSync(fsRepoTool, outputFsRepoTool)
   }
 
   replace.sync(replaceOptions)
