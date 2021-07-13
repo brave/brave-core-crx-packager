@@ -20,6 +20,12 @@ const getIpfsDaemonPath = (platform) => {
   return path.join(ipfsPath, ipfsFilename)
 }
 
+const getFsToolPath = () => {
+  const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
+  const toolFilename = `fs-repo-10-to-11`
+  return path.join(ipfsPath, toolFilename)
+}
+
 const getOriginalManifest = (platform) => {
   return path.join('manifests', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}-manifest.json`)
 }
@@ -32,16 +38,17 @@ const packageIpfsDaemon = (binary, endpoint, region, platform, key) => {
   util.getNextVersion(endpoint, region, id).then((version) => {
     const stagingDir = path.join('build', 'ipfs-daemon-updater', platform)
     const ipfsDaemon = getIpfsDaemonPath(platform)
+    const fsRepoTool = (platform === 'darwin') ? getFsToolPath() : ''
     const crxOutputDir = path.join('build', 'ipfs-daemon-updater')
     const crxFile = path.join(crxOutputDir, `ipfs-daemon-updater-${platform}.crx`)
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
-    stageFiles(platform, ipfsDaemon, version, stagingDir)
+    stageFiles(platform, ipfsDaemon, fsRepoTool, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
-const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
+const stageFiles = (platform, ipfsDaemon, fsRepoTool, version, outputDir) => {
   const originalManifest = getOriginalManifest(platform)
   const outputManifest = path.join(outputDir, 'manifest.json')
   const outputIpfsClient = path.join(outputDir, path.parse(ipfsDaemon).base)
@@ -56,6 +63,10 @@ const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
 
   fs.copyFileSync(originalManifest, outputManifest)
   fs.copyFileSync(ipfsDaemon, outputIpfsClient)
+  if (platform === 'darwin' && fsRepoTool) {
+    const outputFsRepoTool = path.join(outputDir, path.parse(fsRepoTool).base)
+    fs.copyFileSync(outputFsRepoTool, outputFsRepoTool)
+  }
 
   replace.sync(replaceOptions)
 }
