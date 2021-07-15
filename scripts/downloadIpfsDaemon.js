@@ -49,7 +49,7 @@ const downloadFsRepoMigration = (platform) => {
 
   // Verify the checksum
   if (!verifyChecksum(repoTool, sha512IPFS)) {
-    console.error('Ipfs Daemon checksum verification failed')
+    console.error('FsRepoMigration tool checksum verification failed')
     process.exit(1)
   }
 
