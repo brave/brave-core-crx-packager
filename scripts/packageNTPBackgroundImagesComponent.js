@@ -54,7 +54,6 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) 
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
  util.getNextVersion(endpoint, region, componentID).then((version) => {
-    version = '1.0.0'
     const crxFile = path.join(crxOutputDir, `ntp-background-images.crx`)
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
