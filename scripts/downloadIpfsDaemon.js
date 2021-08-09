@@ -8,7 +8,7 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const util = require('../lib/util')
-const ipfsVersion = '0.9.0'
+const ipfsVersion = '0.9.1'
 const fsRepoVersion = '1.0.0'
 
 // Downloads the current (platform-specific) fs-repo-migration component
@@ -75,13 +75,13 @@ const downloadIpfsDaemon = (platform) => {
 
   switch (platform) {
     case 'darwin':
-      sha512IPFS = '7c39b6bd59147c87d07222844e43c7a0735f58a17318ca1fdd5a8d49dc79ad6abe724e6f9fa274b6b474a88216696dfbbd2e3ea3e028f4859aabf4b29c4ab627'
+      sha512IPFS = '7957a7838f2a19043af149be6df63a1181d80868d1ee10b44527fc93e42ced41d82a765bc435d3c34d52508584999d3ec274a4006c35e2c633b04b8ea7403ed0'
       break
     case 'linux':
-      sha512IPFS = '386d970bcaa37fb7991cc2fe1e2d55efcc95020d51f479fd707e2b8aec1c01dddf2d88cbe0a5ad1d83e58d34b7897d876d01042244f1baad0302915472c09178'
+      sha512IPFS = 'bae5e2286e6921614282f12ba4c70c5e0ddbc2e613e5e3e66ab0fd1f316f1ca37984d1520b923cea1a678ba25001ffeeb7fe615a6333b6a71ac6473822c1e6e2'
       break
     case 'win32':
-      sha512IPFS = '9865581daa4b0e725ab41e5eeea9f1460b9e26e452b0ac508cfe77031781829d1a7181b4c166f5ac9cf06b29a44d6f00b661d6b06d2d9b42915238aa617d1010'
+      sha512IPFS = '2dbbd3d249bd890f26732f1409abf12c5686d0d810c77599bc936fd7b23b49de370d293e482f47ae3084c5be39a250216df3a1f43d150fc9eb20b4dae0061c5d'
       break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)
