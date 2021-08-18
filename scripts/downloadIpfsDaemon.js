@@ -17,7 +17,7 @@ const downloadFsRepoMigration = (platform) => {
       return
   const repoPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
 
-  const ipfsDistPrefix = `https://dist.ipfs.io/fs-repo-10-to-11/v${fsRepoVersion}/`
+  const ipfsDistPrefix = `https://cloudflare-ipfs.com/ipns/dist.ipfs.io/fs-repo-10-to-11/v${fsRepoVersion}/`
 
   const zipSuffix = '.tar.gz'
 
@@ -63,7 +63,7 @@ const downloadFsRepoMigration = (platform) => {
 const downloadIpfsDaemon = (platform) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
 
-  const ipfsDistPrefix = `https://ipfs.io/ipns/dist.ipfs.io/go-ipfs/v${ipfsVersion}/`
+  const ipfsDistPrefix = `https://cloudflare-ipfs.com/ipns/dist.ipfs.io/go-ipfs/v${ipfsVersion}/`
 
   const zipSuffix = platform === 'win32' ? '.zip' : '.tar.gz'
   const myplatform = platform === 'win32' ? 'windows' : platform
