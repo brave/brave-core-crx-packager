@@ -11,7 +11,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
-const ipfsVersion = '0.9.1'
+const ipfsVersion = '0.10.0'
 
 const getIpfsDaemonPath = (platform) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
