@@ -79,7 +79,7 @@ const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir)
     filterSet.addFilters(data.split('\n'), format)
   }
   const client = new Engine(filterSet, true)
-  const arrayBuffer = client.serialize()
+  const arrayBuffer = client.serializeCompressed()
   const outPath = getOutPath(outputDATFilename, outSubdir)
   fs.writeFileSync(outPath, Buffer.from(arrayBuffer))
 }

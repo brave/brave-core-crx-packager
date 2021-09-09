@@ -4,7 +4,7 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
     "@metamask/contract-metadata": "git+https://github.com/MetaMask/contract-metadata.git",
-    "adblock-rs": "^0.3.13",
+    "adblock-rs": "^0.3.17",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "^2.449.0",
