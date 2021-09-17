@@ -16,7 +16,7 @@ const util = require('../lib/util')
 
 const stageFiles = (componentType, datFile, version, outputDir) => {
   let datFileName
-  
+
   // ad-block components are in the correct folder
   // we don't need to stage the crx files
   if(componentType == 'ad-block-updater') {
@@ -151,9 +151,10 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
+  datFileName === 'debounce' ||
   datFileName === 'messages' ||
-  datFileName === 'AutoplayWhitelist' || 
-  datFileName === 'speedreader-updater' || 
+  datFileName === 'AutoplayWhitelist' ||
+  datFileName === 'speedreader-updater' ||
   datFileName === 'content-stylesheet' ||
   datFileName.endsWith('.bundle') ? 'default' : datFileName
 
@@ -186,6 +187,7 @@ const getDATFileListByComponentType = (componentType) => {
     case 'local-data-files-updater':
       return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
 	      path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
+	      path.join('node_modules', 'adblock-lists', 'brave-lists', 'debounce.json'),
 	      path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json')].concat(
 		recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
     case 'speedreader-updater':
