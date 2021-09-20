@@ -58,6 +58,12 @@ const stageFiles = (componentType, datFile, version, outputDir) => {
     mkdirp.sync(outputDatDir)
     console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
     fs.copyFileSync(datFile, outputDatFile)
+    if(componentType == 'wallet-data-files-updater') {
+      // Copy images too
+      const imagesSrcPath = path.join(path.dirname(datFile), "images")
+      const imagesDstPath = path.join(outputDatDir, "images")
+      fs.copySync(imagesSrcPath, imagesDstPath)
+    }
   }
 
   // Fix up the manifest version
