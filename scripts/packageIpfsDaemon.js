@@ -13,10 +13,10 @@ const replace = require('replace-in-file')
 const util = require('../lib/util')
 const ipfsVersion = '0.10.0'
 
-const getIpfsDaemonPath = (platform) => {
+const getIpfsDaemonPath = (os, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
-  const myplatform = platform === 'win32' ? 'windows' : platform
-  const ipfsFilename = `go-ipfs_v${ipfsVersion}_${myplatform}-amd64`
+  const myplatform = os === 'win32' ? 'windows' : os
+  const ipfsFilename = `go-ipfs_v${ipfsVersion}_${myplatform}-${arch}`
   return path.join(ipfsPath, ipfsFilename)
 }
 
@@ -24,14 +24,15 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}-manifest.json`)
 }
 
-const packageIpfsDaemon = (binary, endpoint, region, platform, key) => {
+const packageIpfsDaemon = (binary, endpoint, region, os, arch, key) => {
+  const platform = `${os}-${arch}`
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   util.getNextVersion(endpoint, region, id).then((version) => {
     const stagingDir = path.join('build', 'ipfs-daemon-updater', platform)
-    const ipfsDaemon = getIpfsDaemonPath(platform)
+    const ipfsDaemon = getIpfsDaemonPath(os, arch)
     const crxOutputDir = path.join('build', 'ipfs-daemon-updater')
     const crxFile = path.join(crxOutputDir, `ipfs-daemon-updater-${platform}.crx`)
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
@@ -85,7 +86,8 @@ if (!commander.binary) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'darwin', keyParam)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'linux', keyParam)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'win32', keyParam)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'darwin', 'amd64', keyParam)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'linux', 'amd64', keyParam)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'win32', 'amd64', keyParam)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'darwin', 'arm64', keyParam)
 })

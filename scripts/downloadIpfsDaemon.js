@@ -11,27 +11,29 @@ const util = require('../lib/util')
 const ipfsVersion = '0.10.0'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
-const downloadIpfsDaemon = (platform) => {
+const downloadIpfsDaemon = (platform, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
 
   const ipfsDistPrefix = `https://cloudflare-ipfs.com/ipns/dist.ipfs.io/go-ipfs/v${ipfsVersion}/`
 
   const zipSuffix = platform === 'win32' ? '.zip' : '.tar.gz'
   const myplatform = platform === 'win32' ? 'windows' : platform
-
-  const ipfsFilename = `go-ipfs_v${ipfsVersion}_${myplatform}-amd64`
+  const build = `${myplatform}-${arch}`
+  const ipfsFilename = `go-ipfs_v${ipfsVersion}_${build}`
   const ipfsURL = ipfsDistPrefix + ipfsFilename + zipSuffix
 
   let sha512IPFS = ''
-
-  switch (platform) {
-    case 'darwin':
+  switch (build) {
+    case 'darwin-amd64':
       sha512IPFS = '5a010789a0b91c859fd131abb51118b5ff1fe865ebee9ba3bc9283685abbc673f0a95ea4113a4bb16c6c4b4627bbae062d0a1fc00d2c1f82371913e9dc43a8a7'
       break
-    case 'linux':
+    case 'darwin-arm64':
+      sha512IPFS = '30f83d12ce90aec6c0e9e65d9e8bfba5b9f3039f82472a602dfb95818351dd93c1151630425af6511f030fb2d9baacb65fc068bc6c7ba2686e2030824075df64'
+      break
+    case 'linux-amd64':
       sha512IPFS = 'bb0fe78a3142489fd6b7f608053b2e20cd9a4788febbeb4a0413783ac00306842451678f0953a917c459dfa69e4308f381ca0b6385f221dd70f7e01190bce2d1'
       break
-    case 'win32':
+    case 'windows-amd64':
       sha512IPFS = '7b0c17696330652af1c8709aaea8bee460e51cd3091e8128e4603b6f5c5d774344500e139f0aba1e98e7cabe6ee56f2b2958bad5dea1df7e773d747fbec9058b'
       break
     default:
@@ -48,7 +50,6 @@ const downloadIpfsDaemon = (platform) => {
 
   // Download and decompress the client
   execSync(cmd)
-
   // Verify the checksum
   if (!verifyChecksum(ipfsDaemon, sha512IPFS)) {
     console.error('Ipfs Daemon checksum verification failed')
@@ -69,9 +70,10 @@ const verifyChecksum = (file, hash) => {
 
 util.installErrorHandlers()
 
-downloadIpfsDaemon('darwin')
-downloadIpfsDaemon('linux')
-downloadIpfsDaemon('win32')
+downloadIpfsDaemon('darwin', 'amd64')
+downloadIpfsDaemon('darwin', 'arm64')
+downloadIpfsDaemon('linux', 'amd64')
+downloadIpfsDaemon('win32', 'amd64')
 
 module.exports = {
   ipfsVersion,
