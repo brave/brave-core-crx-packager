@@ -70,15 +70,15 @@ const getOutPath = (outputFilename, outSubdir) => {
 /**
  * Parses the passed in filter rule data and serializes a data file to disk.
  *
- * @param filterRuleData An array of { format, data, parse_redirect_urls } where format is one of `adblock-rust`'s supported filter parsing formats and data is a newline-separated list of such filters. 
- * parse_redirect_urls is a boolean indicating whether or not to parse redirect-urls: https://github.com/brave/adblock-rust/pull/184
+ * @param filterRuleData An array of { format, data, include_redirect_urls } where format is one of `adblock-rust`'s supported filter parsing formats and data is a newline-separated list of such filters. 
+ * include_redirect_urls is a boolean: https://github.com/brave/adblock-rust/pull/184. We only support redirect URLs on filter lists we maintain and trust.
  * @param outputDATFilename The filename of the DAT file to create.
  */
 const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir) => {
   const filterSet = new FilterSet(false)
-  for (let { format, data, parse_redirect_urls } of filterRuleData) {
-    parse_redirect_urls = Boolean(parse_redirect_urls)
-    const parseOpts = { format, parse_redirect_urls }
+  for (let { format, data, include_redirect_urls } of filterRuleData) {
+    include_redirect_urls = Boolean(include_redirect_urls)
+    const parseOpts = { format, include_redirect_urls }
     filterSet.addFilters(data.split('\n'), parseOpts)
   }
   const client = new Engine(filterSet, true)
@@ -143,7 +143,7 @@ const generateDataFilesForList = (lists, filename) => {
   lists.forEach((l) => {
     console.log(`${l.url}...`)
     const filterFn = getListFilterFunction(l.uuid)
-    promises.push(getListBufferFromURL(l.url, filterFn).then(data => ({ format: l.format, data, parse_redirect_urls: l.parse_redirect_urls })))
+    promises.push(getListBufferFromURL(l.url, filterFn).then(data => ({ format: l.format, data, include_redirect_urls: l.include_redirect_urls })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
