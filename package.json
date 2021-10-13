@@ -18,6 +18,7 @@
     "request": "^2.88.0",
     "s3-client": "^4.4.2",
     "s3-node-client": "^4.4.4",
+    "sharp": "^0.29.1",
     "speedreader": "github:brave-experiments/SpeedReader",
     "unzip-crx-3": "^0.2.0"
   },
