@@ -14,7 +14,7 @@ const recursive = require("recursive-readdir-sync");
 const replace = require('replace-in-file')
 const util = require('../lib/util')
 
-const stageFiles = (componentType, datFile, version, outputDir) => {
+async function stageFiles(componentType, datFile, version, outputDir) {
   let datFileName
 
   // ad-block components are in the correct folder
@@ -62,18 +62,14 @@ const stageFiles = (componentType, datFile, version, outputDir) => {
       // Copy images and convert them to png plus resize to 200x200 if needed
       const imagesSrcPath = path.join(path.dirname(datFile), "images")
       const imagesDstPath = path.join(outputDatDir, "images")
-      fs.readdir(imagesSrcPath, function (err, files) {
-        if (err) {
-          console.error("Could not list the directory.", err)
-          process.exit(1)
-        }
-        files.forEach(function (file, index) {
-          var fileTo = file.substr(0, file.lastIndexOf(".")) + ".png"
-          var fromPath = path.join(imagesSrcPath, file)
-          var toPath = path.join(imagesDstPath, fileTo)
-          util.saveToPNGResize(fromPath, toPath, false)
-        })
-      })
+      const files = fs.readdirSync(imagesSrcPath)
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i]
+        var fileTo = file.substr(0, file.lastIndexOf(".")) + ".png"
+        var fromPath = path.join(imagesSrcPath, file)
+        var toPath = path.join(imagesDstPath, fileTo)
+        await util.saveToPNGResize(fromPath, toPath, false)
+      }
       util.contractReplaceSvgToPng(outputDatFile)
     }
   }
