@@ -63,6 +63,9 @@ async function stageFiles(componentType, datFile, version, outputDir) {
       const imagesSrcPath = path.join(path.dirname(datFile), "images")
       const imagesDstPath = path.join(outputDatDir, "images")
       const files = fs.readdirSync(imagesSrcPath)
+      if (!fs.existsSync(imagesDstPath)){
+        fs.mkdirSync(imagesDstPath)
+      }
       for (var i = 0; i < files.length; i++) {
         var file = files[i]
         var fileTo = file.substr(0, file.lastIndexOf(".")) + ".png"
@@ -220,11 +223,12 @@ const postNextVersionWork = (componentType, datFileName, key, binary, localRun, 
   if (!localRun) {
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, datFileName ? `${componentType}-${datFileName}.pem` : `${componentType}.pem`)
   }
-  stageFiles(componentType, datFile, version, stagingDir)
-  if (!localRun) {
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
-  }
-  console.log(`Generated ${crxFile} with version number ${version}`)
+  stageFiles(componentType, datFile, version, stagingDir).then(() => {
+    if (!localRun) {
+      util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    }
+    console.log(`Generated ${crxFile} with version number ${version}`)
+  })
 }
 
 const processDATFile = (binary, endpoint, region, componentType, key, localRun, datFile) => {
