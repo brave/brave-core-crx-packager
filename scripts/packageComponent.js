@@ -14,7 +14,7 @@ const recursive = require("recursive-readdir-sync");
 const replace = require('replace-in-file')
 const util = require('../lib/util')
 
-const stageFiles = (componentType, datFile, version, outputDir) => {
+async function stageFiles(componentType, datFile, version, outputDir) {
   let datFileName
 
   // ad-block components are in the correct folder
@@ -49,9 +49,9 @@ const stageFiles = (componentType, datFile, version, outputDir) => {
     if (componentType == 'local-data-files-updater') {
       const index = datFile.indexOf('/dist/')
       if (index !== -1) {
-	let baseDir = datFile.substring(index + '/dist/'.length)
-	baseDir = baseDir.substring(0, baseDir.lastIndexOf('/'))
-	outputDatDir = path.join(outputDatDir, baseDir)
+	      let baseDir = datFile.substring(index + '/dist/'.length)
+	      baseDir = baseDir.substring(0, baseDir.lastIndexOf('/'))
+	      outputDatDir = path.join(outputDatDir, baseDir)
       }
     }
     const outputDatFile = path.join(outputDatDir, datFileBase)
@@ -59,10 +59,21 @@ const stageFiles = (componentType, datFile, version, outputDir) => {
     console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
     fs.copyFileSync(datFile, outputDatFile)
     if(componentType == 'wallet-data-files-updater') {
-      // Copy images too
+      // Copy images and convert them to png plus resize to 200x200 if needed
       const imagesSrcPath = path.join(path.dirname(datFile), "images")
       const imagesDstPath = path.join(outputDatDir, "images")
-      fs.copySync(imagesSrcPath, imagesDstPath)
+      const files = fs.readdirSync(imagesSrcPath)
+      if (!fs.existsSync(imagesDstPath)){
+        fs.mkdirSync(imagesDstPath)
+      }
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i]
+        var fileTo = file.substr(0, file.lastIndexOf(".")) + ".png"
+        var fromPath = path.join(imagesSrcPath, file)
+        var toPath = path.join(imagesDstPath, fileTo)
+        await util.saveToPNGResize(fromPath, toPath, false)
+      }
+      util.contractReplaceSvgToPng(outputDatFile)
     }
   }
 
@@ -204,7 +215,23 @@ const getDATFileListByComponentType = (componentType) => {
   }
 }
 
-const processDATFile = (binary, endpoint, region, componentType, key, datFile) => {
+const postNextVersionWork = (componentType, datFileName, key, binary, localRun, datFile, version) => {
+  const stagingDir = path.join('build', componentType, datFileName)
+  const crxOutputDir = path.join('build', componentType)
+  const crxFile = path.join(crxOutputDir, datFileName ? `${componentType}-${datFileName}.crx` : `${componentType}.crx`)
+  var privateKeyFile = ''
+  if (!localRun) {
+    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, datFileName ? `${componentType}-${datFileName}.pem` : `${componentType}.pem`)
+  }
+  stageFiles(componentType, datFile, version, stagingDir).then(() => {
+    if (!localRun) {
+      util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    }
+    console.log(`Generated ${crxFile} with version number ${version}`)
+  })
+}
+
+const processDATFile = (binary, endpoint, region, componentType, key, localRun, datFile) => {
   var datFileName = getNormalizedDATFileName(path.parse(datFile).name)
   if (componentType == 'ad-block-updater') {
     // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
@@ -218,15 +245,19 @@ const processDATFile = (binary, endpoint, region, componentType, key, datFile) =
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
-    const stagingDir = path.join('build', componentType, datFileName)
-    const crxOutputDir = path.join('build', componentType)
-    const crxFile = path.join(crxOutputDir, datFileName ? `${componentType}-${datFileName}.crx` : `${componentType}.crx`)
-    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, datFileName ? `${componentType}-${datFileName}.pem` : `${componentType}.pem`)
-    stageFiles(componentType, datFile, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+  if (!localRun) {
+    util.getNextVersion(endpoint, region, id).then((version) => {
+      postNextVersionWork(componentType, datFileName, key, binary, localRun, datFile, version)
+    })
+  } else {
+    postNextVersionWork(componentType, datFileName, key, binary, localRun, datFile, '1.0.0')
+  }
+}
+
+const processJob = (commander, keyParam) => {
+  generateManifestFilesByComponentType(commander.type)
+  getDATFileListByComponentType(commander.type)
+    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint, commander.region, commander.type, keyParam, commander.localRun))
 }
 
 util.installErrorHandlers()
@@ -238,24 +269,29 @@ commander
   .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
+  .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
   .parse(process.argv)
 
 let keyParam = ''
 
-if (fs.existsSync(commander.keyFile)) {
-  keyParam = commander.keyFile
-} else if (fs.existsSync(commander.keysDirectory)) {
-  keyParam = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
+if (!commander.localRun) {
+  if (fs.existsSync(commander.keyFile)) {
+    keyParam = commander.keyFile
+  } else if (fs.existsSync(commander.keysDirectory)) {
+    keyParam = commander.keysDirectory
+  } else {
+    throw new Error('Missing or invalid private key file/directory')
+  }
 }
 
 if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  generateManifestFilesByComponentType(commander.type)
-  getDATFileListByComponentType(commander.type)
-    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint, commander.region, commander.type, keyParam))
-})
+if (!commander.localRun) {
+  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+    processJob(commander, keyParam)
+  })
+} else {
+  processJob(commander, keyParam)
+}
