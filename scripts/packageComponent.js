@@ -74,6 +74,7 @@ async function stageFiles(componentType, datFile, version, outputDir) {
         await util.saveToPNGResize(fromPath, toPath, false)
       }
       util.contractReplaceSvgToPng(outputDatFile)
+      util.contractAddExtraAssetIcons(outputDatFile, imagesDstPath)
     }
   }
 
