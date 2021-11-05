@@ -1,0 +1,17 @@
+name: Submodule Sync
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 12 * * *'
+jobs:
+  submodule-sync:
+    name: Submodule Sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submodule Sync
+        uses: mheap/submodule-sync-action@v1
+        with:
+          path: 'submodules/uBlock'
+          ref: master
+          pr_branch: automated-submodule-update
+          target_branch: master
