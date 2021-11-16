@@ -20,6 +20,7 @@
     "s3-node-client": "^4.4.4",
     "sharp": "^0.29.1",
     "speedreader": "github:brave-experiments/SpeedReader",
+    "svg-resizer": "github:brave/svg-resizer",
     "unzip-crx-3": "^0.2.0"
   },
   "devDependencies": {
