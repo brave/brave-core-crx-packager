@@ -86,6 +86,8 @@ const stageFiles = (platform, torClient, version, outputDir) => {
   const originalManifest = getOriginalManifest(platform)
   const outputManifest = path.join(outputDir, 'manifest.json')
   const outputTorClient = path.join(outputDir, path.parse(torClient).base)
+  const outputTorrc = path.join(outputDir, 'tor-torrc')
+  const inputTorrc = path.join('resources', 'tor', 'torrc')
 
   const replaceOptions = {
     files: outputManifest,
@@ -97,6 +99,7 @@ const stageFiles = (platform, torClient, version, outputDir) => {
 
   fs.copyFileSync(originalManifest, outputManifest)
   fs.copyFileSync(torClient, outputTorClient)
+  fs.copyFileSync(inputTorrc, outputTorrc)
 
   replace.sync(replaceOptions)
 }
