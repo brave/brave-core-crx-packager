@@ -8,7 +8,7 @@
     "adblock-rs": "^0.4.2",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
-    "aws-sdk": "^2.814.0",
+    "aws-sdk": "2.1047.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "ethereum-remote-client": "^0.1.107",
     "extension-whitelist": "github:brave/extension-whitelist",
