@@ -24,7 +24,7 @@ if (fs.existsSync(commander.crxFile)) {
 } else if (fs.existsSync(commander.crxDirectory)) {
   crxParam = commander.crxDirectory
 } else {
-  throw new Error('Missing or invalid crx file/directory', commander.crxFile, commander.crxDirectory)
+  throw new Error(`Missing or invalid crx file/directory, file: '${commander.crxFile} directory: '${commander.crxDirectory}'`)
 }
 
 let uploadJobs = []

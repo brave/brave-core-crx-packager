@@ -60,7 +60,6 @@ function getManifestPath (regionPlatform) {
 }
 
 const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion, componentData) => {
-  const locale = componentData.locale
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
   const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -70,7 +69,7 @@ const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion, compo
     const crxFile = path.join(crxOutputDir, `ntp-sponsored-images-${platformRegion}.crx`)
     // Desktop private key file names do not have the -desktop suffix, but android has -android
     const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
-    stageFiles(locale, version, stagingDir)
+    stageFiles(platformRegion, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
@@ -102,8 +101,8 @@ commander
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
-  .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU,US,GB"', '')
-  .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU,US,GB"', '')
+  .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
+  .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
   .parse(process.argv)
 
 let keyDir = ''
@@ -124,17 +123,23 @@ if (commander.targetRegions) {
   // Stripping unrelated chars.
   // Only upper case, commas and dashes are allowed.
   const targetRegions = commander.targetRegions.replace(/[^A-Z,-]/g, '')
-  includes = targetRegions.split(',').map(i => i.trim())
+  includes = targetRegions.split(',').map(i => i.trim()).filter(i => !!i)
 }
 if (commander.excludedTargetRegions) {
   const excludedTargetRegions = commander.excludedTargetRegions.replace(/[^A-Z,-]/g, '')
-  excludes = excludedTargetRegions.split(',').map(i => i.trim())
+  excludes = excludedTargetRegions.split(',').map(i => i.trim()).filter(i => !!i)
 }
 
+const targetComponents = getTargetComponents(includes, excludes)
+
+console.log('includes keys: ', includes)
+console.log('excludes keys: ', excludes)
+console.log('resulting target keys:', Object.keys(targetComponents))
+
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const targetComponents = getTargetComponents(includes, excludes)
   for (const platformRegion of Object.keys(targetComponents)) {
-    generateManifestFile(platformRegion, targetComponents[platformRegion])
-    generateCRXFile(commander.binary, commander.endpoint, commander.region, keyDir)
+    const componentData = targetComponents[platformRegion]
+    generateManifestFile(platformRegion, componentData)
+    generateCRXFile(commander.binary, commander.endpoint, commander.region, keyDir, platformRegion, componentData)
   }
 })
