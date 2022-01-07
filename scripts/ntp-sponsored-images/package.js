@@ -9,7 +9,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 const util = require('../../lib/util')
-const regionPlatformComponentMetadata = require('./region-platform-component-metadata')
+const params = require('./params')
 
 const stageFiles = (locale, version, outputDir) => {
   // Copy resources and manifest file to outputDir.
@@ -75,25 +75,6 @@ const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion, compo
   })
 }
 
-/**
- *
- *
- * @param {string[]} includes
- * @param {string[]} excludes
- */
-function getTargetComponents (includes, excludes) {
-  const targetComponents = { }
-  for (const platformRegion of Object.keys(regionPlatformComponentMetadata)) {
-    // Include the component if it's in includes and not in excludes, or includes is empty
-    if ((!includes.length || includes.includes(platformRegion)) && (
-      !excludes.length || !excludes.includes(platformRegion)
-    )) {
-      targetComponents[platformRegion] = regionPlatformComponentMetadata[platformRegion]
-    }
-  }
-  return targetComponents
-}
-
 util.installErrorHandlers()
 
 commander
@@ -116,25 +97,7 @@ if (!commander.binary) {
   throw new Error('Missing Chromium binary: --binary')
 }
 
-let includes = []
-let excludes = []
-
-if (commander.targetRegions) {
-  // Stripping unrelated chars.
-  // Only upper case, commas and dashes are allowed.
-  const targetRegions = commander.targetRegions.replace(/[^A-Z,-]/g, '')
-  includes = targetRegions.split(',').map(i => i.trim()).filter(i => !!i)
-}
-if (commander.excludedTargetRegions) {
-  const excludedTargetRegions = commander.excludedTargetRegions.replace(/[^A-Z,-]/g, '')
-  excludes = excludedTargetRegions.split(',').map(i => i.trim()).filter(i => !!i)
-}
-
-const targetComponents = getTargetComponents(includes, excludes)
-
-console.log('includes keys: ', includes)
-console.log('excludes keys: ', excludes)
-console.log('resulting target keys:', Object.keys(targetComponents))
+const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const platformRegion of Object.keys(targetComponents)) {
