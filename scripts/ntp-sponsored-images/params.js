@@ -30,6 +30,9 @@ function parseRegionListParam (incoming) {
  * @returns {typeof regionPlatformComponentMetadata}
  */
 function getTargetComponentsFromArrays (includes, excludes) {
+  /**
+   * @type {typeof regionPlatformComponentMetadata}
+   */
   const targetComponents = { }
   for (const platformRegion of Object.keys(regionPlatformComponentMetadata)) {
     // Include the component if it's in includes and not in excludes, or includes is empty

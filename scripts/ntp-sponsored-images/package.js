@@ -28,6 +28,7 @@ const stageFiles = (locale, version, outputDir) => {
     to: version
   }
   fs.copyFileSync(originalManifestPath, outputManifestPath)
+  // @ts-ignore typescript thinks were using es import syntax and expects replace.default.sync
   replace.sync(replaceOptions)
 }
 

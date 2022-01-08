@@ -21,7 +21,7 @@ tap.test('ntp getTargetComponentsFromArrays', (t) => {
   t.strictSame(actual, { 'US-android': allComponents['US-android'], 'FR-desktop': allComponents['FR-desktop'] })
 
   // strip bad chars but still include
-  actual = params.getTargetComponents('"US-an;droid",')
+  actual = params.getTargetComponents('"US-an;droid",', undefined)
   t.strictSame(actual, { 'US-android': allComponents['US-android'] })
 
   //exclude
