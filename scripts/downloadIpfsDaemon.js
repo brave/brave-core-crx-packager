@@ -46,7 +46,7 @@ const downloadIpfsDaemon = (platform, arch) => {
   const exeSuffix = platform === 'win32' ? '.exe' : ''
   const decompress = `bsdtar xf - -C ${ipfsPath}`
   const copy = `cp ${path.join(ipfsPath, 'go-ipfs', 'ipfs' + exeSuffix)} ${ipfsDaemon}`
-  const cmd = `curl -s ${ipfsURL} | ${decompress} && ${copy}`
+  const cmd = `curl -sL ${ipfsURL} | ${decompress} && ${copy}`
 
   // Download and decompress the client
   execSync(cmd)
