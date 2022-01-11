@@ -14,7 +14,7 @@ const ipfsVersion = '0.11.0'
 const downloadIpfsDaemon = (platform, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
 
-  const ipfsDistPrefix = `https://cloudflare-ipfs.com/ipns/dist.ipfs.io/go-ipfs/v${ipfsVersion}/`
+  const ipfsDistPrefix = `https://github.com/ipfs/go-ipfs/releases/download/v${ipfsVersion}/`
 
   const zipSuffix = platform === 'win32' ? '.zip' : '.tar.gz'
   const myplatform = platform === 'win32' ? 'windows' : platform
