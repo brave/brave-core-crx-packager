@@ -56,7 +56,7 @@
     "package-https-everywhere": "node ./scripts/packageComponent --type https-everywhere-updater",
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-ipfs-daemon": "node ./scripts/packageIpfsDaemon",
-    "package-wallet-data-files": "node ./scripts/packageWalletDataFiles",
+    "package-wallet-data-files": "node ./scripts/packageComponent --type wallet-data-files-updater",
     "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
     "package-ntp-background-images": "node ./scripts/packageNTPBackgroundImagesComponent",
     "package-ntp-sponsored-images": "node ./scripts/ntp-sponsored-images/package",

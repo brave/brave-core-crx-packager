@@ -76,6 +76,7 @@ async function stageFiles(componentType, datFile, version, outputDir) {
 const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
+    case 'wallet-data-files-updater':
       return true
     default:
       return false
@@ -85,6 +86,7 @@ const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {
 const getDATFileVersionByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
+    case 'wallet-data-files-updater':
       return '0'
     case 'ad-block-updater':
       return ''
@@ -107,6 +109,7 @@ const getDATFileVersionByComponentType = (componentType) => {
 const generateManifestFilesByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
+    case 'wallet-data-files-updater':
       // Provides its own manifest file
       break
     case 'ad-block-updater':
@@ -129,6 +132,8 @@ const getManifestsDirByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
       return path.join('node_modules', 'ethereum-remote-client')
+    case 'wallet-data-files-updater':
+      return path.join('node_modules', 'brave-wallet-lists')
     case 'ad-block-updater':
       return path.join('build', 'ad-block-updater')
     case 'https-everywhere-updater':
@@ -165,6 +170,7 @@ const getOriginalManifest = (componentType, datFileName) => {
 const getDATFileListByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
+    case 'wallet-data-files-updater':
       return ['']
     case 'ad-block-updater':
       return recursive(path.join('build', 'ad-block-updater'))
@@ -239,7 +245,7 @@ commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|speedreader-updater)$/i, 'ad-block-updater')
+  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
