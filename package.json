@@ -4,6 +4,7 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
     "@metamask/contract-metadata": "git+https://github.com/MetaMask/contract-metadata.git",
+    "@brave/token-lists": "github:brave/token-lists",
     "adblock-lists": "github:brave/adblock-lists",
     "adblock-rs": "^0.4.2",
     "ajv": "^6.10.0",
@@ -59,7 +60,7 @@
     "package-https-everywhere": "node ./scripts/packageComponent --type https-everywhere-updater",
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-ipfs-daemon": "node ./scripts/packageIpfsDaemon",
-    "package-wallet-data-files": "node ./scripts/packageComponent --type wallet-data-files-updater",
+    "package-wallet-data-files": "node ./scripts/packageWalletDataFiles",
     "package-local-data-files": "node ./scripts/packageComponent --type local-data-files-updater",
     "package-ntp-background-images": "node ./scripts/packageNTPBackgroundImagesComponent",
     "package-ntp-sponsored-images": "node ./scripts/ntp-sponsored-images/package",

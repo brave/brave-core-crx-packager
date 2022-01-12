@@ -58,24 +58,6 @@ async function stageFiles(componentType, datFile, version, outputDir) {
     mkdirp.sync(outputDatDir)
     console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
     fs.copyFileSync(datFile, outputDatFile)
-    if(componentType == 'wallet-data-files-updater') {
-      // Copy images and convert them to png plus resize to 200x200 if needed
-      const imagesSrcPath = path.join(path.dirname(datFile), "images")
-      const imagesDstPath = path.join(outputDatDir, "images")
-      const files = fs.readdirSync(imagesSrcPath)
-      if (!fs.existsSync(imagesDstPath)){
-        fs.mkdirSync(imagesDstPath)
-      }
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i]
-        var fileTo = file.substr(0, file.lastIndexOf(".")) + ".png"
-        var fromPath = path.join(imagesSrcPath, file)
-        var toPath = path.join(imagesDstPath, fileTo)
-        await util.saveToPNGResize(fromPath, toPath, false)
-      }
-      util.contractReplaceSvgToPng(outputDatFile)
-      util.contractAddExtraAssetIcons(outputDatFile, imagesDstPath)
-    }
   }
 
   // Fix up the manifest version
@@ -104,7 +86,6 @@ const getDATFileVersionByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
       return '0'
-    case 'wallet-data-files-updater':
     case 'ad-block-updater':
       return ''
     case 'https-everywhere-updater':
@@ -132,7 +113,6 @@ const generateManifestFilesByComponentType = (componentType) => {
       break
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
-    case 'wallet-data-files-updater':
       // TODO(emerick): Make these work like ad-block (i.e., update
       // the corresponding repos with a script to generate the
       // manifest and then call that script here)
@@ -153,7 +133,6 @@ const getManifestsDirByComponentType = (componentType) => {
       return path.join('build', 'ad-block-updater')
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
-    case 'wallet-data-files-updater':
       // TODO(emerick): Make these work like ad-block
       return path.join('manifests', componentType)
     case 'speedreader-updater':
@@ -179,8 +158,6 @@ const getNormalizedDATFileName = (datFileName) =>
 const getOriginalManifest = (componentType, datFileName) => {
   if (componentType == 'ad-block-updater') {
     return path.join(getManifestsDirByComponentType(componentType), datFileName, 'manifest.json')
-  } else if (componentType == 'wallet-data-files-updater') {
-    return path.join(getManifestsDirByComponentType(componentType), 'manifest.json')
   }
   return path.join(getManifestsDirByComponentType(componentType), datFileName ? `${datFileName}-manifest.json` : 'manifest.json')
 }
@@ -189,8 +166,6 @@ const getDATFileListByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
       return ['']
-    case 'wallet-data-files-updater':
-      return [path.join('node_modules', '@metamask', 'contract-metadata', 'contract-map.json')]
     case 'ad-block-updater':
       return recursive(path.join('build', 'ad-block-updater'))
         .filter(file => {
@@ -237,9 +212,6 @@ const processDATFile = (binary, endpoint, region, componentType, key, localRun, 
   if (componentType == 'ad-block-updater') {
     // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
     datFileName = path.dirname(datFile).split(path.sep).pop()
-  } else if (componentType == 'wallet-data-files-updater') {
-    // We want the pem file name and crx to be the same as the componentType
-    datFileName = ''
   }
 
   const originalManifest = getOriginalManifest(componentType, datFileName)
@@ -267,7 +239,7 @@ commander
   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
   .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i, 'ad-block-updater')
+  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|speedreader-updater)$/i, 'ad-block-updater')
   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
