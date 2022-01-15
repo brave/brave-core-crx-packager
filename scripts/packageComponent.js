@@ -40,6 +40,9 @@ async function stageFiles(componentType, datFile, version, outputDir) {
     const originalDir = getManifestsDirByComponentType(componentType)
     console.log('Copy dir:', originalDir, ' to:', outputDir)
     fs.copySync(originalDir, outputDir)
+    if (componentType == 'wallet-data-files-updater') {
+      fs.unlinkSync(path.join(outputDir, 'package.json'))
+    }
   } else {
     const parsedDatFile = path.parse(datFile)
     const datFileBase = parsedDatFile.base
@@ -58,24 +61,6 @@ async function stageFiles(componentType, datFile, version, outputDir) {
     mkdirp.sync(outputDatDir)
     console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
     fs.copyFileSync(datFile, outputDatFile)
-    if(componentType == 'wallet-data-files-updater') {
-      // Copy images and convert them to png plus resize to 200x200 if needed
-      const imagesSrcPath = path.join(path.dirname(datFile), "images")
-      const imagesDstPath = path.join(outputDatDir, "images")
-      const files = fs.readdirSync(imagesSrcPath)
-      if (!fs.existsSync(imagesDstPath)){
-        fs.mkdirSync(imagesDstPath)
-      }
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i]
-        var fileTo = file.substr(0, file.lastIndexOf(".")) + ".png"
-        var fromPath = path.join(imagesSrcPath, file)
-        var toPath = path.join(imagesDstPath, fileTo)
-        await util.saveToPNGResize(fromPath, toPath, false)
-      }
-      util.contractReplaceSvgToPng(outputDatFile)
-      util.contractAddExtraAssetIcons(outputDatFile, imagesDstPath)
-    }
   }
 
   // Fix up the manifest version
@@ -94,6 +79,7 @@ async function stageFiles(componentType, datFile, version, outputDir) {
 const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
+    case 'wallet-data-files-updater':
       return true
     default:
       return false
@@ -103,8 +89,8 @@ const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {
 const getDATFileVersionByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
-      return '0'
     case 'wallet-data-files-updater':
+      return '0'
     case 'ad-block-updater':
       return ''
     case 'https-everywhere-updater':
@@ -126,13 +112,13 @@ const getDATFileVersionByComponentType = (componentType) => {
 const generateManifestFilesByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
+    case 'wallet-data-files-updater':
       // Provides its own manifest file
       break
     case 'ad-block-updater':
       break
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
-    case 'wallet-data-files-updater':
       // TODO(emerick): Make these work like ad-block (i.e., update
       // the corresponding repos with a script to generate the
       // manifest and then call that script here)
@@ -149,11 +135,12 @@ const getManifestsDirByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
       return path.join('node_modules', 'ethereum-remote-client')
+    case 'wallet-data-files-updater':
+      return path.join('node_modules', 'brave-wallet-lists')
     case 'ad-block-updater':
       return path.join('build', 'ad-block-updater')
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
-    case 'wallet-data-files-updater':
       // TODO(emerick): Make these work like ad-block
       return path.join('manifests', componentType)
     case 'speedreader-updater':
@@ -179,8 +166,6 @@ const getNormalizedDATFileName = (datFileName) =>
 const getOriginalManifest = (componentType, datFileName) => {
   if (componentType == 'ad-block-updater') {
     return path.join(getManifestsDirByComponentType(componentType), datFileName, 'manifest.json')
-  } else if (componentType == 'wallet-data-files-updater') {
-    return path.join(getManifestsDirByComponentType(componentType), 'manifest.json')
   }
   return path.join(getManifestsDirByComponentType(componentType), datFileName ? `${datFileName}-manifest.json` : 'manifest.json')
 }
@@ -188,9 +173,8 @@ const getOriginalManifest = (componentType, datFileName) => {
 const getDATFileListByComponentType = (componentType) => {
   switch (componentType) {
     case 'ethereum-remote-client':
-      return ['']
     case 'wallet-data-files-updater':
-      return [path.join('node_modules', '@metamask', 'contract-metadata', 'contract-map.json')]
+      return ['']
     case 'ad-block-updater':
       return recursive(path.join('build', 'ad-block-updater'))
         .filter(file => {
@@ -237,9 +221,6 @@ const processDATFile = (binary, endpoint, region, componentType, key, localRun, 
   if (componentType == 'ad-block-updater') {
     // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
     datFileName = path.dirname(datFile).split(path.sep).pop()
-  } else if (componentType == 'wallet-data-files-updater') {
-    // We want the pem file name and crx to be the same as the componentType
-    datFileName = ''
   }
 
   const originalManifest = getOriginalManifest(componentType, datFileName)
