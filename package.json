@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
-    "@metamask/contract-metadata": "git+https://github.com/MetaMask/contract-metadata.git",
     "adblock-lists": "github:brave/adblock-lists",
     "adblock-rs": "^0.4.2",
     "ajv": "^6.10.0",
     "autoplay-whitelist": "github:brave/autoplay-whitelist",
     "aws-sdk": "2.1047.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
+    "brave-wallet-lists": "^1.0.1",
     "ethereum-remote-client": "^0.1.107",
     "extension-whitelist": "github:brave/extension-whitelist",
     "https-everywhere-builder": "brave/https-everywhere-builder",
@@ -17,9 +17,7 @@
     "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "^2.88.0",
     "s3-client": "^4.4.2",
-    "sharp": "^0.29.1",
     "speedreader": "github:brave-experiments/SpeedReader",
-    "svg-resizer": "github:brave/svg-resizer",
     "unzip-crx-3": "^0.2.0"
   },
   "devDependencies": {
