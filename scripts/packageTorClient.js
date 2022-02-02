@@ -19,7 +19,7 @@ const downloadTorClient = (platform) => {
   const torPath = path.join('build', 'tor-client-updater', 'downloads')
   const torS3Prefix = process.env.S3_DEMO_TOR_PREFIX
 
-  const torVersion = '0.4.5.11'
+  const torVersion = '0.4.6.9'
   const braveVersion = '0'
   const exeSuffix = platform === 'win32' ? '.exe' : ''
   const torFilename = `tor-${torVersion}-${platform}-brave-${braveVersion}`
@@ -29,13 +29,13 @@ const downloadTorClient = (platform) => {
 
   switch (platform) {
     case 'darwin':
-      sha512Tor = '94559e666cf8a689b791c887147a3354d923109603ebb2f187041e59f20bd15170815b4b2743919aaf44f0e9d54456d01034025b1f2c63291b8e3a162dc828c5'
+      sha512Tor = '0a04cf3d73b55f449f07cd8ee2bd1d8f906c7ae2235361c80d629e0fda132a62d6dd8191e27351fafe87b6f93dd5c6ebe47d723176add9cb3d62fe630346859f'
       break
     case 'linux':
-      sha512Tor = '6eb556cdcf49d9f5bad5f7ac6ef918313bd8fe3165071757498d2f8f1dd2a5cdbeed39754bc3e7776b1e349dc4b81dbe4b6a5d699c2b0de14f09bb65d0b670a9'
+      sha512Tor = '4cb25c469b3c542660e1c03488d924410ed1d066d9b8fe297fa3d44a4c8c7e59e897fba6fe89424f5d44cdc448c1af344199d671a67715de27da3e53ceb78f8a'
       break
     case 'win32':
-      sha512Tor = '1bc4fff5216a800c5cb0bae3e05d82e444ed3e62933da0e8c0d36021ac021594d91da45156307fd8b10fbba2ba2f7f034f3402d13471689c918507fc0d71b0a3'
+      sha512Tor = '92309bd6baabcc5bc4772ff48f4dc7acd380069b7c4694482cd6666f7d91824fb6c6454b18b893ba9b4f086ca42d7ff9b40ec5e69215a10d701285adb9ff505e'
       break
     default:
       throw new Error('Tor client download failed; unrecognized platform: ' + platform)
@@ -51,7 +51,7 @@ const downloadTorClient = (platform) => {
 
   // Verify the checksum
   if (!verifyChecksum(torClient, sha512Tor)) {
-    console.error('Tor client checksum verification failed')
+    console.error(`Tor client checksum verification failed on ${platform}`)
     process.exit(1)
   }
 
@@ -107,7 +107,9 @@ const stageFiles = (platform, torClient, version, outputDir) => {
 // Does a hash comparison on a file against a given hash
 const verifyChecksum = (file, hash) => {
   const filecontent = fs.readFileSync(file)
-  return hash === crypto.createHash('sha512').update(filecontent).digest('hex')
+  const computedHash = crypto.createHash('sha512').update(filecontent).digest('hex')
+  console.log(`${file} has hash ${computedHash}`)
+  return hash === computedHash
 }
 
 util.installErrorHandlers()
