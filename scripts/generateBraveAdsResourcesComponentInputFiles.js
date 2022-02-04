@@ -9,6 +9,7 @@
  const commander = require('commander')
 
  const getComponentList = () => {
+   /* 
    return [
       'iso_3166_1_gb',
       'iso_3166_1_jp',
@@ -39,6 +40,19 @@
       'iso_639_1_ru',
       'iso_639_1_sv',
       'iso_639_1_tr'
+   ]
+   */
+   return [
+      'iso_3166_1_gb',
+      'iso_3166_1_jp',
+      'iso_3166_1_us',
+      'iso_3166_1_ca',
+      'iso_3166_1_de',
+      'iso_3166_1_at',
+      'iso_3166_1_ch',
+      'iso_3166_1_be',
+      'iso_3166_1_au',
+      'iso_3166_1_nz',
    ]
  }
 
