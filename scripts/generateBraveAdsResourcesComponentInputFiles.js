@@ -79,7 +79,7 @@
              })
           }
         }
-        
+
         const downloadOps = fileList.map((fileName) => new Promise(resolve => {
           const resourceFileOutPath = path.join(outDir, fileName)
           const resourceFileUrl = new URL(fileName, manifestUrl).href
