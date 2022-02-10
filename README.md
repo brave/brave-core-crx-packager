@@ -91,7 +91,7 @@ After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`
 To upload a component extension, use the appropriate upload command. For example, to upload all of the Ad Block component extensions use the following command:
 
 ```bash
-npm run upload-ad-block -- --crx-directory <crx-dir> --endpoint <endpoint>
+aws-vault exec extensions-dev-role -- npm run upload-ad-block -- --crx-directory <crx-dir> --endpoint <endpoint>
 ```
 
 where:
@@ -102,24 +102,40 @@ where:
 ### NTP SI component
 To upload NTP SI components, pass crx directory that has all generated crx files and endpoint as arguments.
 ```bash
-npm run upload-ntp-sponsored-images-components -- --crx-directory ./build/ntp-sponsored-images/output
+aws-vault exec extensions-dev-role -- npm run upload-ntp-sponsored-images-components -- --crx-directory ./build/ntp-sponsored-images/output
 ```
 
 ### NTP SR component
 To upload NTP SR components, pass crx directory that has generated crx file and endpoint as arguments.
 ```bash
-npm run upload-ntp-super-referrer-component -- --crx-directory ./build/ntp-super-referrer/output
+aws-vault exec extensions-dev-role -- npm run upload-ntp-super-referrer-component -- --crx-directory ./build/ntp-super-referrer/output
 ```
 
 ### User Model Installer component
-Upload data file to bucket brave-user-model-installer-input(-dev) using AWS console or setting up AWS credential and use AWS CLI
+Upload data file to bucket brave-user-model-installer-input(-dev) using AWS console or setting up AWS credential in [`aws-vault`](https://github.com/brave/devops/wiki/Developing-With-AWS-Access-Keys#aws-access-key-management) and use AWS CLI directly:
 
 ```
-[profile extensions-dev-role]
-source_profile = mhaller
-role_arn = arn:aws:iam::658387850589:role/extensions-dev-developer-role
-mfa_serial = arn:aws:iam::658387850589:mfa/mhaller
+[profile dev]
 region = us-west-2
+
+[profile extensions-dev-role]
+source_profile = dev
+role_arn = arn:aws:iam::XXXXXXXXXXXX:role/extensions-dev-developer-role
+mfa_serial = arn:aws:iam::XXXXXXXXXXXX:mfa/dev
+```
+```
+aws-vault exec extensions-dev-role -- aws s3 cp --recursive iso_3166_1_gb s3://brave-user-model-installer-input-dev/iso_3166_1_gb/ 
+```
+or update the AWS CLI config file to use [`credential_process`](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) attribute to reference [`aws-vault` profile](https://github.com/99designs/aws-vault/blob/master/USAGE.md#using-credential_process):
+```
+[profile dev]
+region = us-west-2
+credential_process = aws-vault exec --no-session --json dev
+
+[profile extensions-dev-role]
+source_profile = dev
+role_arn = arn:aws:iam::XXXXXXXXXXXX:role/extensions-dev-developer-role
+mfa_serial = arn:aws:iam::XXXXXXXXXXXX:mfa/dev
 ```
 ```
 aws s3 cp --recursive iso_3166_1_gb s3://brave-user-model-installer-input-dev/iso_3166_1_gb/ --profile extensions-dev-role
@@ -127,7 +143,7 @@ aws s3 cp --recursive iso_3166_1_gb s3://brave-user-model-installer-input-dev/is
 
 To upload the component, pass crx directory that has generated crx file and endpoint as arguments.
 ```bash
-npm run upload-user-model-installer-updates -- --crx-directory ./build/user-model-installer/output
+aws exec extensions-dev-role -- npm run upload-user-model-installer-updates -- --crx-directory ./build/user-model-installer/output
 ```
 
 ### Importing Chrome Web Store extensions
@@ -150,26 +166,8 @@ Versioning occurs automatically. The first time an extension is packaged, it rec
 
 ## S3 Credentials
 
-Uploading to S3 requires that you create appropriately provisioned AWS credentials. Once provisioned, you can make your credentials accessible to this script via environment variables or a credentials file. Both methods are described below.
+Uploading to S3 requires that you create appropriately provisioned AWS credentials. Once provisioned, you can make your credentials accessible to this script via [`aws-vault`](https://github.com/brave/devops/wiki/Developing-With-AWS-Access-Keys#aws-access-key-management).
 
-### Environment Variables
-
-Set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
-
-### Credentials File
-
-Add the credentials to a credentials file. The default location for this file is:
-
-* `~/.aws/credentials` (Linux/Mac)
-* `C:\Users\USERNAME\.aws\credentials` (Windows)
-
-The format for the credentials file is:
-
-```bash
-[default]
-aws_access_key_id = ACCESS_KEY
-aws_secret_access_key = SECRET_KEY
-```
 
 ## Troubleshooting
 
