@@ -63,12 +63,9 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) 
 
 util.installErrorHandlers()
 
-commander
-  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-  .option('-p, --publisher-proof-key <file>', 'Not used now, for backward compatibility')
-  .option('-k, --key <file>', 'file containing private key for signing crx file')
-  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
+util.addCommonScriptOptions(
+  commander
+    .option('-k, --key <file>', 'file containing private key for signing crx file'))
   .parse(process.argv)
 
 let privateKeyFile = ''
