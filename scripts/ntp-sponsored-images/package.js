@@ -59,7 +59,8 @@ function getManifestPath (regionPlatform) {
   return path.join(getManifestsDir(), `${regionPlatform}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion, componentData) => {
+const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
+                         componentData, publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
   const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -70,7 +71,8 @@ const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion, compo
     // Desktop private key file names do not have the -desktop suffix, but android has -android
     const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
     stageFiles(platformRegion, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                         stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -91,16 +93,14 @@ if (fs.existsSync(commander.keysDirectory)) {
   throw new Error('Missing or invalid private key directory')
 }
 
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
-}
-
 const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const platformRegion of Object.keys(targetComponents)) {
     const componentData = targetComponents[platformRegion]
     generateManifestFile(platformRegion, componentData)
-    generateCRXFile(commander.binary, commander.endpoint, commander.region, keyDir, platformRegion, componentData)
+    generateCRXFile(commander.binary, commander.endpoint, commander.region,
+                    keyDir, platformRegion, componentData,
+                    commander.publisherProofKey)
   }
 })
