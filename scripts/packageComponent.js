@@ -200,7 +200,8 @@ const getDATFileListByComponentType = (componentType) => {
   }
 }
 
-const postNextVersionWork = (componentType, datFileName, key, binary, localRun, datFile, version) => {
+const postNextVersionWork = (componentType, datFileName, key, publisherProofKey,
+                             binary, localRun, datFile, version) => {
   const stagingDir = path.join('build', componentType, datFileName)
   const crxOutputDir = path.join('build', componentType)
   const crxFile = path.join(crxOutputDir, datFileName ? `${componentType}-${datFileName}.crx` : `${componentType}.crx`)
@@ -210,13 +211,15 @@ const postNextVersionWork = (componentType, datFileName, key, binary, localRun, 
   }
   stageFiles(componentType, datFile, version, stagingDir).then(() => {
     if (!localRun) {
-      util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+      util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                           stagingDir)
     }
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
-const processDATFile = (binary, endpoint, region, componentType, key, localRun, datFile) => {
+const processDATFile = (binary, endpoint, region, componentType, key,
+                        publisherProofKey, localRun, datFile) => {
   var datFileName = getNormalizedDATFileName(path.parse(datFile).name)
   if (componentType == 'ad-block-updater') {
     // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
@@ -229,17 +232,22 @@ const processDATFile = (binary, endpoint, region, componentType, key, localRun, 
 
   if (!localRun) {
     util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(componentType, datFileName, key, binary, localRun, datFile, version)
+      postNextVersionWork(componentType, datFileName, key, publisherProofKey,
+                          binary, localRun, datFile, version)
     })
   } else {
-    postNextVersionWork(componentType, datFileName, key, binary, localRun, datFile, '1.0.0')
+    postNextVersionWork(componentType, datFileName, key, publisherProofKey,
+                        binary, localRun, datFile, '1.0.0')
   }
 }
 
 const processJob = (commander, keyParam) => {
   generateManifestFilesByComponentType(commander.type)
   getDATFileListByComponentType(commander.type)
-    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint, commander.region, commander.type, keyParam, commander.localRun))
+    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint,
+                                 commander.region, commander.type, keyParam,
+                                 commander.publisherProofKey,
+                                 commander.localRun))
 }
 
 util.installErrorHandlers()
@@ -262,10 +270,6 @@ if (!commander.localRun) {
   } else {
     throw new Error('Missing or invalid private key file/directory')
   }
-}
-
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
 }
 
 if (!commander.localRun) {

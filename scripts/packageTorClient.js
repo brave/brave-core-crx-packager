@@ -65,7 +65,8 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
 }
 
-const packageTorClient = (binary, endpoint, region, platform, key) => {
+const packageTorClient = (binary, endpoint, region,platform, key,
+                          publisherProofKey) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
@@ -77,7 +78,8 @@ const packageTorClient = (binary, endpoint, region, platform, key) => {
     const crxFile = path.join(crxOutputDir, `tor-client-updater-${platform}.crx`)
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
     stageFiles(platform, torClient, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                         stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -130,12 +132,11 @@ if (fs.existsSync(commander.keyFile)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
-}
-
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageTorClient(commander.binary, commander.endpoint, commander.region, 'darwin', keyParam)
-  packageTorClient(commander.binary, commander.endpoint, commander.region, 'linux', keyParam)
-  packageTorClient(commander.binary, commander.endpoint, commander.region, 'win32', keyParam)
+  packageTorClient(commander.binary, commander.endpoint, commander.region,
+                   'darwin', keyParam, commander.publisherProofKey)
+  packageTorClient(commander.binary, commander.endpoint, commander.region,
+                   'linux', keyParam, commander.publisherProofKey)
+  packageTorClient(commander.binary, commander.endpoint, commander.region,
+                   'win32', keyParam, commander.publisherProofKey)
 })

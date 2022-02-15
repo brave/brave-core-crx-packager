@@ -49,7 +49,8 @@ const getOriginalManifest = () => {
   return getOutPath('youtubedown-manifest.json')
 }
 
-const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) => {
+const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
+                         publisherProofKey) => {
   const originalManifest = getOriginalManifest()
   const rootBuildDir = path.join(path.resolve(), 'build', 'youtubedown')
   const stagingDir = path.join(rootBuildDir, 'staging')
@@ -59,7 +60,8 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) 
   util.getNextVersion(endpoint, region, componentID).then((version) => {
     const crxFile = path.join(crxOutputDir, 'youtubedown.crx')
     stageFiles(version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                         stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -78,11 +80,8 @@ if (fs.existsSync(commander.key)) {
   throw new Error('Missing or invalid private key')
 }
 
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
-}
-
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region, componentID, privateKeyFile)
+  generateCRXFile(commander.binary, commander.endpoint, commander.region,
+                  componentID, privateKeyFile, commander.publisherProofKey)
 })
