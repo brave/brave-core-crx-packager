@@ -31,3 +31,6 @@ jobs:
     - run: npm test
     - run: npm audit
     - run: npm install
+    - run: npm run data-files-https-everywhere
+    - run: npm run data-files-local-data-files
+    - run: npm run data-files-ad-block-rust
