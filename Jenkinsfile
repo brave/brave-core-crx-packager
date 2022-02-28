@@ -45,7 +45,7 @@ pipeline {
                                                 credentials('brave-builds-github-token-for-pr-builder')
                                                 github('brave/devops', 'https')
                                             }
-                                            branch('master')
+                                            branch('linh-add-ci-crx-packager')
                                         }
                                     }
                                     scriptPath("jenkins/jobs/extensions/dev/brave-core-crx-packager-pr-test.Jenkinsfile")
