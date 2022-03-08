@@ -59,7 +59,8 @@ function getManifestPath (regionPlatform) {
   return path.join(getManifestsDir(), `${regionPlatform}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion, componentData) => {
+const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
+                         componentData, publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
   const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -70,21 +71,19 @@ const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion, compo
     // Desktop private key file names do not have the -desktop suffix, but android has -android
     const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
     stageFiles(platformRegion, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                         stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
 util.installErrorHandlers()
 
-commander
-  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-  .option('-p, --publisher-proof-key <file>', 'Not used now, for backward compatibility')
-  .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
-  .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
-  .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
+util.addCommonScriptOptions(
+  commander
+    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+    .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
+    .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', ''))
   .parse(process.argv)
 
 let keyDir = ''
@@ -94,16 +93,14 @@ if (fs.existsSync(commander.keysDirectory)) {
   throw new Error('Missing or invalid private key directory')
 }
 
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
-}
-
 const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const platformRegion of Object.keys(targetComponents)) {
     const componentData = targetComponents[platformRegion]
     generateManifestFile(platformRegion, componentData)
-    generateCRXFile(commander.binary, commander.endpoint, commander.region, keyDir, platformRegion, componentData)
+    generateCRXFile(commander.binary, commander.endpoint, commander.region,
+                    keyDir, platformRegion, componentData,
+                    commander.publisherProofKey)
   }
 })

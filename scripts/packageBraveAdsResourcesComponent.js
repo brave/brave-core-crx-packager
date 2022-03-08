@@ -91,7 +91,8 @@
    return path.join(getManifestsDir(), `${locale}-manifest.json`)
  }
 
- const generateCRXFile = (binary, endpoint, region, keyDir, componentData) => {
+ const generateCRXFile = (binary, endpoint, region, keyDir,  publisherProofKey,
+                          componentData) => {
    const originalManifest = getOriginalManifest(componentData.locale)
    const locale = componentData.locale
    const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
@@ -103,19 +104,17 @@
      const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
      const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
      stageFiles(locale, version, stagingDir)
-     util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                          stagingDir)
      console.log(`Generated ${crxFile} with version number ${version}`)
    })
  }
 
  util.installErrorHandlers()
 
- commander
-   .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-   .option('-p, --publisher-proof-key <file>', 'Not used now, for backward compatibility')
-   .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-   .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
+ util.addCommonScriptOptions(
+   commander
+     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
    .parse(process.argv)
 
  let keyDir = ''
@@ -125,11 +124,10 @@
    throw new Error('Missing or invalid private key directory')
  }
 
- if (!commander.binary) {
-   throw new Error('Missing Chromium binary: --binary')
- }
-
  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
    generateManifestFiles()
-   getComponentDataList().forEach(generateCRXFile.bind(null, commander.binary, commander.endpoint, commander.region, keyDir))
+   getComponentDataList().forEach(
+     generateCRXFile.bind(null, commander.binary, commander.endpoint,
+                          commander.region, keyDir,
+                          commander.publisherProofKey))
  })

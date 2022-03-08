@@ -49,7 +49,8 @@ const getOriginalManifest = () => {
   return getOutPath('youtubedown-manifest.json')
 }
 
-const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) => {
+const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
+                         publisherProofKey) => {
   const originalManifest = getOriginalManifest()
   const rootBuildDir = path.join(path.resolve(), 'build', 'youtubedown')
   const stagingDir = path.join(rootBuildDir, 'staging')
@@ -59,19 +60,17 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile) 
   util.getNextVersion(endpoint, region, componentID).then((version) => {
     const crxFile = path.join(crxOutputDir, 'youtubedown.crx')
     stageFiles(version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                         stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
 util.installErrorHandlers()
 
-commander
-  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-  .option('-p, --publisher-proof-key <file>', 'Not used now, for backward compatibility')
-  .option('-k, --key <file>', 'file containing private key for signing crx file')
-  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
+util.addCommonScriptOptions(
+  commander
+    .option('-k, --key <file>', 'file containing private key for signing crx file'))
   .parse(process.argv)
 
 let privateKeyFile = ''
@@ -81,11 +80,8 @@ if (fs.existsSync(commander.key)) {
   throw new Error('Missing or invalid private key')
 }
 
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
-}
-
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region, componentID, privateKeyFile)
+  generateCRXFile(commander.binary, commander.endpoint, commander.region,
+                  componentID, privateKeyFile, commander.publisherProofKey)
 })

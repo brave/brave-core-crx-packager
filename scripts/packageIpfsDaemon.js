@@ -24,7 +24,8 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}-manifest.json`)
 }
 
-const packageIpfsDaemon = (binary, endpoint, region, os, arch, key) => {
+const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
+                           publisherProofKey) => {
   const platform = `${os}-${arch}`
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
@@ -37,7 +38,8 @@ const packageIpfsDaemon = (binary, endpoint, region, os, arch, key) => {
     const crxFile = path.join(crxOutputDir, `ipfs-daemon-updater-${platform}.crx`)
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
     stageFiles(platform, ipfsDaemon, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                         stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -63,13 +65,10 @@ const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
 
 util.installErrorHandlers()
 
-commander
-  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-  .option('-p, --publisher-proof-key <file>', 'Not used now, for backward compatibility')
-  .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
-  .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
+util.addCommonScriptOptions(
+  commander
+    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
+    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
   .parse(process.argv)
 
 let keyParam = ''
@@ -82,13 +81,13 @@ if (fs.existsSync(commander.keyFile)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
-}
-
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'darwin', 'amd64', keyParam)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'linux', 'amd64', keyParam)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'win32', 'amd64', keyParam)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region, 'darwin', 'arm64', keyParam)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+                    'darwin', 'amd64', keyParam, commander.publisherProofKey)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+                    'linux', 'amd64', keyParam, commander.publisherProofKey)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+                    'win32', 'amd64', keyParam, commander.publisherProofKey)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+                    'darwin', 'arm64', keyParam, commander.publisherProofKey)
 })

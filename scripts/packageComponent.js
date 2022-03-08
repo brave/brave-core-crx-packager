@@ -200,7 +200,8 @@ const getDATFileListByComponentType = (componentType) => {
   }
 }
 
-const postNextVersionWork = (componentType, datFileName, key, binary, localRun, datFile, version) => {
+const postNextVersionWork = (componentType, datFileName, key, publisherProofKey,
+                             binary, localRun, datFile, version) => {
   const stagingDir = path.join('build', componentType, datFileName)
   const crxOutputDir = path.join('build', componentType)
   const crxFile = path.join(crxOutputDir, datFileName ? `${componentType}-${datFileName}.crx` : `${componentType}.crx`)
@@ -210,13 +211,15 @@ const postNextVersionWork = (componentType, datFileName, key, binary, localRun, 
   }
   stageFiles(componentType, datFile, version, stagingDir).then(() => {
     if (!localRun) {
-      util.generateCRXFile(binary, crxFile, privateKeyFile, stagingDir)
+      util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
+                           stagingDir)
     }
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
-const processDATFile = (binary, endpoint, region, componentType, key, localRun, datFile) => {
+const processDATFile = (binary, endpoint, region, componentType, key,
+                        publisherProofKey, localRun, datFile) => {
   var datFileName = getNormalizedDATFileName(path.parse(datFile).name)
   if (componentType == 'ad-block-updater') {
     // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
@@ -229,30 +232,32 @@ const processDATFile = (binary, endpoint, region, componentType, key, localRun, 
 
   if (!localRun) {
     util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(componentType, datFileName, key, binary, localRun, datFile, version)
+      postNextVersionWork(componentType, datFileName, key, publisherProofKey,
+                          binary, localRun, datFile, version)
     })
   } else {
-    postNextVersionWork(componentType, datFileName, key, binary, localRun, datFile, '1.0.0')
+    postNextVersionWork(componentType, datFileName, key, publisherProofKey,
+                        binary, localRun, datFile, '1.0.0')
   }
 }
 
 const processJob = (commander, keyParam) => {
   generateManifestFilesByComponentType(commander.type)
   getDATFileListByComponentType(commander.type)
-    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint, commander.region, commander.type, keyParam, commander.localRun))
+    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint,
+                                 commander.region, commander.type, keyParam,
+                                 commander.publisherProofKey,
+                                 commander.localRun))
 }
 
 util.installErrorHandlers()
 
-commander
-  .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
-  .option('-p, --publisher-proof-key <file>', 'Not used now, for backward compatibility')
-  .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-  .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-  .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i, 'ad-block-updater')
-  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
-  .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
-  .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
+util.addCommonScriptOptions(
+  commander
+    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
+    .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i, 'ad-block-updater')
+    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 
 let keyParam = ''
@@ -265,10 +270,6 @@ if (!commander.localRun) {
   } else {
     throw new Error('Missing or invalid private key file/directory')
   }
-}
-
-if (!commander.binary) {
-  throw new Error('Missing Chromium binary: --binary')
 }
 
 if (!commander.localRun) {
