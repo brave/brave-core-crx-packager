@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Engine, FilterFormat, FilterSet } = require('adblock-rs')
+const { Engine, FilterFormat, FilterSet, RuleTypes } = require('adblock-rs')
 const { generateResourcesFile, getDefaultLists, getRegionalLists } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
@@ -70,15 +70,17 @@ const getOutPath = (outputFilename, outSubdir) => {
 /**
  * Parses the passed in filter rule data and serializes a data file to disk.
  *
- * @param filterRuleData An array of { format, data, include_redirect_urls } where format is one of `adblock-rust`'s supported filter parsing formats and data is a newline-separated list of such filters. 
+ * @param filterRuleData An array of { format, data, include_redirect_urls, rule_types } where format is one of `adblock-rust`'s supported filter parsing formats and data is a newline-separated list of such filters.
  * include_redirect_urls is a boolean: https://github.com/brave/adblock-rust/pull/184. We only support redirect URLs on filter lists we maintain and trust.
+ * rule_types was added with https://github.com/brave/brave-core-crx-packager/pull/298 and allows for { RuleTypes.ALL, RuleTypes.NETWORK_ONLY, RuleTypes.COSMETIC_ONLY }
  * @param outputDATFilename The filename of the DAT file to create.
  */
-const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir) => {
+const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir, defaultRuleType=RuleTypes.ALL) => {
   const filterSet = new FilterSet(false)
-  for (let { format, data, include_redirect_urls } of filterRuleData) {
+  for (let { format, data, include_redirect_urls, rule_types } of filterRuleData) {
     include_redirect_urls = Boolean(include_redirect_urls)
-    const parseOpts = { format, include_redirect_urls }
+    rule_types = rule_types || defaultRuleType
+    const parseOpts = { format, include_redirect_urls, rule_types}
     filterSet.addFilters(data.split('\n'), parseOpts)
   }
   const client = new Engine(filterSet, true)
@@ -148,6 +150,8 @@ const generateDataFilesForList = (lists, filename) => {
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
     generateDataFileFromLists(listBuffers, filename, 'default')
+    // for iOS team - compile cosmetic filters only
+    generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'default', RuleTypes.COSMETIC_ONLY)
   })
   p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
   return p
