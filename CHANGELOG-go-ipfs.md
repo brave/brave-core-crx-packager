@@ -1,5 +1,9 @@
 # Changelog
 
+## Updated go-ipfs to 0.12.0, from 0.11.0 (8-March-2022)
+- [brave-browser#21219](https://github.com/brave/brave-browser/issues/21219) - Update IPFS node to go-ipfs v0.12.0
+- For full changelog, see https://github.com/ipfs/go-ipfs/blob/master/CHANGELOG.md#v0120-2022-02-17
+
 ## Updated go-ipfs to 0.11.0, from 0.10.0 (11-January-2022)
 - [brave-browser#20072](https://github.com/brave/brave-browser/issues/20072) - Update IPFS node to go-ipfs v0.11.0
 - For full changelog, see https://github.com/ipfs/go-ipfs/blob/master/CHANGELOG.md#v0110-2021-12-08
