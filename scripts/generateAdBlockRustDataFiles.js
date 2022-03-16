@@ -151,7 +151,7 @@ const generateDataFilesForList = (lists, filename) => {
   p = p.then((listBuffers) => {
     generateDataFileFromLists(listBuffers, filename, 'default')
     // for iOS team - compile cosmetic filters only
-    generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'ios', RuleTypes.COSMETIC_ONLY)
+    generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
   })
   p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
   return p
