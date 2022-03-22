@@ -187,8 +187,7 @@ const getDATFileListByComponentType = (componentType) => {
     case 'https-everywhere-updater':
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
-      return [path.join('node_modules', 'autoplay-whitelist', 'data', 'AutoplayWhitelist.dat'),
-	      path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
+      return [path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
 	      path.join('node_modules', 'adblock-lists', 'brave-lists', 'debounce.json'),
 	      path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json')].concat(
 		recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
