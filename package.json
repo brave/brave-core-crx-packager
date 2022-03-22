@@ -24,17 +24,16 @@
     "fs-extra": "^7.0.1",
     "level": "^5.0.1",
     "mkdirp": "^1.0.3",
-    "npm-force-resolutions": "0.0.10",
     "replace-in-file": "^4.0.0",
     "rimraf": "^2.6.3",
     "standard": "^16.0.4",
-    "tap": "^15.1.5",
+    "tap": "^16.0.0",
+    "tar": "^6.1.11",
     "tmp": "^0.2.1"
   },
   "scripts": {
     "clean": "rimraf build/",
     "test": "tap --files test/*.js --files scripts/**/*.test.js",
-    "preinstall": "npx npm-force-resolutions",
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-autoplay-whitelist": "npm run --prefix ./node_modules/autoplay-whitelist data-files",
@@ -85,8 +84,9 @@
     "type": "git",
     "url": "https://github.com/brave/brave-core-crx-packager.git"
   },
-  "resolutions": {
-    "ansi-regex": "5.0.1"
+  "overrides": {
+    "ansi-regex": "5.0.1",
+    "minimist": "1.2.6"
   },
   "tap": {
     "check-coverage": true,
