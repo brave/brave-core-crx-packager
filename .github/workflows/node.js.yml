@@ -30,8 +30,7 @@ jobs:
     - run: npm ci
     - run: npm test
     - run: npm run data-files-ad-block-rust
+    - run: npm run data-files-https-everywhere
     - run: npm run data-files-local-data-files
     - run: npm run data-files-speedreader
-    - run: npm run data-files-https-everywhere
     - run: npm audit
-  
