@@ -20,8 +20,10 @@ Clone the repository and install Node dependencies:
 ```bash
 git clone git@github.com:brave/brave-core-crx-packager.git
 cd brave-core-crx-packager
-npm install
+CXXFLAGS="--std=c++17" npm install
 ```
+
+Currently Node 14.x is required.
 
 ## Packaging
 
