@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "commander": "^2.20.0",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "10.0.1",
     "level": "8.0.0",
     "mkdirp": "^1.0.3",
     "npm-force-resolutions": "0.0.10",
