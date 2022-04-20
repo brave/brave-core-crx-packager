@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:17
 
 # node-gyp needs python and rust
 RUN apt-get update -y && apt-get install -y python
