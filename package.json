@@ -28,7 +28,7 @@
     "replace-in-file": "6.3.2",
     "rimraf": "3.0.2",
     "standard": "^16.0.4",
-    "tap": "^16.0.1",
+    "tap": "16.1.0",
     "tmp": "^0.2.1"
   },
   "scripts": {
