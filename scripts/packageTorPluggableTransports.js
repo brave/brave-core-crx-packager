@@ -29,32 +29,36 @@ const TOR_PLUGGABLE_TRANSPORTS_HASHES = Object.freeze({
   }
 })
 
+const getTransportUrl = (platform, transport) => {
+  if (transport == 'snowflake')
+    return `snowflake/client/${platform}/tor-snowflake-brave`
+  if (transport == 'obfs4')
+    return `obfs4/obfs4proxy/${platform}/tor-obfs4-brave`
+}
+
 // Downloads one platform-specific tor pluggable transport executable from s3
 const downloadTorPluggableTransport = (platform, transport) => {
   const transportPath = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, 'dowloads', `${platform}`)
-  const s3Prefix = process.env.S3_DEMO_TOR_PLUGGABLE_TRANSPORTS_PREFIX
   const transportFilename = `tor-${transport}-brave`
-  const url = s3Prefix + `tor-${transport}-${platform}-brave`
-
   const sha512 = TOR_PLUGGABLE_TRANSPORTS_HASHES[transport][platform]
 
   mkdirp.sync(transportPath)
 
   const transport_file = path.join(transportPath, transportFilename)
-  const cmd = 'aws s3 cp ' + url + ' ' + transport_file
+  const cmd = 'cp ' + getTransportUrl(platform, transport) + ' ' + transport_file
   // Download the executable
   execSync(cmd)
 
   // Verify the checksum
-  if (!verifyChecksum(transport, sha512)) {
+  if (!verifyChecksum(transport_file, sha512)) {
     console.error(`Tor ${transport} checksum verification failed on ${platform}`)
     process.exit(1)
   }  
 
   // Make it executable
-  fs.chmodSync(transport, 0o755)
+  fs.chmodSync(transport_file, 0o755)
 
-  return transport
+  return transport_file
 }
 
 const getOriginalManifest = (platform) => {
