@@ -22,7 +22,7 @@ const TOR_PLUGGABLE_TRANSPORTS_HASHES = Object.freeze({
     linux: '3263e161e95021fbdaaff6e91624bb1b1ccdda3ae9db8cb7dc76e50ea81a8bd1e3c2ce5b8d86229792f3b16525233881b7d4dab008d8063e7c5ae53170280070',
     darwin: 'a864e36e25c7c5f6ff74b212732abddc3f0afdf37be0ec02d92e050c312fe0c18e89f7515c6e20859af71d07071891919dc7f995facf7a1763902ca91a5f89bc',
   },
-  obsf4: {
+  obfs4: {
     win32 : '98a79e62afe562bc2b389b19710fe08e150ae3611cf93a3940738d04efa6233fa417dfb3e4aaede6322875a66a510e9dcce1fb974b25cb63e307ccbbc0e54f82',
     linux: '1327eccd93ca98c136a8cb7dff0631d3880b5cd69fdce07fbb76a11def2c7ab830cd6ffe9b0d428cd6a8dc2d109eca5c9ac859591264d0f8de3d6231daf5e812',
     darwin: '8e4b11598179199864dbc223aa3e936aed2edfad738d26dc254ab8ccbb1de56085b77aaab9f09ed6824c423b28887cb72c687103781425264595dd2856b6420f',
@@ -72,23 +72,23 @@ const packageTorPluggableTransports = (binary, endpoint, region, platform, key, 
 
   util.getNextVersion(endpoint, region, id).then((version) => {
     const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
-    const obsf4 = downloadTorPluggableTransport(platform, 'obsf4')
+    const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
 
     const stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, platform)
     const crxOutputDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER)
     const crxFile = path.join(crxOutputDir, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
-    stageFiles(platform, snowflake, obsf4, version, stagingDir)
+    stageFiles(platform, snowflake, obfs4, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
-const stageFiles = (platform, snowflake, obsf4, version, outputDir) => {
+const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
   const originalManifest = getOriginalManifest(platform)
   const outputManifest = path.join(outputDir, 'manifest.json')
   const outputSnowflake = path.join(outputDir, path.parse(snowflake).base)
-  const outputObsf4 = path.join(outputDir, path.parse(obsf4).base)
+  const outputObfs4 = path.join(outputDir, path.parse(obfs4).base)
 
   const replaceOptions = {
     files: outputManifest,
@@ -100,7 +100,7 @@ const stageFiles = (platform, snowflake, obsf4, version, outputDir) => {
 
   fs.copyFileSync(originalManifest, outputManifest)
   fs.copyFileSync(snowflake, outputSnowflake)
-  fs.copyFileSync(obsf4, outputObsf4)
+  fs.copyFileSync(obfs4, outputObfs4)
 
   replace.sync(replaceOptions)
 }
