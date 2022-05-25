@@ -18,7 +18,7 @@ const util = require('../lib/util')
 const TOR_PLUGGABLE_TRANSPORTS_UPDATER = 'tor-pluggable-transports-updater'
 const TOR_PLUGGABLE_TRANSPORTS_HASHES = Object.freeze({
   snowflake: {
-    win32 : '1cca0b2b691c7e330de7bec62ae2aaae8fbf2ef6e4968eced8ec0cbdeb00a15d157ecc39a1d67dc953d5a6a4a47eec52aa33b6b3f49baa7668a3915653cbb9d2',
+    win32 : '24da027fbe06ee04954dde5f38657943bd998675ed31115bc00487bf6ea860ebd2bcd5ef73bc4186433a485d4586d9ce3f1d4f9630c056d677e943ee23bc7c7b',
     linux: '3263e161e95021fbdaaff6e91624bb1b1ccdda3ae9db8cb7dc76e50ea81a8bd1e3c2ce5b8d86229792f3b16525233881b7d4dab008d8063e7c5ae53170280070',
     darwin: 'a864e36e25c7c5f6ff74b212732abddc3f0afdf37be0ec02d92e050c312fe0c18e89f7515c6e20859af71d07071891919dc7f995facf7a1763902ca91a5f89bc',
   },
