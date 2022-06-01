@@ -187,3 +187,4 @@ When specifying the path for the `--binary` option on Windows, it can be tricky 
 ```
 --binary \""C:\Program Files (x86)\Google\Chrome\Application\chrome.exe\""
 ```
+
