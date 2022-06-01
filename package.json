@@ -11,7 +11,7 @@
     "brave-wallet-lists": "1.1.4",
     "ethereum-remote-client": "0.1.107",
     "extension-whitelist": "github:brave/extension-whitelist",
-    "https-everywhere-builder": "brave/https-everywhere-builder",
+    "https-everywhere-builder": "github:brave/https-everywhere-builder",
     "recursive-readdir-sync": "1.0.6",
     "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "2.88.2",
