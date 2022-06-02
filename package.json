@@ -6,30 +6,30 @@
     "adblock-lists": "github:brave/adblock-lists",
     "adblock-rs": "0.5.4",
     "ajv": "8.11.0",
-    "aws-sdk": "2.1137.0",
+    "aws-sdk": "2.1147.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
-    "brave-wallet-lists": "^1.1.4",
-    "ethereum-remote-client": "^0.1.107",
+    "brave-wallet-lists": "1.1.4",
+    "ethereum-remote-client": "0.1.107",
     "extension-whitelist": "github:brave/extension-whitelist",
-    "https-everywhere-builder": "brave/https-everywhere-builder",
-    "recursive-readdir-sync": "^1.0.6",
+    "https-everywhere-builder": "github:brave/https-everywhere-builder",
+    "recursive-readdir-sync": "1.0.6",
     "referrer-whitelist": "github:brave/referrer-whitelist",
-    "request": "^2.88.0",
-    "s3-client": "^4.4.2",
+    "request": "2.88.2",
+    "s3-client": "4.4.2",
     "speedreader": "github:brave-experiments/SpeedReader",
-    "unzip-crx-3": "^0.2.0"
+    "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
-    "commander": "^2.20.0",
+    "commander": "2.20.3",
     "fs-extra": "10.1.0",
     "level": "8.0.0",
-    "mkdirp": "^1.0.3",
+    "mkdirp": "1.0.4",
     "npm-force-resolutions": "0.0.10",
-    "replace-in-file": "6.3.2",
+    "replace-in-file": "6.3.5",
     "rimraf": "3.0.2",
     "standard": "17.0.0",
     "tap": "16.2.0",
-    "tmp": "^0.2.1"
+    "tmp": "0.2.1"
   },
   "scripts": {
     "clean": "rimraf build/",
@@ -85,7 +85,7 @@
     "url": "https://github.com/brave/brave-core-crx-packager.git"
   },
   "resolutions": {
-    "ansi-regex": "6.0.1"
+    "ansi-regex": "5.0.1"
   },
   "tap": {
     "check-coverage": true,
