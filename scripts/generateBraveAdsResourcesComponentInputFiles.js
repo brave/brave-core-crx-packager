@@ -10,19 +10,30 @@
 
  const getComponentList = () => {
    return [
-      'iso_3166_1_gb',
-      'iso_3166_1_jp',
-      'iso_3166_1_us',
-      'iso_3166_1_ca',
-      'iso_3166_1_de',
-      'iso_3166_1_at',
-      'iso_3166_1_ch',
-      'iso_3166_1_be',
-      'iso_3166_1_au',
-      'iso_3166_1_nz',
-      'iso_3166_1_pt',
-      'iso_3166_1_fr',
-      'iso_3166_1_nl',
+      'iso_3166_1_gb', // United Kingdom
+      'iso_3166_1_jp', // Japan
+      'iso_3166_1_us', // United States of America
+      'iso_3166_1_ca', // Canada
+      'iso_3166_1_de', // Germany
+      'iso_3166_1_at', // Austria
+      'iso_3166_1_ch', // Switzerland
+      'iso_3166_1_be', // Belgium
+      'iso_3166_1_au', // Australia
+      'iso_3166_1_nz', // New Zealand
+      'iso_3166_1_es', // Spain
+      'iso_3166_1_pt', // Portugal
+      'iso_3166_1_fr', // France
+      'iso_3166_1_nl', // Netherlands
+      'iso_3166_1_no', // Norway
+      'iso_3166_1_se', // Sweden
+      'iso_3166_1_fi', // Finland
+      'iso_3166_1_dk', // Denmark
+      'iso_3166_1_kr', // Korea
+      'iso_3166_1_hk', // Hong Kong
+      'iso_3166_1_tw', // Taiwan
+      'iso_3166_1_sg', // Singapore
+      'iso_3166_1_ie', // Ireland
+      'iso_3166_1_it', // Italy
       'iso_639_1_de',
       'iso_639_1_en',
       'iso_639_1_fr',
