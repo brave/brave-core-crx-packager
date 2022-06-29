@@ -27,6 +27,7 @@
       'iso_3166_1_es', // Spain
       'iso_3166_1_fi', // Finland
       'iso_3166_1_hk', // Hong Kong
+      'iso_3166_1_hu', // Hungary
       'iso_3166_1_ie', // Ireland
       'iso_3166_1_it', // Italy
       'iso_3166_1_kr', // Korea
@@ -34,7 +35,6 @@
       'iso_3166_1_se', // Sweden
       'iso_3166_1_sg', // Singapore
       'iso_3166_1_tw', // Taiwan
-      'iso_3166_1_hu', // Hungary
       'iso_639_1_de',
       'iso_639_1_en',
       'iso_639_1_fr',
