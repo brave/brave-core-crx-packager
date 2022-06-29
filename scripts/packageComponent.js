@@ -158,7 +158,6 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'Greaselion' ||
   datFileName === 'debounce' ||
   datFileName === 'messages' ||
-  datFileName === 'AutoplayWhitelist' ||
   datFileName === 'speedreader-updater' ||
   datFileName === 'content-stylesheet' ||
   datFileName.endsWith('.bundle') ? 'default' : datFileName
