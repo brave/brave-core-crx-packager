@@ -123,10 +123,6 @@
      mkdirp.sync(outDir)
 
      manifestFileName = "resources.json"
-     // TODO(Moritz Haller): Delete conditional once deprecated components are phased out
-     if (component.includes("deprecated")) {
-      manifestFileName = "models.json"
-     }
      const manifestUrl = `${dataUrl}${component}/${manifestFileName}`
      await downloadComponentInputFiles(manifestFileName, manifestUrl, outDir)
    }
