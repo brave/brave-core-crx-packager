@@ -34,6 +34,7 @@
       'iso_3166_1_se', // Sweden
       'iso_3166_1_sg', // Singapore
       'iso_3166_1_tw', // Taiwan
+      'iso_3166_1_hu', // Hungary
       'iso_639_1_de',
       'iso_639_1_en',
       'iso_639_1_fr',
