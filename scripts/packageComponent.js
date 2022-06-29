@@ -153,12 +153,10 @@ const getManifestsDirByComponentType = (componentType) => {
 const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'ABPFilterParserData' ||
   datFileName === 'httpse.leveldb' ||
-  datFileName === 'ReferrerWhitelist' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
   datFileName === 'debounce' ||
   datFileName === 'messages' ||
-  datFileName === 'AutoplayWhitelist' ||
   datFileName === 'speedreader-updater' ||
   datFileName === 'content-stylesheet' ||
   datFileName.endsWith('.bundle') ? 'default' : datFileName
@@ -188,8 +186,7 @@ const getDATFileListByComponentType = (componentType) => {
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
       return [path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
-	      path.join('node_modules', 'adblock-lists', 'brave-lists', 'debounce.json'),
-	      path.join('node_modules', 'referrer-whitelist', 'data', 'ReferrerWhitelist.json')].concat(
+	      path.join('node_modules', 'adblock-lists', 'brave-lists', 'debounce.json')].concat(
 		recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
     case 'speedreader-updater':
       return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
