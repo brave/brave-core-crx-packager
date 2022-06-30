@@ -3,34 +3,32 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const fs = require('fs-extra')
-const mkdirp = require('mkdirp')
 const path = require('path')
 
 const { getRegionalLists } = require('../lib/adBlockRustUtils')
 
-var outPath = path.join('build', 'ad-block-updater');
+const outPath = path.join('build', 'ad-block-updater')
 
-const defaultAdblockComponentId = "cffkpbalmllkdoenhmdmpbkajipdjfam"
-const defaultAdblockBase64PublicKey = 
-    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs0qzJmHSgIiw7IGFCxij" +
-    "1NnB5hJ5ZQ1LKW9htL4EBOaMJvmqaDs/wfq0nw/goBHWsqqkMBynRTu2Hxxirvdb" +
-    "cugn1Goys5QKPgAvKwDHJp9jlnADWm5xQvPQ4GE1mK1/I3ka9cEOCzPW6GI+wGLi" +
-    "VPx9VZrxHHsSBIJRaEB5Tyi5bj0CZ+kcfMnRTsXIBw3C6xJgCVKISQUkd8mawVvG" +
-    "vqOhBOogCdb9qza5eJ1Cgx8RWKucFfaWWxKLOelCiBMT1Hm1znAoVBHG/blhJJOD" +
-    "5HcH/heRrB4MvrE1J76WF3fvZ03aHVcnlLtQeiNNOZ7VbBDXdie8Nomf/QswbBGa" +
-    "VwIDAQAB"
+const defaultAdblockBase64PublicKey =
+    'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs0qzJmHSgIiw7IGFCxij' +
+    '1NnB5hJ5ZQ1LKW9htL4EBOaMJvmqaDs/wfq0nw/goBHWsqqkMBynRTu2Hxxirvdb' +
+    'cugn1Goys5QKPgAvKwDHJp9jlnADWm5xQvPQ4GE1mK1/I3ka9cEOCzPW6GI+wGLi' +
+    'VPx9VZrxHHsSBIJRaEB5Tyi5bj0CZ+kcfMnRTsXIBw3C6xJgCVKISQUkd8mawVvG' +
+    'vqOhBOogCdb9qza5eJ1Cgx8RWKucFfaWWxKLOelCiBMT1Hm1znAoVBHG/blhJJOD' +
+    '5HcH/heRrB4MvrE1J76WF3fvZ03aHVcnlLtQeiNNOZ7VbBDXdie8Nomf/QswbBGa' +
+    'VwIDAQAB'
 
 const generateManifestFile = (name, base64PublicKey, uuid) => {
-  var manifest = "{\n" +
-                 "  \"description\": \"Brave Ad Block Updater extension\",\n" +
-                 "  \"key\": \"" + base64PublicKey + "\",\n" +
-                 "  \"manifest_version\": 2,\n" +
-                 "  \"name\": \"Brave Ad Block Updater (" + name + ")\",\n" +
-                 "  \"version\": \"0.0.0\"\n" +
-                 "}\n"
+  const manifest = '{\n' +
+                 '  "description": "Brave Ad Block Updater extension",\n' +
+                 '  "key": "' + base64PublicKey + '",\n' +
+                 '  "manifest_version": 2,\n' +
+                 '  "name": "Brave Ad Block Updater (' + name + ')",\n' +
+                 '  "version": "0.0.0"\n' +
+                 '}\n'
 
-  let filePath = path.join(outPath, uuid , 'manifest.json')
-  let p = fs.writeFile(filePath, manifest);
+  const filePath = path.join(outPath, uuid, 'manifest.json')
+  const p = fs.writeFile(filePath, manifest)
   return p
 }
 

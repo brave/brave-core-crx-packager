@@ -16,7 +16,7 @@ const createPhotoJsonFile = (path, body) => {
 }
 
 const getImageFileNameListFrom = (photoJsonObj) => {
-  let fileList = []
+  const fileList = []
   if (photoJsonObj.images) {
     photoJsonObj.images.forEach((wallpaper) => {
       fileList.push(wallpaper.source)
@@ -26,7 +26,7 @@ const getImageFileNameListFrom = (photoJsonObj) => {
 }
 
 const isValidSchemaVersion = (version) => {
-  return version === jsonSchemaVersion;
+  return version === jsonSchemaVersion
 }
 
 const validatePhotoData = (photoJsonObj) => {
@@ -41,7 +41,7 @@ const validatePhotoData = (photoJsonObj) => {
     photoJsonObj.images.forEach((image) => {
       if (!image.name || !image.source || !image.author ||
           !image.link || !image.originalUrl || !image.license) {
-        console.log(`Doesn't have sufficient properties`)
+        console.log('Doesn\'t have sufficient properties')
         console.log(image)
         isValid = false
       }

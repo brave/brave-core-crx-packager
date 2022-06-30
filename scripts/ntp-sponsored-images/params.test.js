@@ -24,7 +24,7 @@ tap.test('ntp getTargetComponentsFromArrays', (t) => {
   actual = params.getTargetComponents('"US-an;droid",')
   t.strictSame(actual, { 'US-android': allComponents['US-android'] })
 
-  //exclude
+  // exclude
   actual = params.getTargetComponents('', 'US-android')
   const expectedExclude = { ...allComponents }
   delete expectedExclude['US-android']

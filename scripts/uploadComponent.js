@@ -27,7 +27,7 @@ if (fs.existsSync(commander.crxFile)) {
   throw new Error(`Missing or invalid crx file/directory, file: '${commander.crxFile} directory: '${commander.crxDirectory}'`)
 }
 
-let uploadJobs = []
+const uploadJobs = []
 if (fs.lstatSync(crxParam).isDirectory()) {
   fs.readdirSync(crxParam).forEach(file => {
     if (path.parse(file).ext === '.crx') {

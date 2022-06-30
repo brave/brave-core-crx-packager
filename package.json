@@ -81,6 +81,11 @@
     "type": "git",
     "url": "https://github.com/brave/brave-core-crx-packager.git"
   },
+  "standard": {
+    "ignore": [
+      "/submodules/"
+    ]
+  },
   "tap": {
     "check-coverage": true,
     "branches": 25,

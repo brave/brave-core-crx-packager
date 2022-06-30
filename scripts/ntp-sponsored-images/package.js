@@ -60,7 +60,7 @@ function getManifestPath (regionPlatform) {
 }
 
 const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
-                         componentData, publisherProofKey) => {
+  componentData, publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
   const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -72,7 +72,7 @@ const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
     const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
     stageFiles(platformRegion, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -100,7 +100,7 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
     const componentData = targetComponents[platformRegion]
     generateManifestFile(platformRegion, componentData)
     generateCRXFile(commander.binary, commander.endpoint, commander.region,
-                    keyDir, platformRegion, componentData,
-                    commander.publisherProofKey)
+      keyDir, platformRegion, componentData,
+      commander.publisherProofKey)
   }
 })
