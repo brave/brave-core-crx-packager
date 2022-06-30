@@ -80,19 +80,10 @@
 
         let fileList = []
 
-        // TODO(Moritz Haller): Delete conditional once deprecated components are phased out
-        if (manifestFileName == 'models.json') {
-          if (manifestJson.models) {
-            manifestJson.models.forEach((model) => {
-               fileList.push(model.filename)
-             })
-          }
-        } else {
-          if (manifestJson.resources) {
-            manifestJson.resources.forEach((resource) => {
-               fileList.push(resource.filename)
-             })
-          }
+        if (manifestJson.resources) {
+          manifestJson.resources.forEach((resource) => {
+             fileList.push(resource.filename)
+           })
         }
 
         const downloadOps = fileList.map((fileName) => new Promise(resolve => {
