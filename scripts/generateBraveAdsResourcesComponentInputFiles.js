@@ -113,7 +113,7 @@ async function generateComponents (dataUrl) {
     const outDir = path.join(rootResourceDir, component)
     mkdirp.sync(outDir)
 
-    let manifestFileName = 'resources.json'
+    const manifestFileName = 'resources.json'
     const manifestUrl = `${dataUrl}${component}/${manifestFileName}`
     await downloadComponentInputFiles(manifestFileName, manifestUrl, outDir)
   }
