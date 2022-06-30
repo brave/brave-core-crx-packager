@@ -43,16 +43,16 @@ function downloadFileSync (downloadUrl, destPath) {
     const options = {
       url: downloadUrl,
       headers: {
-       'User-Agent': 'Request',
+        'User-Agent': 'Request'
       }
     }
     request
       .get(options)
       .pipe(fs.createWriteStream(destPath))
-      .on('response', function(response) {
+      .on('response', function (response) {
         resolve()
       })
-      .on('error' , function(error) {
+      .on('error', function (error) {
         return reject()
       })
   })

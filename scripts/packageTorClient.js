@@ -65,8 +65,8 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
 }
 
-const packageTorClient = (binary, endpoint, region,platform, key,
-                          publisherProofKey) => {
+const packageTorClient = (binary, endpoint, region, platform, key,
+  publisherProofKey) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
@@ -79,7 +79,7 @@ const packageTorClient = (binary, endpoint, region,platform, key,
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
     stageFiles(platform, torClient, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -134,9 +134,9 @@ if (fs.existsSync(commander.keyFile)) {
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   packageTorClient(commander.binary, commander.endpoint, commander.region,
-                   'darwin', keyParam, commander.publisherProofKey)
+    'darwin', keyParam, commander.publisherProofKey)
   packageTorClient(commander.binary, commander.endpoint, commander.region,
-                   'linux', keyParam, commander.publisherProofKey)
+    'linux', keyParam, commander.publisherProofKey)
   packageTorClient(commander.binary, commander.endpoint, commander.region,
-                   'win32', keyParam, commander.publisherProofKey)
+    'win32', keyParam, commander.publisherProofKey)
 })

@@ -25,7 +25,7 @@ const getOriginalManifest = (platform) => {
 }
 
 const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
-                           publisherProofKey) => {
+  publisherProofKey) => {
   const platform = `${os}-${arch}`
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
@@ -39,7 +39,7 @@ const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
     stageFiles(platform, ipfsDaemon, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -83,11 +83,11 @@ if (fs.existsSync(commander.keyFile)) {
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-                    'darwin', 'amd64', keyParam, commander.publisherProofKey)
+    'darwin', 'amd64', keyParam, commander.publisherProofKey)
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-                    'linux', 'amd64', keyParam, commander.publisherProofKey)
+    'linux', 'amd64', keyParam, commander.publisherProofKey)
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-                    'win32', 'amd64', keyParam, commander.publisherProofKey)
+    'win32', 'amd64', keyParam, commander.publisherProofKey)
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-                    'darwin', 'arm64', keyParam, commander.publisherProofKey)
+    'darwin', 'arm64', keyParam, commander.publisherProofKey)
 })

@@ -76,5 +76,5 @@ downloadIpfsDaemon('linux', 'amd64')
 downloadIpfsDaemon('win32', 'amd64')
 
 module.exports = {
-  ipfsVersion,
+  ipfsVersion
 }

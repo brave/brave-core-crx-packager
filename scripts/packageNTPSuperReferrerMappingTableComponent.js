@@ -37,18 +37,18 @@ const generateManifestFile = (publicKey) => {
     description: 'Brave NTP Super Referrer mapping table component',
     key: publicKey,
     manifest_version: 2,
-    name: `Brave NTP Super Referrer mapping table`,
+    name: 'Brave NTP Super Referrer mapping table',
     version: '0.0.0'
   }
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
 const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'build','ntp-super-referrer', 'mapping-table-manifest.json')
+  return path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table-manifest.json')
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-                         publisherProofKey) => {
+  publisherProofKey) => {
   const originalManifest = getOriginalManifest()
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table')
   const stagingDir = path.join(rootBuildDir, 'staging')
@@ -56,10 +56,10 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-super-referrer-mapping-table.crx`)
+    const crxFile = path.join(crxOutputDir, 'ntp-super-referrer-mapping-table.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -82,5 +82,5 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
-                  componentID, privateKeyFile, commander.publisherProofKey)
+    componentID, privateKeyFile, commander.publisherProofKey)
 })

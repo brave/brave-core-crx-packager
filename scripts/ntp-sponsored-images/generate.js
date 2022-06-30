@@ -13,9 +13,9 @@ const params = require('./params')
 // Can include or exclude specific regions, for performance optimization.
 
 /**
- * 
- * @param {string} dataUrl 
- * @param {import('./region-platform-component-metadata.js').RegionPlatformComponentMetadata} targetComponents 
+ *
+ * @param {string} dataUrl
+ * @param {import('./region-platform-component-metadata.js').RegionPlatformComponentMetadata} targetComponents
  */
 async function generateNTPSponsoredImages (dataUrl, targetComponents) {
   // Normalize url for joining

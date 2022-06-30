@@ -36,31 +36,31 @@ const generateManifestFile = (publicKey) => {
     description: 'Brave NTP background images component',
     key: publicKey,
     manifest_version: 2,
-    name: `Brave NTP background images`,
+    name: 'Brave NTP background images',
     version: '0.0.0'
   }
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
 const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'build','ntp-background-images', 'ntp-background-images-manifest.json')
+  return path.join(path.resolve(), 'build', 'ntp-background-images', 'ntp-background-images-manifest.json')
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-                         publisherProofKey) => {
+  publisherProofKey) => {
   const originalManifest = getOriginalManifest()
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-background-images')
   const stagingDir = path.join(rootBuildDir, 'staging')
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
- util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-background-images.crx`)
+  util.getNextVersion(endpoint, region, componentID).then((version) => {
+    const crxFile = path.join(crxOutputDir, 'ntp-background-images.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
- })
+  })
 }
 
 util.installErrorHandlers()
@@ -81,5 +81,5 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
-                  componentID, privateKeyFile, commander.publisherProofKey)
+    componentID, privateKeyFile, commander.publisherProofKey)
 })

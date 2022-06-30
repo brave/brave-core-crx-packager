@@ -15,7 +15,7 @@ commander
   .parse(process.argv)
 
 // The list of components to import from the Chrome Web Store
-const components = [ [ 'oemmndcbldboiebfnladdacbdfmadadm', '70.0.3538.54' ] ]
+const components = [['oemmndcbldboiebfnladdacbdfmadadm', '70.0.3538.54']]
 
 const outputDir = path.join('build', 'cws')
 

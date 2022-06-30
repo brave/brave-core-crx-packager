@@ -10,16 +10,16 @@ const commander = require('commander')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
-const recursive = require("recursive-readdir-sync");
+const recursive = require('recursive-readdir-sync')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
 
-async function stageFiles(componentType, datFile, version, outputDir) {
+async function stageFiles (componentType, datFile, version, outputDir) {
   let datFileName
 
   // ad-block components are in the correct folder
   // we don't need to stage the crx files
-  if(componentType == 'ad-block-updater') {
+  if (componentType == 'ad-block-updater') {
     const resourceFileName = 'resources.json'
     const resourceJsonPath = path.join('build', componentType, 'default', resourceFileName)
     const outputManifest = path.join(outputDir, 'manifest.json')
@@ -33,7 +33,7 @@ async function stageFiles(componentType, datFile, version, outputDir) {
     if (resourceJsonPath != outputResourceJSON) {
       fs.copyFileSync(resourceJsonPath, outputResourceJSON)
     }
-    return;
+    return
   }
 
   if (componentNeedsStraightCopyFromUnpackedDir(componentType)) {
@@ -103,7 +103,7 @@ const getDATFileVersionByComponentType = (componentType) => {
           'node_modules',
           'speedreader',
           'data',
-          'default-manifest.json')).toString())['data_file_version'];
+          'default-manifest.json')).toString()).data_file_version
     default:
       throw new Error('Unrecognized component extension type: ' + componentType)
   }
@@ -159,7 +159,9 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'messages' ||
   datFileName === 'speedreader-updater' ||
   datFileName === 'content-stylesheet' ||
-  datFileName.endsWith('.bundle') ? 'default' : datFileName
+  datFileName.endsWith('.bundle')
+    ? 'default'
+    : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
   if (componentType == 'ad-block-updater') {
@@ -187,7 +189,7 @@ const getDATFileListByComponentType = (componentType) => {
     case 'local-data-files-updater':
       return [path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
 	      path.join('node_modules', 'adblock-lists', 'brave-lists', 'debounce.json')].concat(
-		recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
+        recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
     case 'speedreader-updater':
       return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
         path.join('node_modules', 'speedreader', 'data', 'content-stylesheet.css')]
@@ -197,26 +199,26 @@ const getDATFileListByComponentType = (componentType) => {
 }
 
 const postNextVersionWork = (componentType, datFileName, key, publisherProofKey,
-                             binary, localRun, datFile, version) => {
+  binary, localRun, datFile, version) => {
   const stagingDir = path.join('build', componentType, datFileName)
   const crxOutputDir = path.join('build', componentType)
   const crxFile = path.join(crxOutputDir, datFileName ? `${componentType}-${datFileName}.crx` : `${componentType}.crx`)
-  var privateKeyFile = ''
+  let privateKeyFile = ''
   if (!localRun) {
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, datFileName ? `${componentType}-${datFileName}.pem` : `${componentType}.pem`)
   }
   stageFiles(componentType, datFile, version, stagingDir).then(() => {
     if (!localRun) {
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                           stagingDir)
+        stagingDir)
     }
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
 const processDATFile = (binary, endpoint, region, componentType, key,
-                        publisherProofKey, localRun, datFile) => {
-  var datFileName = getNormalizedDATFileName(path.parse(datFile).name)
+  publisherProofKey, localRun, datFile) => {
+  let datFileName = getNormalizedDATFileName(path.parse(datFile).name)
   if (componentType == 'ad-block-updater') {
     // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
     datFileName = path.dirname(datFile).split(path.sep).pop()
@@ -229,11 +231,11 @@ const processDATFile = (binary, endpoint, region, componentType, key,
   if (!localRun) {
     util.getNextVersion(endpoint, region, id).then((version) => {
       postNextVersionWork(componentType, datFileName, key, publisherProofKey,
-                          binary, localRun, datFile, version)
+        binary, localRun, datFile, version)
     })
   } else {
     postNextVersionWork(componentType, datFileName, key, publisherProofKey,
-                        binary, localRun, datFile, '1.0.0')
+      binary, localRun, datFile, '1.0.0')
   }
 }
 
@@ -241,9 +243,9 @@ const processJob = (commander, keyParam) => {
   generateManifestFilesByComponentType(commander.type)
   getDATFileListByComponentType(commander.type)
     .forEach(processDATFile.bind(null, commander.binary, commander.endpoint,
-                                 commander.region, commander.type, keyParam,
-                                 commander.publisherProofKey,
-                                 commander.localRun))
+      commander.region, commander.type, keyParam,
+      commander.publisherProofKey,
+      commander.localRun))
 }
 
 util.installErrorHandlers()

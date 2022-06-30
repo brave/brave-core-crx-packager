@@ -75,12 +75,12 @@ const getOutPath = (outputFilename, outSubdir) => {
  * rule_types was added with https://github.com/brave/brave-core-crx-packager/pull/298 and allows for { RuleTypes.ALL, RuleTypes.NETWORK_ONLY, RuleTypes.COSMETIC_ONLY }
  * @param outputDATFilename The filename of the DAT file to create.
  */
-const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir, defaultRuleType=RuleTypes.ALL) => {
+const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir, defaultRuleType = RuleTypes.ALL) => {
   const filterSet = new FilterSet(false)
   for (let { format, data, include_redirect_urls, rule_types } of filterRuleData) {
     include_redirect_urls = Boolean(include_redirect_urls)
     rule_types = rule_types || defaultRuleType
-    const parseOpts = { format, include_redirect_urls, rule_types}
+    const parseOpts = { format, include_redirect_urls, rule_types }
     filterSet.addFilters(data.split('\n'), parseOpts)
   }
   const client = new Engine(filterSet, true)
@@ -141,7 +141,7 @@ const generateDataFilesForAllRegions = () => {
  * Convenience function that generates a DAT file and resources file for the default list
  */
 const generateDataFilesForList = (lists, filename) => {
-  let promises = []
+  const promises = []
   lists.forEach((l) => {
     console.log(`${l.url}...`)
     const filterFn = getListFilterFunction(l.uuid)
@@ -158,7 +158,7 @@ const generateDataFilesForList = (lists, filename) => {
 }
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
-    generateDataFilesForList(defaultLists, 'rs-ABPFilterParserData.dat'))
+  generateDataFilesForList(defaultLists, 'rs-ABPFilterParserData.dat'))
 
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile1 =

@@ -50,7 +50,7 @@ const getOriginalManifest = () => {
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-                         publisherProofKey) => {
+  publisherProofKey) => {
   const originalManifest = getOriginalManifest()
   const rootBuildDir = path.join(path.resolve(), 'build', 'youtubedown')
   const stagingDir = path.join(rootBuildDir, 'staging')
@@ -61,7 +61,7 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
     const crxFile = path.join(crxOutputDir, 'youtubedown.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -83,5 +83,5 @@ if (fs.existsSync(commander.key)) {
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
-                  componentID, privateKeyFile, commander.publisherProofKey)
+    componentID, privateKeyFile, commander.publisherProofKey)
 })
