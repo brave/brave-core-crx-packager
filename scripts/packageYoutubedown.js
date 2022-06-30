@@ -2,17 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const childProcess = require('child_process')
 const commander = require('commander')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
-const request = require('request')
 const util = require('../lib/util')
 const ntpUtil = require('../lib/ntpUtil')
-
-const YoutubeDownJSURL = 'https://www.jwz.org/hacks/youtubedown.js'
 
 const getOutPath = (outputFilename) => {
   let outPath = path.join('build')
@@ -51,7 +47,6 @@ const getOriginalManifest = () => {
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey) => {
-  const originalManifest = getOriginalManifest()
   const rootBuildDir = path.join(path.resolve(), 'build', 'youtubedown')
   const stagingDir = path.join(rootBuildDir, 'staging')
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -81,7 +76,7 @@ if (fs.existsSync(commander.key)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+  const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
     componentID, privateKeyFile, commander.publisherProofKey)
 })

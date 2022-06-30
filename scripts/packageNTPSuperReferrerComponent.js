@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const childProcess = require('child_process')
 const commander = require('commander')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
@@ -49,7 +48,6 @@ const getOriginalManifest = (superReferrerName) => {
 
 const generateCRXFile = (binary, endpoint, region, superReferrerName,
   componentID, privateKeyFile, publisherProofKey) => {
-  const originalManifest = getOriginalManifest(superReferrerName)
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer')
   const stagingDir = path.join(rootBuildDir, 'staging', superReferrerName)
   const crxOutputDir = path.join(rootBuildDir, 'output')

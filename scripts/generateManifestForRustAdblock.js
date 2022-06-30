@@ -3,14 +3,12 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const fs = require('fs-extra')
-const mkdirp = require('mkdirp')
 const path = require('path')
 
 const { getRegionalLists } = require('../lib/adBlockRustUtils')
 
 const outPath = path.join('build', 'ad-block-updater')
 
-const defaultAdblockComponentId = 'cffkpbalmllkdoenhmdmpbkajipdjfam'
 const defaultAdblockBase64PublicKey =
     'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs0qzJmHSgIiw7IGFCxij' +
     '1NnB5hJ5ZQ1LKW9htL4EBOaMJvmqaDs/wfq0nw/goBHWsqqkMBynRTu2Hxxirvdb' +

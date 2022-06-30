@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const childProcess = require('child_process')
 const commander = require('commander')
 const fs = require('fs-extra')
-const mkdirp = require('mkdirp')
 const path = require('path')
-const replace = require('replace-in-file')
 const request = require('request')
 const util = require('../lib/util')
 const ntpUtil = require('../lib/ntpUtil')
@@ -79,6 +76,6 @@ if (fs.existsSync(commander.key)) {
   throw new Error('Missing or invalid private key')
 }
 
-const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+const [publicKey] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
 generateManifestFile(publicKey)
 downloadLatestYoutubedown()
