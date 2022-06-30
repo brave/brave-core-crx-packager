@@ -18,7 +18,7 @@ async function stageFiles (componentType, datFile, version, outputDir) {
 
   // ad-block components are in the correct folder
   // we don't need to stage the crx files
-  if (componentType == 'ad-block-updater') {
+  if (componentType === 'ad-block-updater') {
     const resourceFileName = 'resources.json'
     const resourceJsonPath = path.join('build', componentType, 'default', resourceFileName)
     const outputManifest = path.join(outputDir, 'manifest.json')
@@ -29,7 +29,7 @@ async function stageFiles (componentType, datFile, version, outputDir) {
       to: version
     }
     replace.sync(replaceOptions)
-    if (resourceJsonPath != outputResourceJSON) {
+    if (resourceJsonPath !== outputResourceJSON) {
       fs.copyFileSync(resourceJsonPath, outputResourceJSON)
     }
     return
@@ -39,7 +39,7 @@ async function stageFiles (componentType, datFile, version, outputDir) {
     const originalDir = getManifestsDirByComponentType(componentType)
     console.log('Copy dir:', originalDir, ' to:', outputDir)
     fs.copySync(originalDir, outputDir)
-    if (componentType == 'wallet-data-files-updater') {
+    if (componentType === 'wallet-data-files-updater') {
       fs.unlinkSync(path.join(outputDir, 'package.json'))
     }
   } else {
@@ -48,7 +48,7 @@ async function stageFiles (componentType, datFile, version, outputDir) {
     datFileName = getNormalizedDATFileName(parsedDatFile.name)
     const datFileVersion = getDATFileVersionByComponentType(componentType)
     let outputDatDir = path.join(outputDir, datFileVersion)
-    if (componentType == 'local-data-files-updater') {
+    if (componentType === 'local-data-files-updater') {
       const index = datFile.indexOf('/dist/')
       if (index !== -1) {
         let baseDir = datFile.substring(index + '/dist/'.length)
@@ -163,7 +163,7 @@ const getNormalizedDATFileName = (datFileName) =>
     : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
-  if (componentType == 'ad-block-updater') {
+  if (componentType === 'ad-block-updater') {
     return path.join(getManifestsDirByComponentType(componentType), datFileName, 'manifest.json')
   }
   return path.join(getManifestsDirByComponentType(componentType), datFileName ? `${datFileName}-manifest.json` : 'manifest.json')
@@ -218,7 +218,7 @@ const postNextVersionWork = (componentType, datFileName, key, publisherProofKey,
 const processDATFile = (binary, endpoint, region, componentType, key,
   publisherProofKey, localRun, datFile) => {
   let datFileName = getNormalizedDATFileName(path.parse(datFile).name)
-  if (componentType == 'ad-block-updater') {
+  if (componentType === 'ad-block-updater') {
     // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
     datFileName = path.dirname(datFile).split(path.sep).pop()
   }

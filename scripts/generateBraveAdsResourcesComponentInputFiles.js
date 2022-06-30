@@ -69,7 +69,7 @@ function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
       const fileList = []
 
       // TODO(Moritz Haller): Delete conditional once deprecated components are phased out
-      if (manifestFileName == 'models.json') {
+      if (manifestFileName === 'models.json') {
         if (manifestJson.models) {
           manifestJson.models.forEach((model) => {
             fileList.push(model.filename)
