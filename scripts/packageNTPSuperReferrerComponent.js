@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const childProcess = require('child_process')
 const commander = require('commander')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
@@ -44,12 +43,11 @@ const generateManifestFile = (superReferrerName, publicKey) => {
 }
 
 const getOriginalManifest = (superReferrerName) => {
-  return path.join(path.resolve(), 'build','ntp-super-referrer', `${superReferrerName}-manifest.json`)
+  return path.join(path.resolve(), 'build', 'ntp-super-referrer', `${superReferrerName}-manifest.json`)
 }
 
 const generateCRXFile = (binary, endpoint, region, superReferrerName,
-                         componentID, privateKeyFile, publisherProofKey) => {
-  const originalManifest = getOriginalManifest(superReferrerName)
+  componentID, privateKeyFile, publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer')
   const stagingDir = path.join(rootBuildDir, 'staging', superReferrerName)
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -59,7 +57,7 @@ const generateCRXFile = (binary, endpoint, region, superReferrerName,
     const crxFile = path.join(crxOutputDir, `ntp-super-referrer-${superReferrerName}.crx`)
     stageFiles(superReferrerName, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -83,6 +81,6 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(commander.superReferrerName, publicKey)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
-                  commander.superReferrerName, componentID, privateKeyFile,
-                  commander.publisherProofKey)
+    commander.superReferrerName, componentID, privateKeyFile,
+    commander.publisherProofKey)
 })

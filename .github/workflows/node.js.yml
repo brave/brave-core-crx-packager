@@ -28,6 +28,7 @@ jobs:
         cache: 'npm'
     - run: git submodule update --init --recursive
     - run: npm ci
+    - run: npm run lint
     - run: npm test
     - run: npm run data-files-ad-block-rust
     - run: npm run data-files-https-everywhere

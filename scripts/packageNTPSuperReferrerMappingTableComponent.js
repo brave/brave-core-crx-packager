@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const childProcess = require('child_process')
 const commander = require('commander')
 const fs = require('fs-extra')
 const mkdirp = require('mkdirp')
@@ -37,29 +36,28 @@ const generateManifestFile = (publicKey) => {
     description: 'Brave NTP Super Referrer mapping table component',
     key: publicKey,
     manifest_version: 2,
-    name: `Brave NTP Super Referrer mapping table`,
+    name: 'Brave NTP Super Referrer mapping table',
     version: '0.0.0'
   }
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
 const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'build','ntp-super-referrer', 'mapping-table-manifest.json')
+  return path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table-manifest.json')
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-                         publisherProofKey) => {
-  const originalManifest = getOriginalManifest()
+  publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table')
   const stagingDir = path.join(rootBuildDir, 'staging')
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-super-referrer-mapping-table.crx`)
+    const crxFile = path.join(crxOutputDir, 'ntp-super-referrer-mapping-table.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-                         stagingDir)
+      stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -82,5 +80,5 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
-                  componentID, privateKeyFile, commander.publisherProofKey)
+    componentID, privateKeyFile, commander.publisherProofKey)
 })

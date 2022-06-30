@@ -6,14 +6,13 @@
     "adblock-lists": "github:brave/adblock-lists",
     "adblock-rs": "0.5.6",
     "ajv": "8.11.0",
-    "aws-sdk": "2.1147.0",
+    "aws-sdk": "2.1165.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "brave-wallet-lists": "1.1.6",
     "ethereum-remote-client": "0.1.107",
     "extension-whitelist": "github:brave/extension-whitelist",
     "https-everywhere-builder": "github:brave/https-everywhere-builder",
     "recursive-readdir-sync": "1.0.6",
-    "referrer-whitelist": "github:brave/referrer-whitelist",
     "request": "2.88.2",
     "s3-client": "4.4.2",
     "speedreader": "github:brave-experiments/SpeedReader",
@@ -24,17 +23,15 @@
     "fs-extra": "10.1.0",
     "level": "8.0.0",
     "mkdirp": "1.0.4",
-    "npm-force-resolutions": "0.0.10",
     "replace-in-file": "6.3.5",
     "rimraf": "3.0.2",
     "standard": "17.0.0",
-    "tap": "16.2.0",
+    "tap": "16.3.0",
     "tmp": "0.2.1"
   },
   "scripts": {
     "clean": "rimraf build/",
     "test": "tap --files test/*.js --files scripts/**/*.test.js",
-    "preinstall": "npx npm-force-resolutions",
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-extension-whitelist": "npm run --prefix ./node_modules/extension-whitelist data-files",
@@ -84,8 +81,10 @@
     "type": "git",
     "url": "https://github.com/brave/brave-core-crx-packager.git"
   },
-  "resolutions": {
-    "ansi-regex": "5.0.1"
+  "standard": {
+    "ignore": [
+      "/submodules/"
+    ]
   },
   "tap": {
     "check-coverage": true,

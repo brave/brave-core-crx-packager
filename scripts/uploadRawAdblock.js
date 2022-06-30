@@ -10,10 +10,10 @@
 const fs = require('fs')
 const s3 = require('s3-client')
 const path = require('path')
-const {installErrorHandlers} = require('../lib/util')
+const { installErrorHandlers } = require('../lib/util')
 const dataFileVersion = 4
 
-installErrorHandlers();
+installErrorHandlers()
 
 const client = s3.createClient({
   maxAsyncS3: 20,
@@ -28,7 +28,7 @@ const client = s3.createClient({
 const uploadFile = (key, filePath, filename) => {
   return new Promise((resolve, reject) => {
     console.log('uploadFile', filename)
-    var params = {
+    const params = {
       localFile: filePath,
       // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
       s3Params: {
@@ -38,7 +38,7 @@ const uploadFile = (key, filePath, filename) => {
         GrantRead: process.env.CLOUDFRONT_CANONICAL_ID
       }
     }
-    var uploader = client.uploadFile(params)
+    const uploader = client.uploadFile(params)
     process.stdout.write(`Started uploading to: ${params.s3Params.Key}... `)
     uploader.on('error', function (err) {
       reject(new Error(`Unable to upload, do you have ~/.aws/credentials filled out? ${err}`))
@@ -56,7 +56,7 @@ let p = Promise.resolve()
 const basePath = path.join('build', 'ad-block-updater')
 const dirs = fs.readdirSync(basePath)
 dirs.forEach((dir) => {
-  const dataFileDir = path.join(basePath, dir);
+  const dataFileDir = path.join(basePath, dir)
   if (!fs.statSync(dataFileDir).isDirectory()) {
     return
   }

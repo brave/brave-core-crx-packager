@@ -15,14 +15,14 @@ commander
   .parse(process.argv)
 
 // The list of components to import from the Chrome Web Store
-const components = [ [ 'oemmndcbldboiebfnladdacbdfmadadm', '70.0.3538.54' ] ]
+const components = [['oemmndcbldboiebfnladdacbdfmadadm', '70.0.3538.54']]
 
 const outputDir = path.join('build', 'cws')
 
 mkdirp.sync(outputDir)
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  components.map((component) => {
+  components.forEach((component) => {
     const componentId = component[0]
     const chromiumVersion = component[1]
     const crxFile = path.join(outputDir, `${componentId}.crx`)
