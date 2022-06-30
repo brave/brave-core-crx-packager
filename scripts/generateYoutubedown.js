@@ -50,7 +50,7 @@ function downloadFileSync (downloadUrl, destPath) {
         resolve()
       })
       .on('error', function (error) {
-        return reject()
+        return reject(error)
       })
   })
 }
