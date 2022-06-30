@@ -22,7 +22,7 @@ const outputDir = path.join('build', 'cws')
 mkdirp.sync(outputDir)
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  components.map((component) => {
+  components.forEach((component) => {
     const componentId = component[0]
     const chromiumVersion = component[1]
     const crxFile = path.join(outputDir, `${componentId}.crx`)
