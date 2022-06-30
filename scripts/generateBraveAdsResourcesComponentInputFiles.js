@@ -110,7 +110,7 @@ async function generateComponents (dataUrl) {
     const outDir = path.join(rootResourceDir, component)
     mkdirp.sync(outDir)
 
-    manifestFileName = 'resources.json'
+    let manifestFileName = 'resources.json'
     // TODO(Moritz Haller): Delete conditional once deprecated components are phased out
     if (component.includes('deprecated')) {
       manifestFileName = 'models.json'
