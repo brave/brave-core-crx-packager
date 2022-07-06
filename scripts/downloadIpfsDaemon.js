@@ -8,7 +8,7 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const util = require('../lib/util')
-const ipfsVersion = '0.12.2'
+const ipfsVersion = '0.13.0'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
 const downloadIpfsDaemon = (platform, arch) => {
@@ -25,16 +25,16 @@ const downloadIpfsDaemon = (platform, arch) => {
   let sha512IPFS = ''
   switch (build) {
     case 'darwin-amd64':
-      sha512IPFS = '449eeac07008d07cfdd18166c1c0bb59a62165af5847beffa2e33639f560687b99a50e8ed983f207377fcc8aaae3e2171129a57c2fc7cd3af6e1e3c1f488cbe3'
+      sha512IPFS = '2de7f94eb75cc0c25f5724b320f03ca8e8d55fc44c6fb362121b13217d027673eb9ec9db98569cf3078ea37b26c886ffb071e5cb059b320db71f3000d28da42a'
       break
     case 'darwin-arm64':
-      sha512IPFS = 'd1ac5b6c058b2d68bf5e9601b29407e874aa42294e6195cf169d30f8e5174e67c6d7a57579468ecc9fd736876c983366c24e6a96ed86d5c8363ea1839375d952'
+      sha512IPFS = 'b762d0a5d5f90b5162cc1675a6a987181c8f98219179b6346bb051b946424f496bdd9b1eb330efa1dcee503eff9a85b629ebfef1b10e66787d1142704c32caf0'
       break
     case 'linux-amd64':
-      sha512IPFS = '69f0df7484f493e6a7510d504a02531d4952b86a79f34692957f40c00dc488d7abd6e729e049f042ea2207e61c00e40ae04de2b018be32c5ce129f7c51bdb78f'
+      sha512IPFS = '5a3ac9488286954a7c83ab7ddcd9b0af64f75e35c7c9c6b10c6eaf7c03257be0bf32b5ccda5ada4544306b05d966ec97b0e2a6b1132f06af4d4b40b61f52583f'
       break
     case 'windows-amd64':
-      sha512IPFS = '4362574f276b27e2a995ade3020b3e3d87214b88e03d33c3ac2fba1f33456017b8044bdd61b5b3ea782e95fca26b136c706d9932b5a1d81f1ef6c25d74720039'
+      sha512IPFS = 'b4c0de27b4c156a9b6f61ce236243356e0824bff78428730c7cdfd59777b337553e91dc6d2cde9ef0b104a187e90d1fd2f350314ed8cfb83181fd6a3c4f70cab'
       break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)
@@ -52,7 +52,7 @@ const downloadIpfsDaemon = (platform, arch) => {
   execSync(cmd)
   // Verify the checksum
   if (!verifyChecksum(ipfsDaemon, sha512IPFS)) {
-    console.error('Ipfs Daemon checksum verification failed')
+    console.error('Ipfs Daemon checksum verification failed for')
     process.exit(1)
   }
 
