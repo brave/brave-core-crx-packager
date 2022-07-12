@@ -29,6 +29,7 @@ const getComponentList = () => {
     'iso_3166_1_hk', // Hong Kong
     'iso_3166_1_hu', // Hungary
     'iso_3166_1_ie', // Ireland
+    'iso_3166_1_in', // India
     'iso_3166_1_it', // Italy
     'iso_3166_1_kr', // Korea
     'iso_3166_1_no', // Norway

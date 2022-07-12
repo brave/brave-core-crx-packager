@@ -107,6 +107,11 @@ const getComponentDataList = () => {
       id: 'fbmfelhaipnlicodibhjkmeafbcgpfnm'
     },
     {
+      locale: 'iso_3166_1_in',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7lDh1w85+qpXCS3pLBF6g42x7OYSlcwqF0+ohWk3x4wvEKLVPOE14IjTJofbQ2J9Iy8sqdhspUvVKNKxFS6+4xsA/p7jDldAXZq7immEzTKDewFGUi36lnKe2FbhD/3ZYw7YiRZPh86hBsEB6PBn5CbRQ/GGQ25BE8l6vAL30J+d4E1QsTc5cVT6oNeHBnQVM9/SGubYGC4ij75TwhQSlIV/nw/Ez3dgKrRtrvL8GOI0JMoKEccQNqTMWaPDciYY5pvRTkQimZuBNOIsVt/FZJ7f9ZdXjY+FtmQdBerfk5K/KhEbl59A6ASMbGHe0o8Y5o5LzD6fDNlq+kXghkX6dQIDAQAB',
+      id: 'kdkakecfnmlfifkhlekmfkmmkpgeckcl'
+    },
+    {
       locale: 'iso_3166_1_it',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyOcTaix+0SkqB8PwsuU2cI5jXMpt8zrR7nd6zYbgVrdwTQTSTh2aBQ0H+1IXcsYqfOkkGXmilEjl/er0us47WmSMf2j2KbY4MgSyAcyfWfZIkoM965j82ocW9AaNoJhdm0BHcKrRkdyx7H5xdJ1G/aEHVwaWHh9+xegeuMgEbcJeLZuD6TuUXBqf2r94s0ngFx0YhQXAAdAkLbIjkdJnL4WQXCRkZnKyhq3ZbQawbWiZOAKLeqOsqhAW0/iWMtO1c9jnTMu82hCqNGavrJy4fUZTsG05uqrgEccAd+n+xnClmyBvVuy8dOQwpda3xLCuAawbQ52zog3t0erZv4EzOwIDAQAB',
       id: 'gjkhegliajlngffafldbadcnpfegmkmb'
