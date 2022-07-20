@@ -10,23 +10,15 @@ const replace = require('replace-in-file')
 const util = require('../lib/util')
 const ntpUtil = require('../lib/ntpUtil')
 
-const getOutPath = (outputFilename) => {
-  let outPath = path.join('build')
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  outPath = path.join(outPath, 'youtubedown')
-  if (!fs.existsSync(outPath)) {
-    fs.mkdirSync(outPath)
-  }
-  return path.join(outPath, outputFilename)
-}
-
+/*
+  NOTE: For historical reason, this is named "Youtubedown" component, but
+  we're packaging 'brave/playlist-component'.
+*/
 const stageFiles = (version, outputDir) => {
-  const scriptFile = getOutPath('youtubedown.js')
-  const outputScriptFile = path.join(outputDir, 'youtubedown.js')
-  console.log('copy ', scriptFile, ' to:', outputScriptFile)
-  fs.copyFileSync(scriptFile, outputScriptFile)
+  // Copy resources and manifest file to outputDir.
+  const resourceDir = path.join(path.resolve(), 'node_modules', 'playlist-component')
+  console.log('copy dir:', resourceDir, ' to:', outputDir)
+  fs.copySync(resourceDir, outputDir)
 
   // Fix up the manifest version
   const originalManifest = getOriginalManifest()
@@ -42,7 +34,7 @@ const stageFiles = (version, outputDir) => {
 }
 
 const getOriginalManifest = () => {
-  return getOutPath('youtubedown-manifest.json')
+  return path.join(path.resolve(), 'node_modules', 'playlist-component', 'manifest.json')
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,

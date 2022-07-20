@@ -23,7 +23,10 @@ cd brave-core-crx-packager
 CXXFLAGS="--std=c++17" npm install
 ```
 
-Currently Node 14.x is required.
+Currently
+* Node 14.x is required.
+* Python is required.
+* Rust is required. (for ad-block)
 
 ## Packaging
 

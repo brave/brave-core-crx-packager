@@ -12,6 +12,7 @@
     "ethereum-remote-client": "0.1.107",
     "extension-whitelist": "github:brave/extension-whitelist",
     "https-everywhere-builder": "github:brave/https-everywhere-builder",
+    "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
     "request": "2.88.2",
     "s3-client": "4.4.2",
