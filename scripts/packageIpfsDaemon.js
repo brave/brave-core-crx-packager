@@ -11,12 +11,12 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
-const ipfsVersion = '0.13.0'
+const ipfsVersion = '0.14.0'
 
 const getIpfsDaemonPath = (os, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
   const myplatform = os === 'win32' ? 'windows' : os
-  const ipfsFilename = `go-ipfs_v${ipfsVersion}_${myplatform}-${arch}`
+  const ipfsFilename = `kubo_v${ipfsVersion}_${myplatform}-${arch}`
   return path.join(ipfsPath, ipfsFilename)
 }
 
