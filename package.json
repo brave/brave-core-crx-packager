@@ -6,7 +6,7 @@
     "adblock-lists": "github:brave/adblock-lists",
     "adblock-rs": "0.5.6",
     "ajv": "8.11.0",
-    "aws-sdk": "2.1183.0",
+    "aws-sdk": "2.1187.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "brave-wallet-lists": "1.1.7",
     "ethereum-remote-client": "0.1.107",
