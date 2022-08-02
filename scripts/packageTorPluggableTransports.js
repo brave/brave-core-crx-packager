@@ -6,11 +6,9 @@
 // npm run package-tor-pluggable-transports -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
 const commander = require('commander')
-const crypto = require('crypto')
 const execSync = require('child_process').execSync
 const fs = require('fs')
 const mkdirp = require('mkdirp')
-const { platform } = require('os')
 const path = require('path')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
@@ -18,10 +16,12 @@ const util = require('../lib/util')
 const TOR_PLUGGABLE_TRANSPORTS_UPDATER = 'tor-pluggable-transports-updater'
 
 const getTransportUrl = (platform, transport) => {
-  if (transport == 'snowflake')
+  if (transport === 'snowflake') {
     return `snowflake/client/${platform}/tor-snowflake-brave`
-  if (transport == 'obfs4')
+  }
+  if (transport === 'obfs4') {
     return `obfs4/obfs4proxy/${platform}/tor-obfs4-brave`
+  }
 }
 
 // Downloads one platform-specific tor pluggable transport executable from s3
@@ -31,15 +31,15 @@ const downloadTorPluggableTransport = (platform, transport) => {
 
   mkdirp.sync(transportPath)
 
-  const transport_file = path.join(transportPath, transportFilename)
-  const cmd = 'cp ' + getTransportUrl(platform, transport) + ' ' + transport_file
+  const transportFile = path.join(transportPath, transportFilename)
+  const cmd = 'cp ' + getTransportUrl(platform, transport) + ' ' + transportFile
   // Download the executable
   execSync(cmd)
 
   // Make it executable
-  fs.chmodSync(transport_file, 0o755)
+  fs.chmodSync(transportFile, 0o755)
 
-  return transport_file
+  return transportFile
 }
 
 const getOriginalManifest = (platform) => {
@@ -106,9 +106,9 @@ if (fs.existsSync(commander.keyFile)) {
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-                                'darwin', keyParam, commander.publisherProofKey)
+    'darwin', keyParam, commander.publisherProofKey)
   packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-                                'linux', keyParam, commander.publisherProofKey)
+    'linux', keyParam, commander.publisherProofKey)
   packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-                                'win32', keyParam, commander.publisherProofKey)
+    'win32', keyParam, commander.publisherProofKey)
 })
