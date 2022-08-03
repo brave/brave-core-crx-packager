@@ -20,7 +20,7 @@ const downloadTorClient = (platform) => {
   const torS3Prefix = process.env.S3_DEMO_TOR_PREFIX
 
   const torVersion = '0.4.7.8'
-  const braveVersion = '0'
+  const braveVersion = '1'
   const exeSuffix = platform === 'win32' ? '.exe' : ''
   const torFilename = `tor-${torVersion}-${platform}-brave-${braveVersion}`
   const torURL = torS3Prefix + torFilename + exeSuffix
@@ -29,13 +29,13 @@ const downloadTorClient = (platform) => {
 
   switch (platform) {
     case 'darwin':
-      sha512Tor = '068f240ee81a658880d345d4a18261901e39ad273433d8359abbd0060b6926d171e4c0aa773754927dc7a714533decdd06cb5a233b87d30e871fcd2064f07058'
+      sha512Tor = '87abde57932b50f9e2683242805f66d41a74dfc4a99d7fd6422d1db42a58030d84fc7b8fca32bab158dc9e681778d47f6480f5a8c96eb5e022772f69cad559b9'
       break
     case 'linux':
-      sha512Tor = '5e1f79ffbd6bd83bdcbaf1762d902241b62090a3c4cc04042c6d3e252f424f97b8d6932a3aaa675ba65813d485c6a1e55aeb6c250d0937cee26d4d4118150571'
+      sha512Tor = '344b1e847c6594e6215f81239e917c36701959a0f00affe2cd071dc7d57a5b8dfaf19427144befa089a5604c8e412c1fc0c6b2b921c4cb6f32c30c7bedfa9adf'
       break
     case 'win32':
-      sha512Tor = '66b97de8edbc7626bf05c7d0bdab04f4664f5219c85a90cc49825ffb5355fe32ebac3cb82c39db92d169812842c0c4440d1050042847926abdbbd729a681f55f'
+      sha512Tor = 'b9dd4e01a192fb4f920dbe9d4e189db5e96a57cc034dbe380231349b30c3ee35b1ef577ecde7e9d5dbafcbcba00aba4986deaa8b558a598f28dd5d3595a807ef'
       break
     default:
       throw new Error('Tor client download failed; unrecognized platform: ' + platform)
