@@ -1,0 +1,7 @@
+{
+  "description": "Brave Tor Pluggable Transports Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArO9CH6FdCcJkYZx073Atx+1OryS/0uD2sHghK2ol3/SDmUmoJYSCMLgQ6DF+GtLpNTckRxss7ZM4HS1o/RmUi02Y4siJzKjMiaXilI7EXMxwMmgTz8A6WEQo6uayBICFUQ1gzrqiQKSwQ47bjRfx2f5zuwnXb1sTJm+jRXpCIIeKs/YDG4e5hUHObnGR6dZCBt1R9N5DgKIPJttbfKRhJCCxY/qeJ5maTLDHor8/h45B+VCw8w8jJ2e/XO6PsXziSEJUIqbMBjeeLKrrFd7C7jU92MYAUzT3FWPW4Bd270iMfyLxbMhIpMeqzJvs+wZdPOb8kowtrAtpRAQAFDX/twIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave Tor Pluggable Transports Updater (Mac)",
+  "version": "0.0.0"
+}
