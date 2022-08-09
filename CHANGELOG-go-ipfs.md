@@ -1,6 +1,6 @@
 # Changelog
 
-## Updated go-ipfs to 0.14.0, from 0.13.0 (4-August-2022)
+## Updated go-ipfs to 0.14.0, from 0.13.0 (9-August-2022)
 - [brave-browser#24179](https://github.com/brave/brave-browser/issues/24179) - Update go-ipfs to 0.14.0
 - For full changelog, see https://github.com/ipfs/go-ipfs/releases/tag/v0.14.0
 
