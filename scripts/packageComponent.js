@@ -103,32 +103,17 @@ const getDATFileVersionByComponentType = (componentType) => {
           'speedreader',
           'data',
           'default-manifest.json')).toString()).data_file_version
-    default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
   }
 }
 
-const generateManifestFilesByComponentType = (componentType) => {
-  switch (componentType) {
-    case 'ethereum-remote-client':
-    case 'wallet-data-files-updater':
-      // Provides its own manifest file
-      break
-    case 'ad-block-updater':
-      break
-    case 'https-everywhere-updater':
-    case 'local-data-files-updater':
-      // TODO(emerick): Make these work like ad-block (i.e., update
-      // the corresponding repos with a script to generate the
-      // manifest and then call that script here)
-      break
-    case 'speedreader-updater':
-      // Provides its own manifest file
-      break
-    default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
-  }
-}
+const validComponentTypes = [
+  'ethereum-remote-client',
+  'wallet-data-files-updater',
+  'ad-block-updater',
+  'https-everywhere-updater',
+  'local-data-files-updater',
+  'speedreader-updater'
+]
 
 const getManifestsDirByComponentType = (componentType) => {
   switch (componentType) {
@@ -144,8 +129,6 @@ const getManifestsDirByComponentType = (componentType) => {
       return path.join('manifests', componentType)
     case 'speedreader-updater':
       return path.join('node_modules', 'speedreader', 'data')
-    default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
   }
 }
 
@@ -192,8 +175,6 @@ const getDATFileListByComponentType = (componentType) => {
     case 'speedreader-updater':
       return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
         path.join('node_modules', 'speedreader', 'data', 'content-stylesheet.css')]
-    default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
   }
 }
 
@@ -239,7 +220,9 @@ const processDATFile = (binary, endpoint, region, componentType, key,
 }
 
 const processJob = (commander, keyParam) => {
-  generateManifestFilesByComponentType(commander.type)
+  if (!validComponentTypes.includes(commander.type)) {
+    throw new Error('Unrecognized component extension type: ' + commander.type)
+  }
   getDATFileListByComponentType(commander.type)
     .forEach(processDATFile.bind(null, commander.binary, commander.endpoint,
       commander.region, commander.type, keyParam,
