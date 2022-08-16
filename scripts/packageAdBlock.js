@@ -1,4 +1,5 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
+/* Copyright (c) 2022 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
@@ -34,10 +35,10 @@ const postNextVersionWork = (datFileName, key, publisherProofKey,
   binary, localRun, version) => {
   const stagingDir = path.join('build', 'ad-block-updater', datFileName)
   const crxOutputDir = path.join('build', 'ad-block-updater')
-  const crxFile = path.join(crxOutputDir, datFileName ? `ad-block-updater-${datFileName}.crx` : `ad-block-updater.crx`)
+  const crxFile = path.join(crxOutputDir, datFileName ? `ad-block-updater-${datFileName}.crx` : 'ad-block-updater.crx')
   let privateKeyFile = ''
   if (!localRun) {
-    privateKeyFile = path.join(key, datFileName ? `ad-block-updater-${datFileName}.pem` : `ad-block-updater.pem`)
+    privateKeyFile = path.join(key, datFileName ? `ad-block-updater-${datFileName}.pem` : 'ad-block-updater.pem')
   }
   stageFiles(version, stagingDir).then(() => {
     if (!localRun) {
@@ -49,7 +50,7 @@ const postNextVersionWork = (datFileName, key, publisherProofKey,
 }
 
 const getOriginalManifest = (datFileName) => {
-  manifestsDir = path.join('build', 'ad-block-updater')
+  const manifestsDir = path.join('build', 'ad-block-updater')
   return path.join(manifestsDir, datFileName, 'manifest.json')
 }
 

@@ -82,6 +82,9 @@ const getDATFileVersionByComponentType = (componentType) => {
           'speedreader',
           'data',
           'default-manifest.json')).toString()).data_file_version
+    default:
+      // shouldn't be possible to get here
+      return null
   }
 }
 
@@ -101,10 +104,15 @@ const getManifestsDirByComponentType = (componentType) => {
       return path.join('node_modules', 'brave-wallet-lists')
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
-      // TODO(emerick): Make these work like ad-block
+      // TODO(emerick): Make these work like ad-block (i.e., update
+      // the corresponding repos with a script to generate the
+      // manifest and then call that script here)
       return path.join('manifests', componentType)
     case 'speedreader-updater':
       return path.join('node_modules', 'speedreader', 'data')
+    default:
+      // shouldn't be possible to get here
+      return null
   }
 }
 
@@ -138,6 +146,9 @@ const getDATFileListByComponentType = (componentType) => {
     case 'speedreader-updater':
       return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
         path.join('node_modules', 'speedreader', 'data', 'content-stylesheet.css')]
+    default:
+      // shouldn't be possible to get here
+      return null
   }
 }
 
@@ -161,7 +172,7 @@ const postNextVersionWork = (componentType, datFileName, key, publisherProofKey,
 
 const processDATFile = (binary, endpoint, region, componentType, key,
   publisherProofKey, localRun, datFile) => {
-  let datFileName = getNormalizedDATFileName(path.parse(datFile).name)
+  const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
 
   const originalManifest = getOriginalManifest(componentType, datFileName)
   const parsedManifest = util.parseManifest(originalManifest)
