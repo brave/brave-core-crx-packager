@@ -49,7 +49,7 @@
     "lint": "standard",
     "import-cws-components": "node ./scripts/importCWSComponents",
     "package-ethereum-remote-client": "node ./scripts/packageComponent --type ethereum-remote-client",
-    "package-ad-block": "node ./scripts/packageComponent --type ad-block-updater",
+    "package-ad-block": "node ./scripts/packageAdBlock",
     "package-https-everywhere": "node ./scripts/packageComponent --type https-everywhere-updater",
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-tor-pluggable-transports": "node ./scripts/packageTorPluggableTransports",

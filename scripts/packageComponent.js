@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-//  npm run package-ad-block -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ad-block-updater.pem
+//  npm run package-speedreader -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/speedreader-updater.pem
 
 const commander = require('commander')
 const fs = require('fs-extra')
@@ -15,25 +15,6 @@ const util = require('../lib/util')
 
 async function stageFiles (componentType, datFile, version, outputDir) {
   let datFileName
-
-  // ad-block components are in the correct folder
-  // we don't need to stage the crx files
-  if (componentType === 'ad-block-updater') {
-    const resourceFileName = 'resources.json'
-    const resourceJsonPath = path.join('build', componentType, 'default', resourceFileName)
-    const outputManifest = path.join(outputDir, 'manifest.json')
-    const outputResourceJSON = path.join(outputDir, resourceFileName)
-    const replaceOptions = {
-      files: outputManifest,
-      from: /0\.0\.0/,
-      to: version
-    }
-    replace.sync(replaceOptions)
-    if (resourceJsonPath !== outputResourceJSON) {
-      fs.copyFileSync(resourceJsonPath, outputResourceJSON)
-    }
-    return
-  }
 
   if (componentNeedsStraightCopyFromUnpackedDir(componentType)) {
     const originalDir = getManifestsDirByComponentType(componentType)
@@ -90,8 +71,6 @@ const getDATFileVersionByComponentType = (componentType) => {
     case 'ethereum-remote-client':
     case 'wallet-data-files-updater':
       return '0'
-    case 'ad-block-updater':
-      return ''
     case 'https-everywhere-updater':
       return '6.0'
     case 'local-data-files-updater':
@@ -104,31 +83,18 @@ const getDATFileVersionByComponentType = (componentType) => {
           'data',
           'default-manifest.json')).toString()).data_file_version
     default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
+      // shouldn't be possible to get here
+      return null
   }
 }
 
-const generateManifestFilesByComponentType = (componentType) => {
-  switch (componentType) {
-    case 'ethereum-remote-client':
-    case 'wallet-data-files-updater':
-      // Provides its own manifest file
-      break
-    case 'ad-block-updater':
-      break
-    case 'https-everywhere-updater':
-    case 'local-data-files-updater':
-      // TODO(emerick): Make these work like ad-block (i.e., update
-      // the corresponding repos with a script to generate the
-      // manifest and then call that script here)
-      break
-    case 'speedreader-updater':
-      // Provides its own manifest file
-      break
-    default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
-  }
-}
+const validComponentTypes = [
+  'ethereum-remote-client',
+  'wallet-data-files-updater',
+  'https-everywhere-updater',
+  'local-data-files-updater',
+  'speedreader-updater'
+]
 
 const getManifestsDirByComponentType = (componentType) => {
   switch (componentType) {
@@ -136,21 +102,21 @@ const getManifestsDirByComponentType = (componentType) => {
       return path.join('node_modules', 'ethereum-remote-client')
     case 'wallet-data-files-updater':
       return path.join('node_modules', 'brave-wallet-lists')
-    case 'ad-block-updater':
-      return path.join('build', 'ad-block-updater')
     case 'https-everywhere-updater':
     case 'local-data-files-updater':
-      // TODO(emerick): Make these work like ad-block
+      // TODO(emerick): Make these work like ad-block (i.e., update
+      // the corresponding repos with a script to generate the
+      // manifest and then call that script here)
       return path.join('manifests', componentType)
     case 'speedreader-updater':
       return path.join('node_modules', 'speedreader', 'data')
     default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
+      // shouldn't be possible to get here
+      return null
   }
 }
 
 const getNormalizedDATFileName = (datFileName) =>
-  datFileName === 'ABPFilterParserData' ||
   datFileName === 'httpse.leveldb' ||
   datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
@@ -163,9 +129,6 @@ const getNormalizedDATFileName = (datFileName) =>
     : datFileName
 
 const getOriginalManifest = (componentType, datFileName) => {
-  if (componentType === 'ad-block-updater') {
-    return path.join(getManifestsDirByComponentType(componentType), datFileName, 'manifest.json')
-  }
   return path.join(getManifestsDirByComponentType(componentType), datFileName ? `${datFileName}-manifest.json` : 'manifest.json')
 }
 
@@ -174,15 +137,6 @@ const getDATFileListByComponentType = (componentType) => {
     case 'ethereum-remote-client':
     case 'wallet-data-files-updater':
       return ['']
-    case 'ad-block-updater':
-      return recursive(path.join('build', 'ad-block-updater'))
-        .filter(file => {
-          return (path.extname(file) === '.dat' && !file.includes('test-data'))
-        })
-        .reduce((acc, val) => {
-          acc.push(path.join(val))
-          return acc
-        }, [])
     case 'https-everywhere-updater':
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
@@ -193,7 +147,8 @@ const getDATFileListByComponentType = (componentType) => {
       return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
         path.join('node_modules', 'speedreader', 'data', 'content-stylesheet.css')]
     default:
-      throw new Error('Unrecognized component extension type: ' + componentType)
+      // shouldn't be possible to get here
+      return null
   }
 }
 
@@ -217,11 +172,7 @@ const postNextVersionWork = (componentType, datFileName, key, publisherProofKey,
 
 const processDATFile = (binary, endpoint, region, componentType, key,
   publisherProofKey, localRun, datFile) => {
-  let datFileName = getNormalizedDATFileName(path.parse(datFile).name)
-  if (componentType === 'ad-block-updater') {
-    // we need the last (build/ad-block-updater/<uuid>) folder name for ad-block-updater
-    datFileName = path.dirname(datFile).split(path.sep).pop()
-  }
+  const datFileName = getNormalizedDATFileName(path.parse(datFile).name)
 
   const originalManifest = getOriginalManifest(componentType, datFileName)
   const parsedManifest = util.parseManifest(originalManifest)
@@ -239,7 +190,9 @@ const processDATFile = (binary, endpoint, region, componentType, key,
 }
 
 const processJob = (commander, keyParam) => {
-  generateManifestFilesByComponentType(commander.type)
+  if (!validComponentTypes.includes(commander.type)) {
+    throw new Error('Unrecognized component extension type: ' + commander.type)
+  }
   getDATFileListByComponentType(commander.type)
     .forEach(processDATFile.bind(null, commander.binary, commander.endpoint,
       commander.region, commander.type, keyParam,
@@ -253,7 +206,7 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-t, --type <type>', 'component extension type', /^(ad-block-updater|https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i, 'ad-block-updater')
+    .option('-t, --type <type>', 'component extension type', /^(https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i)
     .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 
