@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const fs = require('fs-extra')
+const fs = require('fs').promises
 const path = require('path')
 
 const { getRegionalLists } = require('../lib/adBlockRustUtils')
@@ -18,7 +18,7 @@ const defaultAdblockBase64PublicKey =
     '5HcH/heRrB4MvrE1J76WF3fvZ03aHVcnlLtQeiNNOZ7VbBDXdie8Nomf/QswbBGa' +
     'VwIDAQAB'
 
-const generateManifestFile = (name, base64PublicKey, uuid) => {
+const generateManifestFile = async (name, base64PublicKey, uuid) => {
   const manifest = '{\n' +
                  '  "description": "Brave Ad Block Updater extension",\n' +
                  '  "key": "' + base64PublicKey + '",\n' +
@@ -28,20 +28,17 @@ const generateManifestFile = (name, base64PublicKey, uuid) => {
                  '}\n'
 
   const filePath = path.join(outPath, uuid, 'manifest.json')
-  const p = fs.writeFile(filePath, manifest)
-  return p
+  return fs.writeFile(filePath, manifest)
 }
 
 const generateManifestFileForDefaultAdblock =
   generateManifestFile.bind(null, 'Default', defaultAdblockBase64PublicKey, 'default')  // eslint-disable-line
 
-const generateManifestFilesForAllRegions = () => {
-  let p = Promise.resolve()
-  getRegionalLists().then(regions => {
-    regions.forEach((region) => {
-      p = p.then(generateManifestFile.bind(null, region.title, region.base64_public_key, region.uuid))
-    })
-  })
+const generateManifestFilesForAllRegions = async () => {
+  const regionalLists = await getRegionalLists()
+  return Promise.all(regionalLists.map(region => {
+    return generateManifestFile.bind(null, region.title, region.base64_public_key, region.uuid)
+  }))
 }
 
 generateManifestFileForDefaultAdblock()

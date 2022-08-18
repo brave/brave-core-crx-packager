@@ -12,10 +12,9 @@ const request = require('request')
  * Returns a promise that which resolves with the list data
  *
  * @param listURL The URL of the list to fetch
- * @param filter The filter function to apply to the body
  * @return a promise that resolves with the content of the list or rejects with an error message.
  */
-const getListBufferFromURL = (listURL, filter) => {
+const getListBufferFromURL = (listURL) => {
   return new Promise((resolve, reject) => {
     request.get(listURL, function (error, response, body) {
       if (error) {
@@ -26,26 +25,9 @@ const getListBufferFromURL = (listURL, filter) => {
         reject(new Error(`Error status code ${response.statusCode} returned for URL: ${listURL}`))
         return
       }
-      if (filter) {
-        body = filter(body)
-      }
       resolve(body)
     })
   })
-}
-
-/**
- * Returns a filter function to apply for a specific UUID
- *
- * @param uuid The UUID that the filter function should be returned for.
- */
-const getListFilterFunction = (uuid) => {
-  // Apply any transformations based on list UUID here
-  // if (uuid === 'FBB430E8-3910-4761-9373-840FC3B43FF2') {
-  //  return (input) => input.split('\n').slice(4)
-  //    .map((line) => `||${line}`).join('\n')
-  // }
-  return undefined
 }
 
 /**
@@ -91,15 +73,14 @@ const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir,
 
 /**
  * Convenience function that uses getListBufferFromURL and generateDataFileFromLists
- * to construct a DAT file from a URL while applying a specific filter.
+ * to construct a DAT file from a URL.
  *
  * @param listURL the URL of the list to fetch.
  * @param the format of the filter list at the given URL.
  * @param outputDATFilename the DAT filename to write to.
- * @param filter The filter function to apply.
  * @return a Promise which resolves if successful or rejects if there's an error.
  */
-const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename, filter) => {
+const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename) => {
   return new Promise((resolve, reject) => {
     console.log(`${langs} ${listURL}...`)
     request.get(listURL, function (error, response, body) {
@@ -110,9 +91,6 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
       if (response.statusCode !== 200) {
         reject(new Error(`Error status code ${response.statusCode} returned for URL: ${listURL}`))
         return
-      }
-      if (filter) {
-        body = filter(body)
       }
       generateDataFileFromLists([{ format, data: body }], outputDATFilename, uuid)
       resolve()
@@ -144,8 +122,7 @@ const generateDataFilesForList = (lists, filename) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${l.url}...`)
-    const filterFn = getListFilterFunction(l.uuid)
-    promises.push(getListBufferFromURL(l.url, filterFn).then(data => ({ format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
+    promises.push(getListBufferFromURL(l.url).then(data => ({ format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
