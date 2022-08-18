@@ -80,7 +80,7 @@ const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir,
  * @param outputDATFilename the DAT filename to write to.
  * @return a Promise which resolves if successful or rejects if there's an error.
  */
-const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename) => {
+const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename, listTextComponent) => {
   return new Promise((resolve, reject) => {
     console.log(`${langs} ${listURL}...`)
     request.get(listURL, function (error, response, body) {
@@ -93,6 +93,10 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
         return
       }
       generateDataFileFromLists([{ format, data: body }], outputDATFilename, uuid)
+      if (listTextComponent !== undefined) {
+        const outPath = getOutPath('list.txt', listTextComponent.component_id)
+        fs.writeFileSync(outPath, body)
+      }
       resolve()
     })
   })
@@ -113,7 +117,7 @@ const generateDataFilesForAllRegions = () => {
       resolve()
     }).then(Promise.all(regions.map(region =>
       generateDataFileFromURL(region.url,
-        region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`)
+        region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`, region.list_text_component)
     )))
   })
 }

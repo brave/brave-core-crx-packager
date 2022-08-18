@@ -42,8 +42,11 @@ const generateManifestFileForResources =
 
 const generateManifestFilesForAllRegions = async () => {
   const regionalLists = await getRegionalLists()
-  return Promise.all(regionalLists.map(region => {
-    return generateManifestFile.bind(null, region.title, region.base64_public_key, region.uuid)
+  return Promise.all(regionalLists.map(async region => {
+    await generateManifestFile(region.title, region.base64_public_key, region.uuid, region)
+    if (region.list_text_component) {
+      await generateManifestFile(region.title + ' (plaintext)', region.list_text_component.base64_public_key, region.list_text_component.component_id)
+    }
   }))
 }
 
