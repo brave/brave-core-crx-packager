@@ -5,7 +5,7 @@
 const fs = require('fs').promises
 const path = require('path')
 
-const { getRegionalLists } = require('../lib/adBlockRustUtils')
+const { getRegionalLists, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } = require('../lib/adBlockRustUtils')
 
 const outPath = path.join('build', 'ad-block-updater')
 
@@ -34,6 +34,12 @@ const generateManifestFile = async (name, base64PublicKey, uuid) => {
 const generateManifestFileForDefaultAdblock =
   generateManifestFile.bind(null, 'Default', defaultAdblockBase64PublicKey, 'default')  // eslint-disable-line
 
+const generateManifestFileForRegionalCatalog =
+  generateManifestFile.bind(null, 'Regional Catalog', regionalCatalogPubkey, regionalCatalogComponentId)  // eslint-disable-line
+
+const generateManifestFileForResources =
+  generateManifestFile.bind(null, 'Resources', resourcesPubkey, resourcesComponentId)  // eslint-disable-line
+
 const generateManifestFilesForAllRegions = async () => {
   const regionalLists = await getRegionalLists()
   return Promise.all(regionalLists.map(region => {
@@ -42,6 +48,8 @@ const generateManifestFilesForAllRegions = async () => {
 }
 
 generateManifestFileForDefaultAdblock()
+  .then(generateManifestFileForRegionalCatalog)
+  .then(generateManifestFileForResources)
   .then(generateManifestFilesForAllRegions)
   .then(() => {
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')

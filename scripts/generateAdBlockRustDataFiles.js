@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { Engine, FilterFormat, FilterSet, RuleTypes } = require('adblock-rs')
-const { generateResourcesFile, getDefaultLists, getRegionalLists } = require('../lib/adBlockRustUtils')
+const { generateResourcesFile, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
@@ -100,13 +100,16 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
 
 /**
  * Convenience function that generates a DAT file for each region, and writes
- * the catalog of available regional lists to the default list directory.
+ * the catalog of available regional lists to the default list directory and
+ * regional catalog component directory.
  */
 const generateDataFilesForAllRegions = () => {
   console.log('Processing per region list updates...')
   return getRegionalLists().then(regions => {
     return new Promise((resolve, reject) => {
-      fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), JSON.stringify(regions))
+      const catalogString = JSON.stringify(regions)
+      fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), catalogString)
+      fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
       resolve()
     }).then(Promise.all(regions.map(region =>
       generateDataFileFromURL(region.url,
@@ -134,6 +137,10 @@ const generateDataFilesForList = (lists, filename) => {
   return p
 }
 
+const generateDataFilesForResourcesComponent = async () => {
+  return generateResourcesFile(getOutPath('resources.json', resourcesComponentId))
+}
+
 const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
   generateDataFilesForList(defaultLists, 'rs-ABPFilterParserData.dat'))
 
@@ -156,6 +163,7 @@ const generateTestDataFile5 =
   generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad_fr.png' }], 'rs-9852EFC4-99E4-4F2D-A915-9C3196C7A1DE.dat', 'test-data')
 
 generateDataFilesForDefaultAdblock()
+  .then(generateDataFilesForResourcesComponent)
   .then(generateTestDataFile1)
   .then(generateTestDataFile2)
   .then(generateTestDataFile3)
