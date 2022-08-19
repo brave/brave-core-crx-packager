@@ -9,7 +9,6 @@
 const commander = require('commander')
 const fs = require('fs-extra')
 const path = require('path')
-const recursive = require('recursive-readdir-sync')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
 
@@ -26,22 +25,22 @@ async function stageFiles (version, outputDir) {
     to: version
   }
   replace.sync(replaceOptions)
-  if (resourceJsonPath !== outputResourceJSON) {
+  // Only copy resources.json into components with a UUID. We will migrate to
+  // using component IDs instead of UUIDs for directory names.
+  // UUIDs are 36 characters, component IDs are 32.
+  if (path.basename(outputDir).length > 32 && resourceJsonPath !== outputResourceJSON) {
     fs.copyFileSync(resourceJsonPath, outputResourceJSON)
   }
 }
 
-const postNextVersionWork = (datFileName, key, publisherProofKey,
+const postNextVersionWork = (componentSubdir, key, publisherProofKey,
   binary, localRun, version) => {
-  const stagingDir = path.join('build', 'ad-block-updater', datFileName)
+  const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
   const crxOutputDir = path.join('build', 'ad-block-updater')
-  const crxFile = path.join(crxOutputDir, datFileName ? `ad-block-updater-${datFileName}.crx` : 'ad-block-updater.crx')
-  let privateKeyFile = ''
-  if (!localRun) {
-    privateKeyFile = path.join(key, datFileName ? `ad-block-updater-${datFileName}.pem` : 'ad-block-updater.pem')
-  }
+  const crxFile = path.join(crxOutputDir, componentSubdir === 'default' ? 'ad-block-updater.crx' : `ad-block-updater-${componentSubdir}.crx`)
   stageFiles(version, stagingDir).then(() => {
     if (!localRun) {
+      const privateKeyFile = path.join(key, componentSubdir === 'default' ? 'ad-block-updater.pem' : `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
         stagingDir)
     }
@@ -49,35 +48,32 @@ const postNextVersionWork = (datFileName, key, publisherProofKey,
   })
 }
 
-const getOriginalManifest = (datFileName) => {
+const getOriginalManifest = (componentSubdir) => {
   const manifestsDir = path.join('build', 'ad-block-updater')
-  return path.join(manifestsDir, datFileName, 'manifest.json')
+  return path.join(manifestsDir, componentSubdir, 'manifest.json')
 }
 
-const processDATFile = (binary, endpoint, region, keyDir,
-  publisherProofKey, localRun, datFile) => {
-  // we need the last (build/ad-block-updater/<uuid>) folder name
-  const datFileName = path.dirname(datFile).split(path.sep).pop()
-
-  const originalManifest = getOriginalManifest(datFileName)
+const processComponent = (binary, endpoint, region, keyDir,
+  publisherProofKey, localRun, componentSubdir) => {
+  const originalManifest = getOriginalManifest(componentSubdir)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   if (!localRun) {
     util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(datFileName, keyDir, publisherProofKey,
+      postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
         binary, localRun, version)
     })
   } else {
-    postNextVersionWork(datFileName, undefined, publisherProofKey,
+    postNextVersionWork(componentSubdir, undefined, publisherProofKey,
       binary, localRun, '1.0.0')
   }
 }
 
-const getDATFileList = () => {
-  return recursive(path.join('build', 'ad-block-updater'))
-    .filter(file => {
-      return (path.extname(file) === '.dat' && !file.includes('test-data'))
+const getComponentList = () => {
+  return fs.readdirSync(path.join('build', 'ad-block-updater'))
+    .filter(dir => {
+      return fs.existsSync(path.join('build', 'ad-block-updater', dir, 'manifest.json'))
     })
     .reduce((acc, val) => {
       acc.push(path.join(val))
@@ -86,8 +82,8 @@ const getDATFileList = () => {
 }
 
 const processJob = (commander, keyDir) => {
-  getDATFileList()
-    .forEach(processDATFile.bind(null, commander.binary, commander.endpoint,
+  getComponentList()
+    .forEach(processComponent.bind(null, commander.binary, commander.endpoint,
       commander.region, keyDir,
       commander.publisherProofKey,
       commander.localRun))

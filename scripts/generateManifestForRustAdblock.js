@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const fs = require('fs-extra')
+const fs = require('fs').promises
 const path = require('path')
 
-const { getRegionalLists } = require('../lib/adBlockRustUtils')
+const { getRegionalLists, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } = require('../lib/adBlockRustUtils')
 
 const outPath = path.join('build', 'ad-block-updater')
 
@@ -18,7 +18,7 @@ const defaultAdblockBase64PublicKey =
     '5HcH/heRrB4MvrE1J76WF3fvZ03aHVcnlLtQeiNNOZ7VbBDXdie8Nomf/QswbBGa' +
     'VwIDAQAB'
 
-const generateManifestFile = (name, base64PublicKey, uuid) => {
+const generateManifestFile = async (name, base64PublicKey, uuid) => {
   const manifest = '{\n' +
                  '  "description": "Brave Ad Block Updater extension",\n' +
                  '  "key": "' + base64PublicKey + '",\n' +
@@ -28,23 +28,31 @@ const generateManifestFile = (name, base64PublicKey, uuid) => {
                  '}\n'
 
   const filePath = path.join(outPath, uuid, 'manifest.json')
-  const p = fs.writeFile(filePath, manifest)
-  return p
+  return fs.writeFile(filePath, manifest)
 }
 
 const generateManifestFileForDefaultAdblock =
   generateManifestFile.bind(null, 'Default', defaultAdblockBase64PublicKey, 'default')  // eslint-disable-line
 
-const generateManifestFilesForAllRegions = () => {
-  let p = Promise.resolve()
-  getRegionalLists().then(regions => {
-    regions.forEach((region) => {
-      p = p.then(generateManifestFile.bind(null, region.title, region.base64_public_key, region.uuid))
-    })
-  })
+const generateManifestFileForRegionalCatalog =
+  generateManifestFile.bind(null, 'Regional Catalog', regionalCatalogPubkey, regionalCatalogComponentId)  // eslint-disable-line
+
+const generateManifestFileForResources =
+  generateManifestFile.bind(null, 'Resources', resourcesPubkey, resourcesComponentId)  // eslint-disable-line
+
+const generateManifestFilesForAllRegions = async () => {
+  const regionalLists = await getRegionalLists()
+  return Promise.all(regionalLists.map(async region => {
+    await generateManifestFile(region.title, region.base64_public_key, region.uuid, region)
+    if (region.list_text_component) {
+      await generateManifestFile(region.title + ' (plaintext)', region.list_text_component.base64_public_key, region.list_text_component.component_id)
+    }
+  }))
 }
 
 generateManifestFileForDefaultAdblock()
+  .then(generateManifestFileForRegionalCatalog)
+  .then(generateManifestFileForResources)
   .then(generateManifestFilesForAllRegions)
   .then(() => {
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')

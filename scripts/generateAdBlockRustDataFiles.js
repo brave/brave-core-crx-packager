@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { Engine, FilterFormat, FilterSet, RuleTypes } = require('adblock-rs')
-const { generateResourcesFile, getDefaultLists, getRegionalLists } = require('../lib/adBlockRustUtils')
+const { generateResourcesFile, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
@@ -12,10 +12,9 @@ const request = require('request')
  * Returns a promise that which resolves with the list data
  *
  * @param listURL The URL of the list to fetch
- * @param filter The filter function to apply to the body
  * @return a promise that resolves with the content of the list or rejects with an error message.
  */
-const getListBufferFromURL = (listURL, filter) => {
+const getListBufferFromURL = (listURL) => {
   return new Promise((resolve, reject) => {
     request.get(listURL, function (error, response, body) {
       if (error) {
@@ -26,26 +25,9 @@ const getListBufferFromURL = (listURL, filter) => {
         reject(new Error(`Error status code ${response.statusCode} returned for URL: ${listURL}`))
         return
       }
-      if (filter) {
-        body = filter(body)
-      }
       resolve(body)
     })
   })
-}
-
-/**
- * Returns a filter function to apply for a specific UUID
- *
- * @param uuid The UUID that the filter function should be returned for.
- */
-const getListFilterFunction = (uuid) => {
-  // Apply any transformations based on list UUID here
-  // if (uuid === 'FBB430E8-3910-4761-9373-840FC3B43FF2') {
-  //  return (input) => input.split('\n').slice(4)
-  //    .map((line) => `||${line}`).join('\n')
-  // }
-  return undefined
 }
 
 /**
@@ -91,15 +73,14 @@ const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir,
 
 /**
  * Convenience function that uses getListBufferFromURL and generateDataFileFromLists
- * to construct a DAT file from a URL while applying a specific filter.
+ * to construct a DAT file from a URL.
  *
  * @param listURL the URL of the list to fetch.
  * @param the format of the filter list at the given URL.
  * @param outputDATFilename the DAT filename to write to.
- * @param filter The filter function to apply.
  * @return a Promise which resolves if successful or rejects if there's an error.
  */
-const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename, filter) => {
+const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename, listTextComponent) => {
   return new Promise((resolve, reject) => {
     console.log(`${langs} ${listURL}...`)
     request.get(listURL, function (error, response, body) {
@@ -111,10 +92,11 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
         reject(new Error(`Error status code ${response.statusCode} returned for URL: ${listURL}`))
         return
       }
-      if (filter) {
-        body = filter(body)
-      }
       generateDataFileFromLists([{ format, data: body }], outputDATFilename, uuid)
+      if (listTextComponent !== undefined) {
+        const outPath = getOutPath('list.txt', listTextComponent.component_id)
+        fs.writeFileSync(outPath, body)
+      }
       resolve()
     })
   })
@@ -122,17 +104,20 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
 
 /**
  * Convenience function that generates a DAT file for each region, and writes
- * the catalog of available regional lists to the default list directory.
+ * the catalog of available regional lists to the default list directory and
+ * regional catalog component directory.
  */
 const generateDataFilesForAllRegions = () => {
   console.log('Processing per region list updates...')
   return getRegionalLists().then(regions => {
     return new Promise((resolve, reject) => {
-      fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), JSON.stringify(regions))
+      const catalogString = JSON.stringify(regions)
+      fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), catalogString)
+      fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
       resolve()
     }).then(Promise.all(regions.map(region =>
       generateDataFileFromURL(region.url,
-        region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`)
+        region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`, region.list_text_component)
     )))
   })
 }
@@ -144,8 +129,7 @@ const generateDataFilesForList = (lists, filename) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${l.url}...`)
-    const filterFn = getListFilterFunction(l.uuid)
-    promises.push(getListBufferFromURL(l.url, filterFn).then(data => ({ format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
+    promises.push(getListBufferFromURL(l.url).then(data => ({ format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
@@ -155,6 +139,10 @@ const generateDataFilesForList = (lists, filename) => {
   })
   p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
   return p
+}
+
+const generateDataFilesForResourcesComponent = async () => {
+  return generateResourcesFile(getOutPath('resources.json', resourcesComponentId))
 }
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
@@ -179,6 +167,7 @@ const generateTestDataFile5 =
   generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad_fr.png' }], 'rs-9852EFC4-99E4-4F2D-A915-9C3196C7A1DE.dat', 'test-data')
 
 generateDataFilesForDefaultAdblock()
+  .then(generateDataFilesForResourcesComponent)
   .then(generateTestDataFile1)
   .then(generateTestDataFile2)
   .then(generateTestDataFile3)
