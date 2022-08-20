@@ -37,10 +37,10 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
   binary, localRun, version) => {
   const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
   const crxOutputDir = path.join('build', 'ad-block-updater')
-  const crxFile = path.join(crxOutputDir, componentSubdir === 'default' ? 'ad-block-updater.crx' : `ad-block-updater-${componentSubdir}.crx`)
+  const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
   stageFiles(version, stagingDir).then(() => {
     if (!localRun) {
-      const privateKeyFile = path.join(key, componentSubdir === 'default' ? 'ad-block-updater.pem' : `ad-block-updater-${componentSubdir}.pem`)
+      const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
         stagingDir)
     }
