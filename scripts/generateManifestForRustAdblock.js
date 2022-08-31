@@ -5,7 +5,7 @@
 const fs = require('fs').promises
 const path = require('path')
 
-const { getRegionalLists, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } = require('../lib/adBlockRustUtils')
+const { getRegionalLists, defaultPlaintextComponentId, defaultPlaintextPubkey, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } = require('../lib/adBlockRustUtils')
 
 const outPath = path.join('build', 'ad-block-updater')
 
@@ -32,13 +32,16 @@ const generateManifestFile = async (name, base64PublicKey, uuid) => {
 }
 
 const generateManifestFileForDefaultAdblock =
-  generateManifestFile.bind(null, 'Default', defaultAdblockBase64PublicKey, 'default')  // eslint-disable-line
+  generateManifestFile.bind(null, 'Default', defaultAdblockBase64PublicKey, 'default')
+
+const generateManifestFileForDefaultPlaintextAdblock =
+  generateManifestFile.bind(null, 'Default (plaintext)', defaultPlaintextPubkey, defaultPlaintextComponentId)
 
 const generateManifestFileForRegionalCatalog =
-  generateManifestFile.bind(null, 'Regional Catalog', regionalCatalogPubkey, regionalCatalogComponentId)  // eslint-disable-line
+  generateManifestFile.bind(null, 'Regional Catalog', regionalCatalogPubkey, regionalCatalogComponentId)
 
 const generateManifestFileForResources =
-  generateManifestFile.bind(null, 'Resources', resourcesPubkey, resourcesComponentId)  // eslint-disable-line
+  generateManifestFile.bind(null, 'Resources', resourcesPubkey, resourcesComponentId)
 
 const generateManifestFilesForAllRegions = async () => {
   const regionalLists = await getRegionalLists()
@@ -51,6 +54,7 @@ const generateManifestFilesForAllRegions = async () => {
 }
 
 generateManifestFileForDefaultAdblock()
+  .then(generateManifestFileForDefaultPlaintextAdblock)
   .then(generateManifestFileForRegionalCatalog)
   .then(generateManifestFileForResources)
   .then(generateManifestFilesForAllRegions)

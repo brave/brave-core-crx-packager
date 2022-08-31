@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { Engine, FilterFormat, FilterSet, RuleTypes } = require('adblock-rs')
-const { generateResourcesFile, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } = require('../lib/adBlockRustUtils')
+const { generateResourcesFile, getDefaultLists, getRegionalLists, defaultPlaintextComponentId, resourcesComponentId, regionalCatalogComponentId } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
 const request = require('request')
@@ -72,6 +72,14 @@ const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir,
 }
 
 /**
+ * Serializes the provided lists to disk in one file as `list.txt` under the given component subdirectory.
+ */
+const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
+  const fullList = listBuffers.map(({ data }) => data).join('\n')
+  fs.writeFileSync(getOutPath('list.txt', outSubdir), fullList)
+}
+
+/**
  * Convenience function that uses getListBufferFromURL and generateDataFileFromLists
  * to construct a DAT file from a URL.
  *
@@ -123,9 +131,9 @@ const generateDataFilesForAllRegions = () => {
 }
 
 /**
- * Convenience function that generates a DAT file and resources file for the default list
+ * Convenience function that generates component files for the default adblock lists
  */
-const generateDataFilesForList = (lists, filename) => {
+const generateDefaultDataFiles = (lists) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${l.url}...`)
@@ -133,7 +141,8 @@ const generateDataFilesForList = (lists, filename) => {
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
-    generateDataFileFromLists(listBuffers, filename, 'default')
+    generatePlaintextListFromLists(listBuffers, defaultPlaintextComponentId)
+    generateDataFileFromLists(listBuffers, 'rs-ABPFilterParserData.dat', 'default')
     // for iOS team - compile cosmetic filters only
     generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
   })
@@ -146,7 +155,7 @@ const generateDataFilesForResourcesComponent = async () => {
 }
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
-  generateDataFilesForList(defaultLists, 'rs-ABPFilterParserData.dat'))
+  generateDefaultDataFiles(defaultLists))
 
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile1 =
