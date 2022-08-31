@@ -142,8 +142,8 @@ const getDATFileListByComponentType = (componentType) => {
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
       return [path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
-        path.join('node_modules', 'adblock-lists', 'brave-lists', 'debounce.json'),
-        path.join('node_modules', 'adblock-lists', 'brave-lists', 'clean-urls.json')].concat(
+        path.join('brave-lists', 'debounce.json'),
+        path.join('brave-lists', 'clean-urls.json')].concat(
         recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
     case 'speedreader-updater':
       return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),

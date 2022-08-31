@@ -62,3 +62,6 @@ build
 
 # IDE-specific files
 *.swp
+
+# Lists for data-files-local-data-files
+brave-lists

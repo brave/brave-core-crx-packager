@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
-    "adblock-lists": "github:brave/adblock-lists",
     "adblock-rs": "0.5.6",
     "ajv": "8.11.0",
     "aws-sdk": "2.1206.0",
@@ -36,7 +35,7 @@
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-extension-whitelist": "npm run --prefix ./node_modules/extension-whitelist data-files",
-    "data-files-local-data-files": "npm run data-files-extension-whitelist && npm install --prefix ./node_modules/brave-site-specific-scripts && npm run --prefix ./node_modules/brave-site-specific-scripts build",
+    "data-files-local-data-files": "npm run data-files-extension-whitelist && npm install --prefix ./node_modules/brave-site-specific-scripts && npm run --prefix ./node_modules/brave-site-specific-scripts build && mkdir -p brave-lists && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls.json -O brave-lists/clean-urls.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/debounce.json -O brave-lists/debounce.json",
     "data-files-speedreader": "npm run --prefix ./node_modules/speedreader data-files",
     "download-ipfs-daemon": "node scripts/downloadIpfsDaemon.js",
     "generate-ad-block-manifests": "node scripts/generateManifestForRustAdblock.js",
