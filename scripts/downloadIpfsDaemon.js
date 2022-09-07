@@ -8,33 +8,33 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const util = require('../lib/util')
-const ipfsVersion = '0.14.0'
+const ipfsVersion = '0.15.0'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
 const downloadIpfsDaemon = (platform, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
 
-  const ipfsDistPrefix = `https://dist.ipfs.io/go-ipfs/v${ipfsVersion}/`
+  const ipfsDistPrefix = `https://github.com/ipfs/kubo/releases/download/v${ipfsVersion}/`
 
   const zipSuffix = platform === 'win32' ? '.zip' : '.tar.gz'
   const myplatform = platform === 'win32' ? 'windows' : platform
   const build = `${myplatform}-${arch}`
-  const ipfsFilename = `go-ipfs_v${ipfsVersion}_${build}`
+  const ipfsFilename = `kubo_v${ipfsVersion}_${build}`
   const ipfsURL = ipfsDistPrefix + ipfsFilename + zipSuffix
 
   let sha512IPFS = ''
   switch (build) {
     case 'darwin-amd64':
-      sha512IPFS = 'ab5bdf4875f0eff4e704b26d03ac8ea0ced344ad1a2a231b058ed188a900418c8cb48a9d18b6487b19bdd2e4d862487c3f2b8cbf49c3559f4fcc4523029ddc9e'
+      sha512IPFS = '7570d54756d2304b9a80119fc9c3b9645b9cc6f3bbce977fdeb828ded5a0ed9c1418f3d9d808d54b071b5485d58aad68a7fed83bab48f5aaa522104134c8ecd3'
       break
     case 'darwin-arm64':
-      sha512IPFS = '6a72125e432d155b85c6d6e6e34db4fa593816916448c6cbf3e15293989ace4c555a02828071cec8ead88ff4232a762ee52a4f1d3302b7a84c0785d5c6935f19'
+      sha512IPFS = '5ea296099c136fa0cc160571823b8e295b7e31ceaa44a8ea801c7075275bd9ff957a0e4850fdf9c56308c72e337b19d041cd817f47a033ec6381a442b95b330c'
       break
     case 'linux-amd64':
-      sha512IPFS = 'e5d1b305cb323af469bf1a820a48d97d3cb53709ab641d5ed126baad1e969714a058ff652b435c9b148e88841de9e025860a1a1999123e39d309a5184e6a200a'
+      sha512IPFS = '261206ece24ffbe2b662eb729e79c64cbd12beac3c10d0909454fdec589aee4c842b7fce5b3d7a3554b13e55681a300e01f4dd6efda040f18affd07882622677'
       break
     case 'windows-amd64':
-      sha512IPFS = 'e0aef3b2d417ae63c90b0aef0d8b6d61fc804da49b9c7f73d6584a063f3a56daa2b0894476fed4d87c672af88896f1fe0e75557c16fac7946e8cc7bc3863143f'
+      sha512IPFS = 'eb83286f5685244ec7b4f46fd3644c6e6ec92e6fed88a2334f2bccd4362693dbe1be06fac8c1d8b32fdca690f9f5decaa656f518586e2ba3f9875a1ece2e1c18'
       break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)
@@ -42,10 +42,12 @@ const downloadIpfsDaemon = (platform, arch) => {
 
   mkdirp.sync(ipfsPath)
 
-  const ipfsDaemon = path.join(ipfsPath, ipfsFilename)
+  // Rename kubo executable to go-ipfs
+  const goIpfsFilename = `go-ipfs_v${ipfsVersion}_${build}`
+  const ipfsDaemon = path.join(ipfsPath, goIpfsFilename)
   const exeSuffix = platform === 'win32' ? '.exe' : ''
   const decompress = `bsdtar xf - -C ${ipfsPath}`
-  const copy = `cp ${path.join(ipfsPath, 'go-ipfs', 'ipfs' + exeSuffix)} ${ipfsDaemon}`
+  const copy = `cp ${path.join(ipfsPath, 'kubo', 'ipfs' + exeSuffix)} ${ipfsDaemon}`
   const cmd = `curl -sL ${ipfsURL} | ${decompress} && ${copy}`
 
   // Download and decompress the client
