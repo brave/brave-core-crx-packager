@@ -42,6 +42,8 @@ const getComponentList = () => {
     'iso_3166_1_pk', // Pakistan
     'iso_3166_1_pl', // Poland
     'iso_3166_1_sk', // Slovakia
+    'iso_3166_1_ro', // Romania
+    'iso_3166_1_ua', // Ukraine
     'iso_639_1_de',
     'iso_639_1_en',
     'iso_639_1_fr',
