@@ -18,7 +18,7 @@ const getListBufferFromURL = (listURL) => {
   return new Promise((resolve, reject) => {
     request.get(listURL, function (error, response, body) {
       if (error) {
-        reject(new Error(`Request error: ${error}`))
+        reject(new Error(`Request error for ${listURL}: ${error}`))
         return
       }
       if (response.statusCode !== 200) {
@@ -93,7 +93,7 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
     console.log(`${langs} ${listURL}...`)
     request.get(listURL, function (error, response, body) {
       if (error) {
-        reject(new Error(`Request error: ${error}`))
+        reject(new Error(`Request error for ${listURL}: ${error}`))
         return
       }
       if (response.statusCode !== 200) {
