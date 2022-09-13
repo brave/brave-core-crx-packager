@@ -172,6 +172,16 @@ const getComponentDataList = () => {
       id: 'obponfmfefkaeehakbehbnnlcbebebhd'
     },
     {
+      locale: 'iso_3166_1_ro',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA26I0Xv1cVEq5rKxmos7amRlVtAcXAxJz2kb2PZSBctReUlbl13rpEmYtSh0EuGKHjRcMKsJmkQ2kKJv/s94pvaq/o9mW0uqk1rr1LhB/btwxYaLfXYnSO2A+Tkz0tfHaCnWZtzAGCXU7E9ByKsbG6IOtLA7BodAoLN/hXRJIegWENkCA7Mz7LLZ7LFYt4IepHEpu4aQH+e1gGOC/7GBeZyPKgrWEQKeOVg1pbfnMqFGuPi5x0ic+AxJbaA2RIOM4do1BZ4/6Pu2vBSZHM3FfW9YTBCXjgbk3re9jv+p+op6yXU00oY3LTYHISHPD2aydKdjUmtIlrn/6zLq+YFjjQQIDAQAB',
+      id: 'jpapeieehcilkcfpljhopohigdhbnjck'
+    },
+    {
+      locale: 'iso_3166_1_ua',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsm/U+Hc56/KfDfHDF4JtMRoS/xtoK3pZHJOeIa1eWdmdeIt1ziSbM4HfPz6iJ3rZbjPmHMs5FpNULeSnhFI4H5Wxz9ynHNKXQka8cHbxO94lRCJo0Dv/6sFsJEiXBY5D+dhzR8lpmC2sKrXrDrkabYaVS9NluuIAswUZXP6My1WSJI5FNaDxHwzoXNxmGLUp4R3yjGu8P0NGoG7jZxxr3oIf1j0zHKBAH7CHqAhBbKC3Dla03mc0rG4pGFws4z1L6C8CNHhjqT2IMpMAJNg/55XVEPVog5KB0LQRSeB3qmQBYExUPF+6XI5W9Zl6rfEd92t6127iL7BV8JcfxL9I7QIDAQAB',
+      id: 'enkpeojckjlmehbniegocfffdkanjhef'
+    },
+    {
       locale: 'iso_639_1_en',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp3999qnB5RBaRYj2VwIgbHUyPrfwXsFVn8apmCcT23UHO33cAGHDVKSKvmpXn1L+jBfThPjY9EtW5yA1+6tmC7iJIesJjWbM/G/JA9Btc6f58a0xuPa86goCM10/EocttsoheOzi7A4DUGqCAhBh2HwhzRWxmJnYURtYJz5jX+gLbE8m0mxHZLktKIBPVqw3CbKeWN5kU1Pppg+Wh/xdTxOXhwBo6MNWog+oZEzSSvJ5zY1/vfX0VIMVYiHyNFvyNf5Bdu7aK9PDj3iQs6s5Ru7ahAQg2RglbvI7Axr4eSgKaxg6k/n6h83ltWdAoZqwbC07U0NIb9MtXmZLU76+OwIDAQAB',
       id: 'ocilmpijebaopmdifcomolmpigakocmo'
