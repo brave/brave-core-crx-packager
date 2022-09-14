@@ -68,15 +68,18 @@ const processComponent = (binary, endpoint, region, keyDir,
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  let contentHash
+  let fileToHash
   if (id === regionalCatalogComponentId) {
-    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, 'regional_catalog.json')
-    contentHash = util.generateSHA256HashOfFile(contentFile)
+    fileToHash = 'regional_catalog.json'
   } else if (id === resourcesComponentId) {
-    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, 'resources.json')
-    contentHash = util.generateSHA256HashOfFile(contentFile)
+    fileToHash = 'resources.json'
   } else if (id.length === 32) {
-    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, 'list.txt')
+    fileToHash = 'list.txt'
+  }
+
+  let contentHash
+  if (fileToHash !== undefined) {
+    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, fileToHash)
     contentHash = util.generateSHA256HashOfFile(contentFile)
   }
 
