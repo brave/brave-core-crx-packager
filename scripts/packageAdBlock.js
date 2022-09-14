@@ -11,6 +11,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const replace = require('replace-in-file')
 const util = require('../lib/util')
+const { regionalCatalogComponentId, resourcesComponentId } = require('../lib/adBlockRustUtils')
 
 async function stageFiles (version, outputDir) {
   // ad-block components are in the correct folder
@@ -34,15 +35,19 @@ async function stageFiles (version, outputDir) {
 }
 
 const postNextVersionWork = (componentSubdir, key, publisherProofKey,
-  binary, localRun, version) => {
+  binary, localRun, version, contentHash) => {
   const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
   const crxOutputDir = path.join('build', 'ad-block-updater')
   const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
+  const contentHashFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.contentHash`)
   stageFiles(version, stagingDir).then(() => {
     if (!localRun) {
       const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
         stagingDir)
+    }
+    if (contentHash !== undefined) {
+      fs.writeFileSync(contentHashFile, contentHash)
     }
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
@@ -59,14 +64,30 @@ const processComponent = (binary, endpoint, region, keyDir,
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
+  let contentHash
+  if (id === regionalCatalogComponentId) {
+    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, 'regional_catalog.json')
+    contentHash = util.generateSHA256HashOfFile(contentFile)
+  } else if (id === resourcesComponentId) {
+    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, 'resources.json')
+    contentHash = util.generateSHA256HashOfFile(contentFile)
+  } else if (id.length === 32) {
+    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, 'list.txt')
+    contentHash = util.generateSHA256HashOfFile(contentFile)
+  }
+
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
-        binary, localRun, version)
+    util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
+      if (version !== undefined) {
+        postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
+          binary, localRun, version, contentHash)
+      } else {
+        console.log('content for ' + id + ' was not updated, skipping!')
+      }
     })
   } else {
     postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      binary, localRun, '1.0.0')
+      binary, localRun, '1.0.0', contentHash)
   }
 }
 
