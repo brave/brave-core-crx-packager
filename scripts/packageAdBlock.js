@@ -41,6 +41,10 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
   const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
   const contentHashFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.contentHash`)
   stageFiles(version, stagingDir).then(() => {
+    // Remove any existing `.contentHash` file for determinism
+    if (fs.existsSync(contentHashFile)) {
+      fs.unlinkSync(contentHashFile)
+    }
     if (!localRun) {
       const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
