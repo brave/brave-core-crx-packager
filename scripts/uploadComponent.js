@@ -42,7 +42,7 @@ Promise.all(uploadJobs).then(() => {
   util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
     if (fs.lstatSync(crxParam).isDirectory()) {
       fs.readdirSync(crxParam).forEach(file => {
-        const filePath = path.join(crxParam, file)
+        const filePath = path.parse(path.join(crxParam, file))
         if (filePath.ext === '.crx') {
           const contentHashPath = path.resolve(filePath.dir, filePath.name + '.contentHash')
           let contentHash
