@@ -47,7 +47,7 @@ Promise.all(uploadJobs).then(() => {
           const contentHashPath = path.resolve(filePath.dir, filePath.name + '.contentHash')
           let contentHash
           if (fs.existsSync(contentHashPath)) {
-            contentHash = fs.readFileSync(contentHashPath)
+            contentHash = fs.readFileSync(contentHashPath).toString()
           }
           util.updateDBForCRXFile(commander.endpoint, commander.region, path.join(crxParam, file), undefined, contentHash)
         }
