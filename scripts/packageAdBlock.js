@@ -69,11 +69,11 @@ const processComponent = (binary, endpoint, region, keyDir,
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   let fileToHash
-  if (id === regionalCatalogComponentId) {
+  if (componentSubdir === regionalCatalogComponentId) {
     fileToHash = 'regional_catalog.json'
-  } else if (id === resourcesComponentId) {
+  } else if (componentSubdir === resourcesComponentId) {
     fileToHash = 'resources.json'
-  } else if (id.length === 32) {
+  } else if (componentSubdir.length === 32) {
     fileToHash = 'list.txt'
   }
 
