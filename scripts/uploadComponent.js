@@ -42,8 +42,14 @@ Promise.all(uploadJobs).then(() => {
   util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
     if (fs.lstatSync(crxParam).isDirectory()) {
       fs.readdirSync(crxParam).forEach(file => {
-        if (path.parse(file).ext === '.crx') {
-          util.updateDBForCRXFile(commander.endpoint, commander.region, path.join(crxParam, file))
+        const filePath = path.parse(path.join(crxParam, file))
+        if (filePath.ext === '.crx') {
+          const contentHashPath = path.resolve(filePath.dir, filePath.name + '.contentHash')
+          let contentHash
+          if (fs.existsSync(contentHashPath)) {
+            contentHash = fs.readFileSync(contentHashPath).toString()
+          }
+          util.updateDBForCRXFile(commander.endpoint, commander.region, path.join(crxParam, file), undefined, contentHash)
         }
       })
     } else {
