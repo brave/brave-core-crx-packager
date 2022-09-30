@@ -44,6 +44,16 @@ const getComponentList = () => {
     'iso_3166_1_sk', // Slovakia
     'iso_3166_1_ro', // Romania
     'iso_3166_1_ua', // Ukraine
+    'iso_3166_1_ar', // Argentina
+    'iso_3166_1_br', // Brazil
+    'iso_3166_1_id', // Indonesia
+    'iso_3166_1_my', // Malaysia
+    'iso_3166_1_mx', // Mexico
+    'iso_3166_1_ph', // Philipines
+    'iso_3166_1_th', // Thailand
+    'iso_3166_1_tr', // Türkiye
+    'iso_3166_1_ru', // Russia
+    'iso_3166_1_vn', // Vietnam
     'iso_639_1_de',
     'iso_639_1_en',
     'iso_639_1_fr',
