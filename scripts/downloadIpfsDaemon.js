@@ -8,7 +8,7 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const util = require('../lib/util')
-const ipfsVersion = '0.15.0'
+const ipfsVersion = '0.16.0'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
 const downloadIpfsDaemon = (platform, arch) => {
@@ -25,16 +25,16 @@ const downloadIpfsDaemon = (platform, arch) => {
   let sha512IPFS = ''
   switch (build) {
     case 'darwin-amd64':
-      sha512IPFS = '7570d54756d2304b9a80119fc9c3b9645b9cc6f3bbce977fdeb828ded5a0ed9c1418f3d9d808d54b071b5485d58aad68a7fed83bab48f5aaa522104134c8ecd3'
+      sha512IPFS = 'c0afc48554170fcce70361bd696d4174069b8ddaaf5f0e2ed512856122c1b31fe083f4e473505c2a1268eeaf47873f91975efaa9888b48c1e1e7f560e11915fc'
       break
     case 'darwin-arm64':
-      sha512IPFS = '5ea296099c136fa0cc160571823b8e295b7e31ceaa44a8ea801c7075275bd9ff957a0e4850fdf9c56308c72e337b19d041cd817f47a033ec6381a442b95b330c'
+      sha512IPFS = 'f4aae96c41269966655ae3dc6efeae9abd0b7e8b94df614ec4c366911e94bef79d38e41b27e610fec1fc56e33bc60c8325255c76cd46e38b43d3ca7d794aee95'
       break
     case 'linux-amd64':
-      sha512IPFS = '261206ece24ffbe2b662eb729e79c64cbd12beac3c10d0909454fdec589aee4c842b7fce5b3d7a3554b13e55681a300e01f4dd6efda040f18affd07882622677'
+      sha512IPFS = '018e889c4e8d155c8ba19a9f4d3ebc1222f4f4c76749abb2bbd9491dd0b199efe6bc9b34401e814d0069ee09d5f2e179912abf537b6e9870764c70d2eda8e94a'
       break
     case 'windows-amd64':
-      sha512IPFS = 'eb83286f5685244ec7b4f46fd3644c6e6ec92e6fed88a2334f2bccd4362693dbe1be06fac8c1d8b32fdca690f9f5decaa656f518586e2ba3f9875a1ece2e1c18'
+      sha512IPFS = 'c95a59441a473130e3581697eabf40429df56e27646a8c6c81c55052367b2bc219213468a92780121358861ed31b9998c2ed820727d0c918e016e30fb180e63c'
       break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)
