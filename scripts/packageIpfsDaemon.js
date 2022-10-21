@@ -85,9 +85,11 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'darwin', 'amd64', keyParam, commander.publisherProofKey)
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+    'darwin', 'arm64', keyParam, commander.publisherProofKey)
+  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'linux', 'amd64', keyParam, commander.publisherProofKey)
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'win32', 'amd64', keyParam, commander.publisherProofKey)
+    'linux', 'arm64', keyParam, commander.publisherProofKey)
   packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'darwin', 'arm64', keyParam, commander.publisherProofKey)
+    'win32', 'amd64', keyParam, commander.publisherProofKey)
 })
