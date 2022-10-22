@@ -1,8 +1,12 @@
 # Changelog
 
+## Updated kubo to 0.16.0, from 0.15.0 (21-October-2022)
+- [brave-browser#25889](https://github.com/brave/brave-browser/issues/25889) - Update kubo to 0.16.0
+- For full changelog, see https://github.com/ipfs/kubo/releases/tag/v0.16.0
+
 ## Updated kubo (formerly go-ipfs) to 0.15.0, from 0.14.0 (15-September-2022)
 - [brave-browser#25219](https://github.com/brave/brave-browser/issues/25219) - Update kubo (formerly go-ipfs) to 0.15.0
-- Full full changelog, see https://github.com/ipfs/kubo/releases/tag/v0.15.0
+- For full changelog, see https://github.com/ipfs/kubo/releases/tag/v0.15.0
 
 ## Updated go-ipfs to 0.14.0, from 0.13.0 (9-August-2022)
 - [brave-browser#24179](https://github.com/brave/brave-browser/issues/24179) - Update go-ipfs to 0.14.0
