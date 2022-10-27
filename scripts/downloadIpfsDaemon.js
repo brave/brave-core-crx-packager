@@ -33,6 +33,9 @@ const downloadIpfsDaemon = (platform, arch) => {
     case 'linux-amd64':
       sha512IPFS = '018e889c4e8d155c8ba19a9f4d3ebc1222f4f4c76749abb2bbd9491dd0b199efe6bc9b34401e814d0069ee09d5f2e179912abf537b6e9870764c70d2eda8e94a'
       break
+    case 'linux-arm64':
+      sha512IPFS = 'a82c2bdb0d93ce8fef6f6058fa1bdf90e929b05f33b38e12c65330e136a4be51fe048b545c9fe0937e7f5be871d3d85ec8e8cf1eada49e25dc606d8db0dae93e'
+      break
     case 'windows-amd64':
       sha512IPFS = 'c95a59441a473130e3581697eabf40429df56e27646a8c6c81c55052367b2bc219213468a92780121358861ed31b9998c2ed820727d0c918e016e30fb180e63c'
       break
@@ -75,6 +78,7 @@ util.installErrorHandlers()
 downloadIpfsDaemon('darwin', 'amd64')
 downloadIpfsDaemon('darwin', 'arm64')
 downloadIpfsDaemon('linux', 'amd64')
+downloadIpfsDaemon('linux', 'arm64')
 downloadIpfsDaemon('win32', 'amd64')
 
 module.exports = {
