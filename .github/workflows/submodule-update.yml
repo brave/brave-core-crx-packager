@@ -17,3 +17,4 @@ jobs:
           ref: master
           pr_branch: automated-submodule-update
           target_branch: master
+          pr_body: 'Review [brave/uBlock](https://github.com/brave/uBlock/pulls?q=is%3Apr+is%3Aclosed) for any recent format changes.'
