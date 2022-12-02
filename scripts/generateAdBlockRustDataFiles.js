@@ -49,6 +49,21 @@ const getOutPath = (outputFilename, outSubdir) => {
   return path.join(outPath, outputFilename)
 }
 
+// Removes Brave-specific scriptlet injections from non-Brave lists
+const enforceBraveDirectives = (title, data) => {
+  if (!title || !title.startsWith('Brave ')) {
+    return data.split('\n').filter(line => {
+      const hasBraveScriptlet = line.indexOf('+js(brave-') >= 0
+      if (hasBraveScriptlet) {
+        console.log('List ' + title + ' attempted to include brave-specific directive: ' + line)
+      }
+      return !hasBraveScriptlet
+    }).join('\n')
+  } else {
+    return data
+  }
+}
+
 /**
  * Parses the passed in filter rule data and serializes a data file to disk.
  *
@@ -59,11 +74,11 @@ const getOutPath = (outputFilename, outSubdir) => {
  */
 const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir, defaultRuleType = RuleTypes.ALL) => {
   const filterSet = new FilterSet(false)
-  for (let { format, data, includeRedirectUrls, ruleTypes } of filterRuleData) {
+  for (let { title, format, data, includeRedirectUrls, ruleTypes } of filterRuleData) {
     includeRedirectUrls = Boolean(includeRedirectUrls)
     ruleTypes = ruleTypes || defaultRuleType
     const parseOpts = { format, includeRedirectUrls, ruleTypes }
-    filterSet.addFilters(data.split('\n'), parseOpts)
+    filterSet.addFilters(enforceBraveDirectives(title, data).split('\n'), parseOpts)
   }
   const client = new Engine(filterSet, true)
   const arrayBuffer = client.serializeCompressed()
@@ -75,7 +90,7 @@ const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir,
  * Serializes the provided lists to disk in one file as `list.txt` under the given component subdirectory.
  */
 const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
-  const fullList = listBuffers.map(({ data }) => data).join('\n')
+  const fullList = listBuffers.map(({ data, title }) => enforceBraveDirectives(title, data)).join('\n')
   fs.writeFileSync(getOutPath('list.txt', outSubdir), fullList)
 }
 
@@ -88,7 +103,14 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
  * @param outputDATFilename the DAT filename to write to.
  * @return a Promise which resolves if successful or rejects if there's an error.
  */
-const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename, listTextComponent) => {
+const generateDataFileFromRegionalCatalogEntry = (entry) => {
+  const title = entry.title
+  const listURL = entry.url
+  const format = entry.format
+  const langs = entry.langs
+  const uuid = entry.uuid
+  const outputDATFilename = `rs-${entry.uuid}.dat`
+  const listTextComponent = entry.list_text_component
   return new Promise((resolve, reject) => {
     console.log(`${langs} ${listURL}...`)
     request.get(listURL, function (error, response, body) {
@@ -100,10 +122,10 @@ const generateDataFileFromURL = (listURL, format, langs, uuid, outputDATFilename
         reject(new Error(`Error status code ${response.statusCode} returned for URL: ${listURL}`))
         return
       }
-      generateDataFileFromLists([{ format, data: body }], outputDATFilename, uuid)
+      generateDataFileFromLists([{ title, format, data: body }], outputDATFilename, uuid)
       if (listTextComponent !== undefined) {
         const outPath = getOutPath('list.txt', listTextComponent.component_id)
-        fs.writeFileSync(outPath, body)
+        fs.writeFileSync(outPath, enforceBraveDirectives(title, body))
       }
       resolve()
     })
@@ -124,8 +146,7 @@ const generateDataFilesForAllRegions = () => {
       fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
       resolve()
     }).then(Promise.all(regions.map(region =>
-      generateDataFileFromURL(region.url,
-        region.format, region.langs, region.uuid, `rs-${region.uuid}.dat`, region.list_text_component)
+      generateDataFileFromRegionalCatalogEntry(region)
     )))
   })
 }
@@ -137,7 +158,7 @@ const generateDefaultDataFiles = (lists) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${l.url}...`)
-    promises.push(getListBufferFromURL(l.url).then(data => ({ format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
+    promises.push(getListBufferFromURL(l.url).then(data => ({ title: l.title, format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
