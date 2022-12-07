@@ -5,8 +5,9 @@
 const path = require('path')
 const mkdirp = require('mkdirp')
 const fs = require('fs-extra')
-const request = require('request')
 const commander = require('commander')
+const { Readable } = require('stream')
+const { finished } = require('stream/promises')
 
 const getComponentList = () => {
   return [
@@ -79,19 +80,15 @@ const getComponentList = () => {
 function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
   return new Promise(function (resolve, reject) {
     let manifestBody = '{}'
-    request(manifestUrl, async function (error, response, body) {
-      if (error) {
-        console.error(`Error from ${manifestUrl}:`, error)
-        return reject(error)
-      }
-
-      if (response && response.statusCode === 200) {
-        manifestBody = body
+    fetch(manifestUrl, async function (response) {
+      if (response.status === 200) {
+        manifestBody = await response.text()
       }
 
       const manifestJson = JSON.parse(manifestBody)
       if (!manifestJson.schemaVersion) {
-        console.error('Error: Missing schema version')
+        const error = 'Error: Missing schema version'
+        console.error(error)
         return reject(error)
       }
 
@@ -105,20 +102,20 @@ function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
         })
       }
 
-      const downloadOps = fileList.map((fileName) => new Promise(resolve => {
+      const downloadOps = fileList.map(async (fileName) => {
         const resourceFileOutPath = path.join(outDir, fileName)
         const resourceFileUrl = new URL(fileName, manifestUrl).href
-        request(resourceFileUrl)
-          .pipe(fs.createWriteStream(resourceFileOutPath))
-          .on('finish', () => {
-            console.log(resourceFileUrl)
-            resolve()
-          })
-      }))
+        const response = await fetch(resourceFileUrl)
+        const ws = fs.createWriteStream(resourceFileOutPath)
+        return finished(Readable.fromWeb(response.body).pipe(ws))
+          .then(() => console.log(resourceFileUrl))
+      })
 
       await Promise.all(downloadOps)
 
       resolve()
+    }).catch(error => {
+      throw new Error(`Error from ${manifestUrl}: ${error.cause}`)
     })
   })
 }
