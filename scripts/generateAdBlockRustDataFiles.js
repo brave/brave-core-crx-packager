@@ -6,7 +6,6 @@ const { Engine, FilterFormat, FilterSet, RuleTypes } = require('adblock-rs')
 const { generateResourcesFile, getDefaultLists, getRegionalLists, defaultPlaintextComponentId, resourcesComponentId, regionalCatalogComponentId } = require('../lib/adBlockRustUtils')
 const path = require('path')
 const fs = require('fs')
-const request = require('request')
 
 /**
  * Returns a promise that which resolves with the list data
@@ -15,18 +14,13 @@ const request = require('request')
  * @return a promise that resolves with the content of the list or rejects with an error message.
  */
 const getListBufferFromURL = (listURL) => {
-  return new Promise((resolve, reject) => {
-    request.get(listURL, function (error, response, body) {
-      if (error) {
-        reject(new Error(`Request error for ${listURL}: ${error}`))
-        return
-      }
-      if (response.statusCode !== 200) {
-        reject(new Error(`Error status code ${response.statusCode} returned for URL: ${listURL}`))
-        return
-      }
-      resolve(body)
-    })
+  return fetch(listURL).then(response => {
+    if (response.status !== 200) {
+      throw new Error(`Error status ${response.status} ${response.statusText} returned for URL: ${listURL}`)
+    }
+    return response.text()
+  }).catch(error => {
+    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
   })
 }
 
@@ -95,8 +89,7 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
 }
 
 /**
- * Convenience function that uses getListBufferFromURL and generateDataFileFromLists
- * to construct a DAT file from a URL.
+ * Convenience function that prepares adblock components for a particular regional list.
  *
  * @param listURL the URL of the list to fetch.
  * @param the format of the filter list at the given URL.
@@ -111,24 +104,15 @@ const generateDataFileFromRegionalCatalogEntry = (entry) => {
   const uuid = entry.uuid
   const outputDATFilename = `rs-${entry.uuid}.dat`
   const listTextComponent = entry.list_text_component
-  return new Promise((resolve, reject) => {
-    console.log(`${langs} ${listURL}...`)
-    request.get(listURL, function (error, response, body) {
-      if (error) {
-        reject(new Error(`Request error for ${listURL}: ${error}`))
-        return
-      }
-      if (response.statusCode !== 200) {
-        reject(new Error(`Error status code ${response.statusCode} returned for URL: ${listURL}`))
-        return
-      }
-      generateDataFileFromLists([{ title, format, data: body }], outputDATFilename, uuid)
-      if (listTextComponent !== undefined) {
-        const outPath = getOutPath('list.txt', listTextComponent.component_id)
-        fs.writeFileSync(outPath, enforceBraveDirectives(title, body))
-      }
-      resolve()
-    })
+  console.log(`${langs} ${listURL}...`)
+  return getListBufferFromURL(listURL).then(body => {
+    generateDataFileFromLists([{ title, format, data: body }], outputDATFilename, uuid)
+    if (listTextComponent !== undefined) {
+      const outPath = getOutPath('list.txt', listTextComponent.component_id)
+      fs.writeFileSync(outPath, enforceBraveDirectives(title, body))
+    }
+  }).catch(error => {
+    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
   })
 }
 
@@ -145,7 +129,7 @@ const generateDataFilesForAllRegions = () => {
       fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), catalogString)
       fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
       resolve()
-    }).then(Promise.all(regions.map(region =>
+    }).then(() => Promise.all(regions.map(region =>
       generateDataFileFromRegionalCatalogEntry(region)
     )))
   })
@@ -171,7 +155,7 @@ const generateDefaultDataFiles = (lists) => {
   return p
 }
 
-const generateDataFilesForResourcesComponent = async () => {
+const generateDataFilesForResourcesComponent = () => {
   return generateResourcesFile(getOutPath('resources.json', resourcesComponentId))
 }
 
