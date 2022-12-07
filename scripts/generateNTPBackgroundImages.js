@@ -7,7 +7,8 @@ const mkdirp = require('mkdirp')
 const fs = require('fs-extra')
 const commander = require('commander')
 const util = require('../lib/util')
-const request = require('request')
+const { Readable } = require('stream')
+const { finished } = require('stream/promises')
 
 const jsonSchemaVersion = 1
 
@@ -55,33 +56,29 @@ const prepareAssets = (jsonFileUrl, targetResourceDir) => {
     let body = '{}'
 
     // Download and parse jsonFileUrl.
-    request(jsonFileUrl, async function (error, response, jsonFileBody) {
-      if (error) {
-        console.error(`Error from ${jsonFileUrl}:`, error)
-        return reject(error)
+    fetch(jsonFileUrl, async function (response) {
+      if (response.status !== 200) {
+        throw new Error(`Error from ${jsonFileUrl}: ${response.status} ${response.statusText}`)
       }
 
-      if (response && response.statusCode !== 200) {
-        console.error(`Error from ${jsonFileUrl}:`, response.statusMessage)
-        return reject(error)
-      }
-
-      if (response && response.statusCode === 200) {
-        body = jsonFileBody
+      if (response.status === 200) {
+        body = await response.text()
       }
       let photoData = {}
       try {
         console.log(`Start - json file ${jsonFileUrl} parsing`)
         photoData = JSON.parse(body)
       } catch (err) {
-        console.error(`Invalid json file ${jsonFileUrl}`)
+        const error = `Invalid json file ${jsonFileUrl}`
+        console.error(error)
         return reject(error)
       }
       console.log(`Done - json file ${jsonFileUrl} parsing`)
 
       console.log(`Start - json file ${jsonFileUrl} validation`)
       if (!validatePhotoData(photoData)) {
-        console.error(`Failed to validate json file ${jsonFileUrl}`)
+        const error = `Failed to validate json file ${jsonFileUrl}`
+        console.error(error)
         return reject(error)
       }
       console.log(`Done - json file ${jsonFileUrl} validation`)
@@ -90,18 +87,18 @@ const prepareAssets = (jsonFileUrl, targetResourceDir) => {
 
       // Download image files that specified in jsonFileUrl
       const imageFileNameList = getImageFileNameListFrom(photoData)
-      const downloadOps = imageFileNameList.map((imageFileName) => new Promise(resolve => {
+      const downloadOps = imageFileNameList.map(async (imageFileName) => {
         const targetImageFilePath = path.join(targetResourceDir, imageFileName)
         const targetImageFileUrl = new URL(imageFileName, jsonFileUrl).href
-        request(targetImageFileUrl)
-          .pipe(fs.createWriteStream(targetImageFilePath))
-          .on('finish', () => {
-            console.log(`Downloaded ${targetImageFileUrl}`)
-            resolve()
-          })
-      }))
+        const response = await fetch(targetImageFileUrl)
+        const ws = fs.createWriteStream(targetImageFilePath)
+        return finished(Readable.fromWeb(response.body).pipe(ws))
+          .then(() => console.log(`Downloaded ${targetImageFileUrl}`))
+      })
       await Promise.all(downloadOps)
       resolve()
+    }).catch(error => {
+      throw new Error(`Error from ${jsonFileUrl}: ${error.cause}`)
     })
   })
 }
