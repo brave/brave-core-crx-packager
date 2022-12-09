@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "commander": "2.20.3",
-    "fs-extra": "10.1.0",
+    "fs-extra": "11.1.0",
     "level": "8.0.0",
     "mkdirp": "1.0.4",
     "replace-in-file": "6.3.5",
