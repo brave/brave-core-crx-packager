@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-//  npm run package-speedreader -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/speedreader-updater.pem
+//  npm run package-local-data-files -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/local-data-files-updater.pem
 
 const commander = require('commander')
 const fs = require('fs-extra')
@@ -75,13 +75,6 @@ const getDATFileVersionByComponentType = (componentType) => {
       return '6.0'
     case 'local-data-files-updater':
       return '1'
-    case 'speedreader-updater':
-      return JSON.parse(fs.readFileSync(
-        path.join(
-          'node_modules',
-          'speedreader',
-          'data',
-          'default-manifest.json')).toString()).data_file_version
     default:
       // shouldn't be possible to get here
       return null
@@ -92,8 +85,7 @@ const validComponentTypes = [
   'ethereum-remote-client',
   'wallet-data-files-updater',
   'https-everywhere-updater',
-  'local-data-files-updater',
-  'speedreader-updater'
+  'local-data-files-updater'
 ]
 
 const getManifestsDirByComponentType = (componentType) => {
@@ -108,8 +100,6 @@ const getManifestsDirByComponentType = (componentType) => {
       // the corresponding repos with a script to generate the
       // manifest and then call that script here)
       return path.join('manifests', componentType)
-    case 'speedreader-updater':
-      return path.join('node_modules', 'speedreader', 'data')
     default:
       // shouldn't be possible to get here
       return null
@@ -123,8 +113,6 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'debounce' ||
   datFileName === 'clean-urls' ||
   datFileName === 'messages' ||
-  datFileName === 'speedreader-updater' ||
-  datFileName === 'content-stylesheet' ||
   datFileName.endsWith('.bundle')
     ? 'default'
     : datFileName
@@ -145,9 +133,6 @@ const getDATFileListByComponentType = (componentType) => {
         path.join('brave-lists', 'debounce.json'),
         path.join('brave-lists', 'clean-urls.json')].concat(
         recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
-    case 'speedreader-updater':
-      return [path.join('node_modules', 'speedreader', 'data', 'speedreader-updater.dat'),
-        path.join('node_modules', 'speedreader', 'data', 'content-stylesheet.css')]
     default:
       // shouldn't be possible to get here
       return null
@@ -208,7 +193,7 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-t, --type <type>', 'component extension type', /^(https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater|speedreader-updater)$/i)
+    .option('-t, --type <type>', 'component extension type', /^(https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater)$/i)
     .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 

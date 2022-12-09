@@ -15,7 +15,6 @@
     "recursive-readdir-sync": "1.0.6",
     "request": "2.88.2",
     "s3-client": "4.4.2",
-    "speedreader": "github:brave-experiments/SpeedReader",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
@@ -36,7 +35,6 @@
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-extension-whitelist": "npm run --prefix ./node_modules/extension-whitelist data-files",
     "data-files-local-data-files": "npm run data-files-extension-whitelist && npm install --prefix ./node_modules/brave-site-specific-scripts && npm run --prefix ./node_modules/brave-site-specific-scripts build && mkdir -p brave-lists && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls.json -O brave-lists/clean-urls.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/debounce.json -O brave-lists/debounce.json",
-    "data-files-speedreader": "npm run --prefix ./node_modules/speedreader data-files",
     "download-ipfs-daemon": "node scripts/downloadIpfsDaemon.js",
     "generate-ad-block-manifests": "node scripts/generateManifestForRustAdblock.js",
     "generate-ntp-background-images": "node scripts/generateNTPBackgroundImages.js",
@@ -59,7 +57,6 @@
     "package-ntp-sponsored-images": "node ./scripts/ntp-sponsored-images/package",
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
     "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
-    "package-speedreader": "node ./scripts/packageComponent --type speedreader-updater",
     "package-youtubedown": "node ./scripts/packageYoutubedown.js",
     "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
@@ -76,8 +73,7 @@
     "upload-ntp-super-referrer-component": "node ./scripts/uploadComponent --type ntp-super-referrer",
     "upload-ntp-super-referrer-component-mapping-table": "node ./scripts/uploadComponent --type ntp-super-referrer-mapping-table",
     "upload-youtubedown-component": "node ./scripts/uploadComponent --type playlist-youtubedown",
-    "upload-user-model-installer-updates": "node ./scripts/uploadComponent --type user-model-installer",
-    "upload-speedreader": "node ./scripts/uploadComponent --type speedreader-updater"
+    "upload-user-model-installer-updates": "node ./scripts/uploadComponent --type user-model-installer"
   },
   "repository": {
     "type": "git",
