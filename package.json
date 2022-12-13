@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
-    "adblock-rs": "0.6.0",
+    "adblock-rs": "0.6.1",
     "ajv": "8.11.2",
     "aws-sdk": "2.1273.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
