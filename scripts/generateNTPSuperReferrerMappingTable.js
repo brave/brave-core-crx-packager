@@ -5,7 +5,6 @@
 const path = require('path')
 const mkdirp = require('mkdirp')
 const fs = require('fs-extra')
-const request = require('request')
 const commander = require('commander')
 const util = require('../lib/util')
 
@@ -19,13 +18,9 @@ function downloadMappingTableJsonFile (jsonFileUrl, targetFilePath) {
   return new Promise(function (resolve, reject) {
     let jsonFileBody = '{}'
 
-    request(jsonFileUrl, async function (error, response, body) {
-      if (error) {
-        console.error(`Error from ${jsonFileUrl}:`, error)
-        return reject(error)
-      }
-      if (response && response.statusCode === 200) {
-        jsonFileBody = body
+    fetch(jsonFileUrl, async function (response) {
+      if (response.status === 200) {
+        jsonFileBody = await response.text()
       }
 
       const data = JSON.parse(jsonFileBody)
@@ -38,13 +33,16 @@ function downloadMappingTableJsonFile (jsonFileUrl, targetFilePath) {
         data.schemaVersion = jsonSchemaVersion
       } else if (incomingSchemaVersion !== jsonSchemaVersion) {
         // We don't support this file format
-        console.error(`Error: Cannot parse JSON data at ${jsonFileUrl} since it has a schema version of ${incomingSchemaVersion} but we expected ${jsonSchemaVersion}! This region will not be updated.`)
+        const error = `Error: Cannot parse JSON data at ${jsonFileUrl} since it has a schema version of ${incomingSchemaVersion} but we expected ${jsonSchemaVersion}! This region will not be updated.`
+        console.error(error)
         return reject(error)
       }
 
       createDataJsonFile(targetFilePath, JSON.stringify(data))
 
       resolve()
+    }).catch(error => {
+      throw new Error(`Error from ${jsonFileUrl}: ${error.cause}`)
     })
   })
 }
