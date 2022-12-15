@@ -80,7 +80,7 @@ const getComponentList = () => {
 function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
   return new Promise(function (resolve, reject) {
     let manifestBody = '{}'
-    fetch(manifestUrl, async function (response) {
+    fetch(manifestUrl).then(async function (response) {
       if (response.status === 200) {
         manifestBody = await response.text()
       }
