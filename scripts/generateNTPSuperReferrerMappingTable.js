@@ -18,7 +18,7 @@ function downloadMappingTableJsonFile (jsonFileUrl, targetFilePath) {
   return new Promise(function (resolve, reject) {
     let jsonFileBody = '{}'
 
-    fetch(jsonFileUrl, async function (response) {
+    fetch(jsonFileUrl).then(async function (response) {
       if (response.status === 200) {
         jsonFileBody = await response.text()
       }

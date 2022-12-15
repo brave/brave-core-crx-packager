@@ -56,7 +56,7 @@ const prepareAssets = (jsonFileUrl, targetResourceDir) => {
     let body = '{}'
 
     // Download and parse jsonFileUrl.
-    fetch(jsonFileUrl, async function (response) {
+    fetch(jsonFileUrl).then(async function (response) {
       if (response.status !== 200) {
         throw new Error(`Error from ${jsonFileUrl}: ${response.status} ${response.statusText}`)
       }
