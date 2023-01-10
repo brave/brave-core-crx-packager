@@ -4,7 +4,7 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "dependencies": {
     "adblock-rs": "0.6.1",
-    "ajv": "8.11.2",
+    "ajv": "8.12.0",
     "aws-sdk": "2.1274.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "brave-wallet-lists": "1.1.16",
