@@ -23,6 +23,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: git submodule update --init --recursive
+    - run: apt-get update && apt-get install -y librsvg2-bin
     - run: npm ci
     - run: npm run lint
     - run: npm test
