@@ -8,13 +8,13 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const util = require('../lib/util')
-const ipfsVersion = '0.17.0'
+const ipfsVersion = '0.18.1'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
 const downloadIpfsDaemon = (platform, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
 
-  const ipfsDistPrefix = `https://github.com/ipfs/kubo/releases/download/v${ipfsVersion}/`
+  const ipfsDistPrefix = `https://dist.ipfs.tech/kubo/v${ipfsVersion}/`
 
   const zipSuffix = platform === 'win32' ? '.zip' : '.tar.gz'
   const myplatform = platform === 'win32' ? 'windows' : platform
@@ -25,19 +25,19 @@ const downloadIpfsDaemon = (platform, arch) => {
   let sha512IPFS = ''
   switch (build) {
     case 'darwin-amd64':
-      sha512IPFS = '8b7f8f188a723b96f34ef3a688e875079c3f58a9bc49d357bbcfbc4ad5f04799201901397ab13acdd3f7c2fed1ea7f268017ce97f66e4178182e3b35ab356103'
+      sha512IPFS = 'b66810afba9cd939e59640a1137b7db1eba316a090f3be494f08913a8cf0da97dbd29d6f227375ded10d4091b88b226bdb0c63526072cb84ba89baf36c010a6c'
       break
     case 'darwin-arm64':
-      sha512IPFS = '11182c458f2fbcd79eca415f8a7071ad0d3b48c86104a0ccc10b728b190654370d69dedbcd02fad1fe6ce988473b175336dbaed4d9bb9079141aadd0eeea3f5f'
+      sha512IPFS = '859c7e36ed3aadae36df18fc44f9dd3cba6aeb2b7b93e0aae8b91a801a40cd78effcc28b4b9b76a7cd3414336706b2cbcb488cd3dd5e622eecd2fd9503d56fbf'
       break
     case 'linux-amd64':
-      sha512IPFS = '380746fbb9761276a956dcea56936237acad9dc11d83f88003f9789bdee9e3dabad9f9e0b97a30c718b0c3b6db73ec9dfe811261b7997a3ec66c23aa592bc76b'
+      sha512IPFS = '7770c03dc2219eaa638e82f75df428b0576eb439d877eaaecc0960dcd2cdaa6f8802be734a50c534f0e4d4bc3aa9d61c9caff3078450228555793040b30ad08a'
       break
     case 'linux-arm64':
-      sha512IPFS = '0200d8aaeed1429553f7e666f773d18dbda9ead3856fca00c17d22dadeb0f308e550386406b923cda60612ba94aaa065b3521764fccc7984019e2c37ec569c1c'
+      sha512IPFS = '284fdc8bbed8d1384ed94dd5fa87352c037c1b2c99dafc1a992678e2e4a20e7c440a633919499edafdeeaff9c3559827bbdc5a15f5b1809690e32a2f5c337250'
       break
     case 'windows-amd64':
-      sha512IPFS = '76ceda8a850063f420f7d9b83cb58993e433629c01c7bf483b2667899b921550b6506cc83baa44db1676fd5f5a5de41ae7758fea61cd69df6b8969967ddea596'
+      sha512IPFS = '52239ac052fdb044b2b402b452954f8c22f6126c942a653d987c92506cf96f7d0de98422f73337c042ee5bd3822794b53dcaabdbe51285dc1ca4459b1ad7fb5c'
       break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)
