@@ -112,6 +112,7 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'Greaselion' ||
   datFileName === 'debounce' ||
   datFileName === 'clean-urls' ||
+  datFileName === 'https-upgrade-exceptions-list' ||
   datFileName === 'messages' ||
   datFileName.endsWith('.bundle')
     ? 'default'
@@ -131,7 +132,8 @@ const getDATFileListByComponentType = (componentType) => {
     case 'local-data-files-updater':
       return [path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
         path.join('brave-lists', 'debounce.json'),
-        path.join('brave-lists', 'clean-urls.json')].concat(
+        path.join('brave-lists', 'clean-urls.json'),
+        path.join('brave-lists', 'https-upgrade-exceptions-list.txt')].concat(
         recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
     default:
       // shouldn't be possible to get here
