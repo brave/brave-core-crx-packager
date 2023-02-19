@@ -34,6 +34,9 @@ const downloadTorClient = (platform) => {
     case 'linux':
       sha512Tor = '61734543d2c7855cc37ca8d1d795ffadfbd53d05213e53c4e653ef2e257b893747e76127b1c1c1ef8fe252876e5ce79acdc5706d03607e77bde33aaf4a784343'
       break
+    case 'linux-arm64':
+      sha512Tor = '86b57bbfdd0276f0b667da17f701cece42ebb91c285668d38cb3f63727f9a7f85688a6ce7e4044dedf678282b3e361ba6ae05bd801674830bd19f3678b49397a'
+      break
     case 'win32':
       sha512Tor = 'e39bdf120030cbd8cfa809352b88bfe276406f7c317c10f0e0829e8ccf3160346ea8c73a6712990fe71f74caa988c4ece498cf2093b45b06db08ad53ab0b4be9'
       break
@@ -137,6 +140,8 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
     'darwin', keyParam, commander.publisherProofKey)
   packageTorClient(commander.binary, commander.endpoint, commander.region,
     'linux', keyParam, commander.publisherProofKey)
+  packageTorClient(commander.binary, commander.endpoint, commander.region,
+    'linux-arm64', keyParam, commander.publisherProofKey)
   packageTorClient(commander.binary, commander.endpoint, commander.region,
     'win32', keyParam, commander.publisherProofKey)
 })
