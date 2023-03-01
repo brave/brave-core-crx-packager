@@ -20,7 +20,7 @@ const getListBufferFromURL = (listURL) => {
     }
     return response.text()
   }).catch(error => {
-    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
+    throw new Error(`Error when fetching ${listURL}: ${typeof error}, ${Reflect.ownKeys(error)}, ${error.cause}, ${error.message}, ${error.stack}`)
   })
 }
 
@@ -112,7 +112,7 @@ const generateDataFileFromRegionalCatalogEntry = (entry) => {
       fs.writeFileSync(outPath, enforceBraveDirectives(title, body))
     }
   }).catch(error => {
-    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
+    throw new Error(`Error when fetching ${listURL}: ${typeof error}, ${Reflect.ownKeys(error)}, ${error.cause}, ${error.message}, ${error.stack}`)
   })
 }
 
