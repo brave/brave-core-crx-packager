@@ -21,7 +21,7 @@
     "level": "8.0.0",
     "mkdirp": "2.1.5",
     "replace-in-file": "6.3.5",
-    "rimraf": "3.0.2",
+    "rimraf": "4.3.1",
     "standard": "17.0.0",
     "tap": "16.3.4",
     "tmp": "0.2.1"
