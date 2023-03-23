@@ -108,7 +108,6 @@ const getManifestsDirByComponentType = (componentType) => {
 
 const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'httpse.leveldb' ||
-  datFileName === 'ExtensionWhitelist' ||
   datFileName === 'Greaselion' ||
   datFileName === 'debounce' ||
   datFileName === 'clean-urls' ||
@@ -130,8 +129,7 @@ const getDATFileListByComponentType = (componentType) => {
     case 'https-everywhere-updater':
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
-      return [path.join('node_modules', 'extension-whitelist', 'data', 'ExtensionWhitelist.dat'),
-        path.join('brave-lists', 'debounce.json'),
+      return [path.join('brave-lists', 'debounce.json'),
         path.join('brave-lists', 'clean-urls.json'),
         path.join('brave-lists', 'https-upgrade-exceptions-list.txt')].concat(
         recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
