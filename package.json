@@ -56,22 +56,8 @@
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
     "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
     "package-youtubedown": "node ./scripts/packageYoutubedown.js",
-    "upload-component": "node ./scripts/uploadComponent",
-    "upload-ethereum-remote-client": "node ./scripts/uploadComponent --type ethereum-remote-client",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
-    "upload-ad-block": "node ./scripts/uploadComponent --type ad-block-updater",
-    "upload-https-everywhere": "node ./scripts/uploadComponent --type https-everywhere-updater",
-    "upload-ipfs-daemon": "node ./scripts/uploadComponent --type ipfs-client-updater",
-    "upload-wallet-data-files": "node ./scripts/uploadComponent --type wallet-data-files-updater",
-    "upload-tor-client": "node ./scripts/uploadComponent --type tor-client-updater",
-    "upload-tor-pluggable-transports": "node ./scripts/uploadComponent --type tor-pluggable-transports",
-    "upload-local-data-files": "node ./scripts/uploadComponent --type local-data-files-updater",
-    "upload-ntp-background-images-components": "node ./scripts/uploadComponent --type ntp-background-images",
-    "upload-ntp-sponsored-images-components": "node ./scripts/uploadComponent --type ntp-sponsored-images",
-    "upload-ntp-super-referrer-component": "node ./scripts/uploadComponent --type ntp-super-referrer",
-    "upload-ntp-super-referrer-component-mapping-table": "node ./scripts/uploadComponent --type ntp-super-referrer-mapping-table",
-    "upload-youtubedown-component": "node ./scripts/uploadComponent --type playlist-youtubedown",
-    "upload-user-model-installer-updates": "node ./scripts/uploadComponent --type user-model-installer"
+    "upload-component": "node ./scripts/uploadComponent"
   },
   "repository": {
     "type": "git",
