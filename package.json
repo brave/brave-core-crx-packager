@@ -23,12 +23,11 @@
     "replace-in-file": "6.3.5",
     "rimraf": "4.4.0",
     "standard": "17.0.0",
-    "tap": "16.3.4",
     "tmp": "0.2.1"
   },
   "scripts": {
     "clean": "rimraf build/",
-    "test": "tap --files test/*.js --files scripts/**/*.test.js",
+    "test": "node --test test/*.js scripts/**/*.test.js",
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-https-everywhere": "npm run --prefix ./node_modules/https-everywhere-builder build",
     "data-files-local-data-files": "npm install --prefix ./node_modules/brave-site-specific-scripts && npm run --prefix ./node_modules/brave-site-specific-scripts build && mkdir -p brave-lists && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls.json -O brave-lists/clean-urls.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/debounce.json -O brave-lists/debounce.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/https-upgrade-exceptions-list.txt -O brave-lists/https-upgrade-exceptions-list.txt",
