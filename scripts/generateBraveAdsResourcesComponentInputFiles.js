@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path')
-const mkdirp = require('mkdirp')
-const fs = require('fs-extra')
-const commander = require('commander')
-const { Readable } = require('stream')
-const { finished } = require('stream/promises')
+import path from 'path'
+import mkdirp from 'mkdirp'
+import fs from 'fs-extra'
+import commander from 'commander'
+import { Readable } from 'stream'
+import { finished } from 'stream/promises'
 
 const getComponentList = () => {
   return [

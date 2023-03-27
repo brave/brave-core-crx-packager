@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const fs = require('fs').promises
-const path = require('path')
+import { promises as fs } from 'fs'
+import path from 'path'
 
-const { getRegionalLists, defaultPlaintextComponentId, defaultPlaintextPubkey, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } = require('../lib/adBlockRustUtils')
+import { getRegionalLists, defaultPlaintextComponentId, defaultPlaintextPubkey, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } from '../lib/adBlockRustUtils.js'
 
 const outPath = path.join('build', 'ad-block-updater')
 

@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const commander = require('commander')
-const fs = require('fs-extra')
-const mkdirp = require('mkdirp')
-const path = require('path')
-const replace = require('replace-in-file')
-const util = require('../lib/util')
-const ntpUtil = require('../lib/ntpUtil')
+import commander from 'commander'
+import fs from 'fs-extra'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import replace from 'replace-in-file'
+import util from '../lib/util.js'
+import ntpUtil from '../lib/ntpUtil.js'
 
 const stageFiles = (superReferrerName, version, outputDir) => {
   // Copy resources and manifest file to outputDir.

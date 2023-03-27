@@ -3,9 +3,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // you can obtain one at http://mozilla.org/MPL/2.0/.
 
-const tap = require('tap')
-const params = require('./params')
-const allComponents = require('./region-platform-component-metadata')
+import tap from 'tap'
+import params from './params.js'
+import allComponents from './region-platform-component-metadata.js'
 
 tap.test('ntp getTargetComponentsFromArrays', (t) => {
   // blank

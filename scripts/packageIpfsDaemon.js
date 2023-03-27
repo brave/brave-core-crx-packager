@@ -5,12 +5,12 @@
 // Example usage:
 // npm run package-ipfs-daemon -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
-const commander = require('commander')
-const fs = require('fs')
-const mkdirp = require('mkdirp')
-const path = require('path')
-const replace = require('replace-in-file')
-const util = require('../lib/util')
+import commander from 'commander'
+import fs from 'fs'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import replace from 'replace-in-file'
+import util from '../lib/util.js'
 const ipfsVersion = '0.18.1'
 
 const getIpfsDaemonPath = (os, arch) => {

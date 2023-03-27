@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Engine, FilterFormat, FilterSet, RuleTypes } = require('adblock-rs')
-const { generateResourcesFile, getDefaultLists, getRegionalLists, defaultPlaintextComponentId, resourcesComponentId, regionalCatalogComponentId } = require('../lib/adBlockRustUtils')
-const path = require('path')
-const fs = require('fs')
+import { Engine, FilterFormat, FilterSet, RuleTypes } from 'adblock-rs'
+import { generateResourcesFile, getDefaultLists, getRegionalLists, defaultPlaintextComponentId, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
+import path from 'path'
+import fs from 'fs'
 
 /**
  * Returns a promise that which resolves with the list data

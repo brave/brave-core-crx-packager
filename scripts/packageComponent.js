@@ -5,13 +5,13 @@
 // Example usage:
 //  npm run package-local-data-files -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/local-data-files-updater.pem
 
-const commander = require('commander')
-const fs = require('fs-extra')
-const mkdirp = require('mkdirp')
-const path = require('path')
-const recursive = require('recursive-readdir-sync')
-const replace = require('replace-in-file')
-const util = require('../lib/util')
+import commander from 'commander'
+import fs from 'fs-extra'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import recursive from 'recursive-readdir-sync'
+import replace from 'replace-in-file'
+import util from '../lib/util.js'
 
 async function stageFiles (componentType, datFile, version, outputDir) {
   let datFileName
