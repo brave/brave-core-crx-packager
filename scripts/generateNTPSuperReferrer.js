@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path')
-const mkdirp = require('mkdirp')
-const commander = require('commander')
-const util = require('../lib/util')
-const ntpUtil = require('../lib/ntpUtil')
+import path from 'path'
+import mkdirp from 'mkdirp'
+import commander from 'commander'
+import util from '../lib/util.js'
+import ntpUtil from '../lib/ntpUtil.js'
 
 async function generateNTPSuperReferrer (dataUrl, referrerName) {
   const rootResourceDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources')

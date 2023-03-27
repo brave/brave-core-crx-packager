@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const crypto = require('crypto')
-const execSync = require('child_process').execSync
-const fs = require('fs')
-const mkdirp = require('mkdirp')
-const path = require('path')
-const util = require('../lib/util')
+import crypto from 'crypto'
+import { execSync } from 'child_process'
+import fs from 'fs'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import util from '../lib/util.js'
 const ipfsVersion = '0.18.1'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
@@ -81,6 +81,6 @@ downloadIpfsDaemon('linux', 'amd64')
 downloadIpfsDaemon('linux', 'arm64')
 downloadIpfsDaemon('win32', 'amd64')
 
-module.exports = {
+export {
   ipfsVersion
 }

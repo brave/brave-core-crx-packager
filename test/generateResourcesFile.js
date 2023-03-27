@@ -1,8 +1,8 @@
-const tap = require('tap')
-const tmp = require('tmp')
-const fs = require('fs')
+import tap from 'tap'
+import tmp from 'tmp'
+import fs from 'fs'
 
-const { generateResourcesFile } = require('../lib/adBlockRustUtils')
+import { generateResourcesFile } from '../lib/adBlockRustUtils.js'
 
 tap.test('generateResourcesFile', (t) => {
   const tmpfile = tmp.fileSync({ discardDescriptor: true })

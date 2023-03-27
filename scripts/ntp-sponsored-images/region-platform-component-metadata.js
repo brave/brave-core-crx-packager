@@ -8,7 +8,7 @@
  * @typedef {Object.<string, ComponentMetadata>} RegionPlatformComponentMetadata
  * @type {RegionPlatformComponentMetadata}
  */
-module.exports = {
+export default {
   'AF-desktop': {
     locale: 'AF',
     key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3UQJgNrn5qHNcHU3OKhhK34FT0AN8V0+KJwBany7O3RbDh/JmZ28F18wAmq8r06XIFlxxm0vTA3YDtQ+kPzMCdk5fBIZKwVL7ikFEVV3vd3Opu26GRuJ+s9qEbgErHPGC0SHAse3FWhGKVw+sOI6bKOPUtRgmPJFeb8azE/qdVFvP8L0z3Ny0PSlu+wTb3klT0c3LVpA/2WSQLCfAZ8zvwCFDlsIoH/3oFRKgDpoWztIT15D1dfx/mAg8+j3KC8kjUBYBOHOjmTdjjQUrav4hcn39tIw83QovAEXEjy3aywSSrHP7Lg81gzJkR1EdufC+PCWPT6NQEUYSQPbNaxCtwIDAQAB',

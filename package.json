@@ -2,6 +2,7 @@
   "name": "brave-core-crx-packager",
   "version": "1.0.0",
   "description": "Packages component and theme extensions used in the Brave browser",
+  "type": "module",
   "dependencies": {
     "adblock-rs": "0.7.7",
     "ajv": "8.12.0",

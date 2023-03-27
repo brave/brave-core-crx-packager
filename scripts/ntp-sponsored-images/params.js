@@ -3,7 +3,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // you can obtain one at http://mozilla.org/MPL/2.0/.
 
-const regionPlatformComponentMetadata = require('./region-platform-component-metadata')
+import regionPlatformComponentMetadata from './region-platform-component-metadata.js'
 
 /**
  *
@@ -63,4 +63,4 @@ function getTargetComponents (includesParamValue, excludesParamValue) {
   return targetComponents
 }
 
-module.exports.getTargetComponents = getTargetComponents
+export default { getTargetComponents }

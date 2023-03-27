@@ -6,12 +6,12 @@
 // Example usage:
 //  npm run package-ad-block -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ad-block-updater-regional-component-keys
 
-const commander = require('commander')
-const fs = require('fs-extra')
-const path = require('path')
-const replace = require('replace-in-file')
-const util = require('../lib/util')
-const { regionalCatalogComponentId, resourcesComponentId } = require('../lib/adBlockRustUtils')
+import commander from 'commander'
+import fs from 'fs-extra'
+import path from 'path'
+import replace from 'replace-in-file'
+import util from '../lib/util.js'
+import { regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
 
 async function stageFiles (version, outputDir) {
   // ad-block components are in the correct folder

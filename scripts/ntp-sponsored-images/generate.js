@@ -2,12 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path')
-const mkdirp = require('mkdirp')
-const commander = require('commander')
-const util = require('../../lib/util')
-const ntpUtil = require('../../lib/ntpUtil')
-const params = require('./params')
+import path from 'path'
+import mkdirp from 'mkdirp'
+import commander from 'commander'
+import util from '../../lib/util.js'
+import ntpUtil from '../../lib/ntpUtil.js'
+import params from './params.js'
 
 // Downloads all current 'active' campaigns from S3 for each region/platform.
 // Can include or exclude specific regions, for performance optimization.

@@ -5,13 +5,13 @@
 // Example usage:
 // npm run package-tor-pluggable-transports -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
-const commander = require('commander')
-const execSync = require('child_process').execSync
-const fs = require('fs')
-const mkdirp = require('mkdirp')
-const path = require('path')
-const replace = require('replace-in-file')
-const util = require('../lib/util')
+import commander from 'commander'
+import { execSync } from 'child_process'
+import fs from 'fs'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import replace from 'replace-in-file'
+import util from '../lib/util.js'
 
 const TOR_PLUGGABLE_TRANSPORTS_UPDATER = 'tor-pluggable-transports-updater'
 
