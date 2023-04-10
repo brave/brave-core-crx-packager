@@ -5,7 +5,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 
-import { getRegionalLists, defaultPlaintextComponentId, defaultPlaintextPubkey, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } from '../lib/adBlockRustUtils.js'
+import { getRegionalLists, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } from '../lib/adBlockRustUtils.js'
 
 const outPath = path.join('build', 'ad-block-updater')
 
@@ -17,6 +17,16 @@ const defaultAdblockBase64PublicKey =
     'vqOhBOogCdb9qza5eJ1Cgx8RWKucFfaWWxKLOelCiBMT1Hm1znAoVBHG/blhJJOD' +
     '5HcH/heRrB4MvrE1J76WF3fvZ03aHVcnlLtQeiNNOZ7VbBDXdie8Nomf/QswbBGa' +
     'VwIDAQAB'
+
+const defaultPlaintextComponentId = 'iodkpdagapdfkphljnddpjlldadblomo'
+const defaultPlaintextPubkey =
+    'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsD/B/MGdz0gh7WkcFARn' +
+    'ZTBX9KAw2fuGeogijoI+fET38IK0L+P/trCT2NshqhRNmrDpLzV2+Dmes6PvkA+O' +
+    'dQkUV6VbChJG+baTfr3Oo5PdE0WxmP9Xh8XD7p85DQrk0jJilKuElxpK7Yq0JhcT' +
+    'Sc3XNHeTwBVqCnHwWZZ+XysYQfjuDQ0MgQpS/s7U04OZ63NIPe/iCQm32stvS/pE' +
+    'ya7KdBZXgRBQ59U6M1n1Ikkp3vfECShbBld6VrrmNrl59yKWlEPepJ9oqUc2Wf2M' +
+    'q+SDNXROG554RnU4BnDJaNETTkDTZ0Pn+rmLmp1qY5Si0yGsfHkrv3FS3vdxVozO' +
+    'PQIDAQAB'
 
 const generateManifestFile = async (name, base64PublicKey, uuid) => {
   const manifest = '{\n' +

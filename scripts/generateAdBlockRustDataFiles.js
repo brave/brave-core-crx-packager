@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Engine, FilterFormat, FilterSet, RuleTypes } from 'adblock-rs'
-import { generateResourcesFile, getDefaultLists, getRegionalLists, defaultPlaintextComponentId, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
+import { generateResourcesFile, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
 import path from 'path'
 import fs from 'fs'
 
@@ -97,23 +97,22 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
  * @return a Promise which resolves if successful or rejects if there's an error.
  */
 const generateDataFileFromRegionalCatalogEntry = (entry) => {
-  const title = entry.title
-  const listURL = entry.url
-  const format = entry.format
-  const langs = entry.langs
-  const uuid = entry.uuid
+  const lists = entry.sources
   const outputDATFilename = `rs-${entry.uuid}.dat`
-  const listTextComponent = entry.list_text_component
-  console.log(`${langs} ${listURL}...`)
-  return getListBufferFromURL(listURL).then(body => {
-    generateDataFileFromLists([{ title, format, data: body }], outputDATFilename, uuid)
-    if (listTextComponent !== undefined) {
-      const outPath = getOutPath('list.txt', listTextComponent.component_id)
-      fs.writeFileSync(outPath, enforceBraveDirectives(title, body))
-    }
-  }).catch(error => {
-    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
+
+  const promises = []
+  lists.forEach((l) => {
+    console.log(`${entry.langs} ${l.url}...`)
+    promises.push(getListBufferFromURL(l.url).catch(error => {
+      throw new Error(`Error when fetching ${l.url}: ${error.cause}`)
+    }).then(data => ({ title: l.title, format: l.format, data })))
   })
+  let p = Promise.all(promises)
+  p = p.then((listBuffers) => {
+    generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
+    generateDataFileFromLists(listBuffers, outputDATFilename, entry.uuid)
+  })
+  return p;
 }
 
 /**
@@ -136,22 +135,23 @@ const generateDataFilesForAllRegions = () => {
 }
 
 /**
- * Convenience function that generates component files for the default adblock lists
+ * Convenience function that generates component files for the default adblock component
  */
-const generateDefaultDataFiles = (lists) => {
+const generateDefaultDataFiles = (entry) => {
   const promises = []
+  const lists = entry.sources
   lists.forEach((l) => {
     console.log(`${l.url}...`)
-    promises.push(getListBufferFromURL(l.url).then(data => ({ title: l.title, format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
+    promises.push(getListBufferFromURL(l.url).then(data => ({ title: l.title, format: l.format, data })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
-    generatePlaintextListFromLists(listBuffers, defaultPlaintextComponentId)
-    generateDataFileFromLists(listBuffers, 'rs-ABPFilterParserData.dat', 'default')
+    generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
+    generateDataFileFromLists(listBuffers, 'rs-ABPFilterParserData.dat', entry.uuid)
     // for iOS team - compile cosmetic filters only
     generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
   })
-  p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
+  p = p.then(() => generateResourcesFile(getOutPath('resources.json', entry.uuid)))
   return p
 }
 
@@ -160,7 +160,7 @@ const generateDataFilesForResourcesComponent = () => {
 }
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
-  generateDefaultDataFiles(defaultLists))
+  generateDefaultDataFiles(defaultLists[0]))
 
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile1 =
