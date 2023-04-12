@@ -19,7 +19,7 @@
     "commander": "2.20.3",
     "fs-extra": "11.1.1",
     "level": "8.0.0",
-    "mkdirp": "2.1.5",
+    "mkdirp": "2.1.6",
     "replace-in-file": "6.3.5",
     "rimraf": "4.4.0",
     "standard": "17.0.0",
