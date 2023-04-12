@@ -20,6 +20,10 @@ Clone the repository and install Node dependencies:
 ```bash
 git clone git@github.com:brave/brave-core-crx-packager.git
 cd brave-core-crx-packager
+git submodule init
+git submodule update
+# If you use NVM to switch between Node versions
+nvm use
 CXXFLAGS="--std=c++17" npm install
 ```
 
@@ -35,7 +39,7 @@ Currently
 To package a component extension, first generate the appropriate DAT file(s) if any. For example, to generate all of the DAT files used by the Ad Block component extension use the following command:
 
 ```bash
-npm run data-files-ad-block
+npm run data-files-ad-block-rust
 ```
 
 Then package the component extension(s) into one or more CRX files. For example, to package all of the Ad Block component extensions use the following command:
