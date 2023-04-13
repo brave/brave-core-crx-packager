@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Engine, FilterFormat, FilterSet, RuleTypes } from 'adblock-rs'
-import { generateResourcesFile, getDefaultLists, getRegionalLists, defaultPlaintextComponentId, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
+import { generateResourcesFile, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
 import path from 'path'
 import fs from 'fs'
 
@@ -89,31 +89,34 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
 }
 
 /**
- * Convenience function that prepares adblock components for a particular regional list.
+ * Convenience function that generates component files for a given catalog entry
  *
- * @param listURL the URL of the list to fetch.
- * @param the format of the filter list at the given URL.
- * @param outputDATFilename the DAT filename to write to.
+ * @param entry the corresponding entry directly from one of Brave's list catalogs
+ * @param doIos boolean, whether or not filters for iOS should be created (currently only used by default list)
  * @return a Promise which resolves if successful or rejects if there's an error.
  */
-const generateDataFileFromRegionalCatalogEntry = (entry) => {
-  const title = entry.title
-  const listURL = entry.url
-  const format = entry.format
-  const langs = entry.langs
-  const uuid = entry.uuid
-  const outputDATFilename = `rs-${entry.uuid}.dat`
-  const listTextComponent = entry.list_text_component
-  console.log(`${langs} ${listURL}...`)
-  return getListBufferFromURL(listURL).then(body => {
-    generateDataFileFromLists([{ title, format, data: body }], outputDATFilename, uuid)
-    if (listTextComponent !== undefined) {
-      const outPath = getOutPath('list.txt', listTextComponent.component_id)
-      fs.writeFileSync(outPath, enforceBraveDirectives(title, body))
-    }
-  }).catch(error => {
-    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
+const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
+  const lists = entry.sources
+  // default adblock DAT component requires this for historical reasons
+  const outputDATFilename = (entry.uuid === 'default') ? 'rs-ABPFilterParserData.dat' : `rs-${entry.uuid}.dat`
+
+  const promises = []
+  lists.forEach((l) => {
+    console.log(`${entry.langs} ${l.url}...`)
+    promises.push(getListBufferFromURL(l.url).catch(error => {
+      throw new Error(`Error when fetching ${l.url}: ${error.cause}`)
+    }).then(data => ({ title: l.title || entry.title, format: l.format, data })))
   })
+  let p = Promise.all(promises)
+  p = p.then((listBuffers) => {
+    generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
+    generateDataFileFromLists(listBuffers, outputDATFilename, entry.uuid)
+    if (doIos) {
+      // for iOS team - compile cosmetic filters only
+      generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
+    }
+  })
+  return p
 }
 
 /**
@@ -130,37 +133,19 @@ const generateDataFilesForAllRegions = () => {
       fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
       resolve()
     }).then(() => Promise.all(regions.map(region =>
-      generateDataFileFromRegionalCatalogEntry(region)
+      generateDataFilesForCatalogEntry(region)
     )))
   })
-}
-
-/**
- * Convenience function that generates component files for the default adblock lists
- */
-const generateDefaultDataFiles = (lists) => {
-  const promises = []
-  lists.forEach((l) => {
-    console.log(`${l.url}...`)
-    promises.push(getListBufferFromURL(l.url).then(data => ({ title: l.title, format: l.format, data, includeRedirectUrls: l.includeRedirectUrls })))
-  })
-  let p = Promise.all(promises)
-  p = p.then((listBuffers) => {
-    generatePlaintextListFromLists(listBuffers, defaultPlaintextComponentId)
-    generateDataFileFromLists(listBuffers, 'rs-ABPFilterParserData.dat', 'default')
-    // for iOS team - compile cosmetic filters only
-    generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
-  })
-  p = p.then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
-  return p
 }
 
 const generateDataFilesForResourcesComponent = () => {
   return generateResourcesFile(getOutPath('resources.json', resourcesComponentId))
 }
 
-const generateDataFilesForDefaultAdblock = () => getDefaultLists().then(defaultLists =>
-  generateDefaultDataFiles(defaultLists))
+const generateDataFilesForDefaultAdblock = () => getDefaultLists()
+  .then(defaultLists => generateDataFilesForCatalogEntry(defaultLists[0], true))
+  // default adblock DAT component requires this for historical reasons
+  .then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
 
 // For adblock-rust-ffi, included just as a char array via hexdump
 const generateTestDataFile1 =
