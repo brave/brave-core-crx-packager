@@ -14,14 +14,34 @@ import fs from 'fs'
  * @return a promise that resolves with the content of the list or rejects with an error message.
  */
 const getListBufferFromURL = (listURL) => {
-  return fetch(listURL).then(response => {
+  const attempt = () => fetch(listURL).then(response => {
     if (response.status !== 200) {
       throw new Error(`Error status ${response.status} ${response.statusText} returned for URL: ${listURL}`)
     }
     return response.text()
   }).catch(error => {
-    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
+    throw new Error(`Error when fetching ${listURL}: ${error.message}`)
   })
+
+  // Introduces a delayed rejection into a promise chain so that request retries can be caught in a loop until a request succeeds
+  const delayReject = (ms) => {
+    return (reason) => new Promise((_resolve, reject) => setTimeout(() => {
+      console.log(`Spurious error: ${reason.message}`)
+      console.log(`  (retrying...)`)
+      reject(reason)
+    }, ms))
+  }
+
+  const maxAttempts = 5
+  const delayMs = 3000
+
+  let p = Promise.reject()
+
+  for (let i = 0; i < maxAttempts; i++) {
+    p = p.catch(attempt).catch(delayReject(delayMs))
+  }
+
+  return p
 }
 
 /**
@@ -103,9 +123,7 @@ const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
-    promises.push(getListBufferFromURL(l.url).catch(error => {
-      throw new Error(`Error when fetching ${l.url}: ${error.cause}`)
-    }).then(data => ({ title: l.title || entry.title, format: l.format, data })))
+    promises.push(getListBufferFromURL(l.url).then(data => ({ title: l.title || entry.title, format: l.format, data })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
@@ -177,7 +195,7 @@ generateDataFilesForDefaultAdblock()
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')
   })
   .catch((e) => {
-    console.error(`Something went wrong, aborting: ${e}`)
+    console.error(`Something went wrong, aborting: ${e} ${e.stack} ${e.message}`)
     process.exit(1)
   })
 
