@@ -4,25 +4,9 @@
 
 import { Engine, FilterFormat, FilterSet, RuleTypes } from 'adblock-rs'
 import { generateResourcesFile, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
+import util from '../lib/util.js'
 import path from 'path'
 import fs from 'fs'
-
-/**
- * Returns a promise that which resolves with the list data
- *
- * @param listURL The URL of the list to fetch
- * @return a promise that resolves with the content of the list or rejects with an error message.
- */
-const getListBufferFromURL = (listURL) => {
-  return fetch(listURL).then(response => {
-    if (response.status !== 200) {
-      throw new Error(`Error status ${response.status} ${response.statusText} returned for URL: ${listURL}`)
-    }
-    return response.text()
-  }).catch(error => {
-    throw new Error(`Error when fetching ${listURL}: ${error.cause}`)
-  })
-}
 
 /**
  * Obtains the output path to store a file given the specied name and subdir
@@ -103,9 +87,7 @@ const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
-    promises.push(getListBufferFromURL(l.url).catch(error => {
-      throw new Error(`Error when fetching ${l.url}: ${error.cause}`)
-    }).then(data => ({ title: l.title || entry.title, format: l.format, data })))
+    promises.push(util.fetchTextFromURL(l.url).then(data => ({ title: l.title || entry.title, format: l.format, data })))
   })
   let p = Promise.all(promises)
   p = p.then((listBuffers) => {
@@ -177,7 +159,7 @@ generateDataFilesForDefaultAdblock()
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')
   })
   .catch((e) => {
-    console.error(`Something went wrong, aborting: ${e}`)
+    console.error(`Something went wrong, aborting: ${e} ${e.stack} ${e.message}`)
     process.exit(1)
   })
 
