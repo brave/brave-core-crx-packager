@@ -133,7 +133,7 @@ const getDATFileListByComponentType = (componentType) => {
       return [path.join('brave-lists', 'debounce.json'),
         path.join('brave-lists', 'clean-urls.json'),
         path.join('brave-lists', 'https-upgrade-exceptions-list.txt'),
-        path.join('brave-lists', 'localhost-permission-allow-list.txt'),
+        path.join('brave-lists', 'localhost-permission-allow-list.txt')
       ].concat(
         recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
     default:
