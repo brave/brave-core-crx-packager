@@ -61,6 +61,20 @@ The currently supported component extension types are:
 * `tor-client`
 * `local-data-files` (formerly `tracking-protection`)
 
+#### Testing locally without signing
+
+```bash
+npm run <target-name> -- --local-run
+```
+
+For example, if you added a new list to `local-data-files` and want to make sure it will show up correctly:
+```bash
+npm run package-local-data-files -- --local-run
+```
+This will create the lists in `build/local-data-files-updater/default/1`.
+
+Note: not all targets might be supported with `--local-run`.
+
 ### NTP Sponsored Images(SI) component
 
 To pacakge NTP SI components, download assets from passed url at first. It will download assets to `./build/ntp-sponsored-images/resources/`
