@@ -32,6 +32,18 @@ Currently
 * Python is required.
 * Rust is required. (for ad-block)
 
+## Testing locally without signing
+
+```bash
+npm run <target-name> -- --local-run
+```
+
+For example, if you added a new list to `local-data-files` and want to make sure it will show up correctly:
+```bash
+npm run package-local-data-files -- --local-run
+```
+This will create the lists in `build/local-data-files-updater/default/1`.
+
 ## Packaging
 
 ### Component Extensions
