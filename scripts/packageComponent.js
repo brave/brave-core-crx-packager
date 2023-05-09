@@ -110,6 +110,7 @@ const getNormalizedDATFileName = (datFileName) =>
   datFileName === 'httpse.leveldb' ||
   datFileName === 'Greaselion' ||
   datFileName === 'debounce' ||
+  datFileName === 'request-otr' ||
   datFileName === 'clean-urls' ||
   datFileName === 'https-upgrade-exceptions-list' ||
   datFileName === 'localhost-permission-allow-list' ||
@@ -131,6 +132,7 @@ const getDATFileListByComponentType = (componentType) => {
       return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
       return [path.join('brave-lists', 'debounce.json'),
+        path.join('brave-lists', 'request-otr.json'),
         path.join('brave-lists', 'clean-urls.json'),
         path.join('brave-lists', 'https-upgrade-exceptions-list.txt'),
         path.join('brave-lists', 'localhost-permission-allow-list.txt')
