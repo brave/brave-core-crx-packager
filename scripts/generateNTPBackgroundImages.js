@@ -51,56 +51,51 @@ const validatePhotoData = (photoJsonObj) => {
   return isValid
 }
 
-const prepareAssets = (jsonFileUrl, targetResourceDir) => {
-  return new Promise(function (resolve, reject) {
-    let body = '{}'
+async function prepareAssets (jsonFileUrl, targetResourceDir) {
+  let body = '{}'
+  // Download and parse jsonFileUrl.
+  const response = await fetch(jsonFileUrl)
+  if (!response.ok) {
+    throw new Error(`Error from ${jsonFileUrl}: ${response.status} ${response.statusText}`)
+  }
+  body = await response.text()
+  let photoData = {}
+  try {
+    console.log(`Start - json file ${jsonFileUrl} parsing`)
+    photoData = JSON.parse(body)
+  } catch (err) {
+    throw new Error(`Invalid json file ${jsonFileUrl}`, { cause: err })
+  }
+  console.log(`Done - json file ${jsonFileUrl} parsing`)
 
-    // Download and parse jsonFileUrl.
-    fetch(jsonFileUrl).then(async function (response) {
-      if (response.status !== 200) {
-        throw new Error(`Error from ${jsonFileUrl}: ${response.status} ${response.statusText}`)
-      }
+  console.log(`Start - json file ${jsonFileUrl} validation`)
+  if (!validatePhotoData(photoData)) {
+    throw new Error(`Failed to validate json file ${jsonFileUrl}`)
+  }
+  console.log(`Done - json file ${jsonFileUrl} validation`)
 
-      if (response.status === 200) {
-        body = await response.text()
-      }
-      let photoData = {}
-      try {
-        console.log(`Start - json file ${jsonFileUrl} parsing`)
-        photoData = JSON.parse(body)
-      } catch (err) {
-        const error = `Invalid json file ${jsonFileUrl}`
-        console.error(error)
-        return reject(error)
-      }
-      console.log(`Done - json file ${jsonFileUrl} parsing`)
+  createPhotoJsonFile(path.join(targetResourceDir, 'photo.json'), JSON.stringify(photoData))
 
-      console.log(`Start - json file ${jsonFileUrl} validation`)
-      if (!validatePhotoData(photoData)) {
-        const error = `Failed to validate json file ${jsonFileUrl}`
-        console.error(error)
-        return reject(error)
-      }
-      console.log(`Done - json file ${jsonFileUrl} validation`)
-
-      createPhotoJsonFile(path.join(targetResourceDir, 'photo.json'), JSON.stringify(photoData))
-
-      // Download image files that specified in jsonFileUrl
-      const imageFileNameList = getImageFileNameListFrom(photoData)
-      const downloadOps = imageFileNameList.map(async (imageFileName) => {
-        const targetImageFilePath = path.join(targetResourceDir, imageFileName)
-        const targetImageFileUrl = new URL(imageFileName, jsonFileUrl).href
-        const response = await fetch(targetImageFileUrl)
-        const ws = fs.createWriteStream(targetImageFilePath)
-        return finished(Readable.fromWeb(response.body).pipe(ws))
-          .then(() => console.log(`Downloaded ${targetImageFileUrl}`))
-      })
-      await Promise.all(downloadOps)
-      resolve()
-    }).catch(error => {
-      throw new Error(`Error from ${jsonFileUrl}: ${error.cause}`)
-    })
+  // Download image files that specified in jsonFileUrl
+  const imageFileNameList = getImageFileNameListFrom(photoData)
+  const imageErrors = []
+  const downloadOps = imageFileNameList.map(async (imageFileName) => {
+    const targetImageFilePath = path.join(targetResourceDir, imageFileName)
+    const targetImageFileUrl = new URL(imageFileName, jsonFileUrl).href
+    const response = await fetch(targetImageFileUrl)
+    if (!response.ok) {
+      imageErrors.push(`Bad http response (status code ${response.status}) downloading image file at ${targetImageFileUrl}`)
+      return
+    }
+    const ws = fs.createWriteStream(targetImageFilePath)
+    await finished(Readable.fromWeb(response.body).pipe(ws))
+    console.log(`Downloaded ${targetImageFileUrl}`)
   })
+  await Promise.all(downloadOps)
+  if (imageErrors.length) {
+    imageErrors.forEach(e => console.error(e))
+    throw new Error('There were some image download errors. Aborting!')
+  }
 }
 
 async function generateNTPBackgroundImages (dataUrl) {
@@ -119,3 +114,10 @@ commander
   .parse(process.argv)
 
 generateNTPBackgroundImages(commander.dataUrl)
+  .catch(e => {
+    console.error('There was a fatal problem:', e.message)
+    if (e.cause) {
+      console.error(e.cause)
+    }
+    process.exit(1)
+  })
