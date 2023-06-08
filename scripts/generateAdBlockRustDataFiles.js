@@ -125,7 +125,9 @@ const generateDataFilesForResourcesComponent = () => {
 }
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists()
-  .then(defaultLists => generateDataFilesForCatalogEntry(defaultLists[0], true))
+  // TODO convert to map/Promise.all once 'ios-cosmetic-filters.dat' is no longer required
+  .then(defaultLists => generateDataFilesForCatalogEntry(defaultLists[0], true)
+    .then(() => generateDataFilesForCatalogEntry(defaultLists[1], false)))
   // default adblock DAT component requires this for historical reasons
   .then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
 
