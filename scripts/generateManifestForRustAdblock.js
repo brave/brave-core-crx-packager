@@ -28,6 +28,16 @@ const defaultPlaintextPubkey =
     'q+SDNXROG554RnU4BnDJaNETTkDTZ0Pn+rmLmp1qY5Si0yGsfHkrv3FS3vdxVozO' +
     'PQIDAQAB'
 
+const exceptionPlaintextComponentId = 'adcocjohghhfpidemphmcmlmhnfgikei'
+const exceptionPlaintextPubkey =
+    'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtvmLp4MOseThuH/vFSc7' +
+    'kjr+CDCzR/ieGI8TJZyFQhzA1SKWRl4y0wB+HGkmoq0KPOzKNZq6hxK7jdm/r/nx' +
+    'xOjqutPoUEL+ysxePErMTse2XeWu3psGSTEjPFdQTPEwH8MF2SwXXneOraD0V/GS' +
+    'iCCvlx8yKIXNX7V9ujMo+QoD6hPGslKUZQJAg+OaZ7pAfq5cOuWXNN6jv12UL0eM' +
+    't6Dhl31yEu4kZWeTkiccHqdlB/KvPiqXTrV+qd3Tjvsk6kmUlexu3/zlOwVDz5H/' +
+    'kPuOGvW7kYaW22NWQ9TH6fjffgVcSgHDbZETDiP8fHd76kyi1SZ5YJ09XHTE+i9i' +
+    'kQIDAQAB'
+
 const generateManifestFile = async (name, base64PublicKey, uuid) => {
   const manifest = '{\n' +
                  '  "description": "Brave Ad Block Updater extension",\n' +
@@ -47,6 +57,9 @@ const generateManifestFileForDefaultAdblock =
 const generateManifestFileForDefaultPlaintextAdblock =
   generateManifestFile.bind(null, 'Default (plaintext)', defaultPlaintextPubkey, defaultPlaintextComponentId)
 
+const generateManifestFileForExceptionAdblock =
+  generateManifestFile.bind(null, 'Exception-exceptions (plaintext)', exceptionPlaintextPubkey, exceptionPlaintextComponentId)
+
 const generateManifestFileForRegionalCatalog =
   generateManifestFile.bind(null, 'Regional Catalog', regionalCatalogPubkey, regionalCatalogComponentId)
 
@@ -65,6 +78,7 @@ const generateManifestFilesForAllRegions = async () => {
 
 generateManifestFileForDefaultAdblock()
   .then(generateManifestFileForDefaultPlaintextAdblock)
+  .then(generateManifestFileForExceptionAdblock)
   .then(generateManifestFileForRegionalCatalog)
   .then(generateManifestFileForResources)
   .then(generateManifestFilesForAllRegions)
