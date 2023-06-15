@@ -8,7 +8,7 @@ import fs from 'fs'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
-const ipfsVersion = '0.19.1'
+const ipfsVersion = '0.20.0'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
 const downloadIpfsDaemon = (platform, arch) => {
@@ -25,19 +25,19 @@ const downloadIpfsDaemon = (platform, arch) => {
   let sha512IPFS = ''
   switch (build) {
     case 'darwin-amd64':
-      sha512IPFS = '2289126c287de605090c4b1bb9b33f198c64343c756ae5844430ce4253e4b427d446e20953130373350ea43e782d7c1b83b7bd206bdb5d10cad3c54f1d51bae5'
+      sha512IPFS = 'a88b08529a2747fcc36313cb247df6013b3ddc9642f565979f9b9391497401f95a5c7fd34283dc6e491e6521e7d1b0fdd52d79e8026bcb8935c49b6f45242b74'
       break
     case 'darwin-arm64':
-      sha512IPFS = '70e9ea41de54c66dc8906458b3af6377d0a51fc456e3e1a906b9e77d3ecf858f0ce2af56eec6e9a1408ed127829084268e18c6638fb6eb09878976a533371297'
+      sha512IPFS = 'd456ec249c5bd946456da399fb950f67420d568db8a7e7e510f88070c4b5c8ac9ef719a3f7281462f0206b5fd7787254ea002159040ad440d3b231c0dedda1c9'
       break
     case 'linux-amd64':
-      sha512IPFS = 'ff5110d7cac3fd3da49c0fbfc78b79cd17777636ce67bfe40186202a77d13c320f5061fbcc2d5fe7f08d573d3e4f5bda588d5879e59e6a1dec97770f0c2dba1b'
+      sha512IPFS = 'd18cd63ac8bf3dffcb099bf5b87a5a9375ef5ac9676ed5297c88b167c9fa73554b273f8269d414e413a3be1a9dc71c7ac8ae0a92f7515624a82174d95693e886'
       break
     case 'linux-arm64':
-      sha512IPFS = 'ca01c592e81ab39b5763c9ff8b3782a6afa034917877bca1d245441531c67ba01252dd4e5cc6e7cc84ae264b5ca59ddddd368336e58b178b982a68c572cec27f'
+      sha512IPFS = '83cac5a311d634d1a8f664e5f944822239cad048a128482794720dd3f55e751f45167bbdf39d6c5d68263a07bc132c4368938c82a2c9ce6bcd3d8d5eef554b86'
       break
     case 'windows-amd64':
-      sha512IPFS = 'f6b9d9dabbb94de81918ad3d1ef67d9dfdb13b8d1d6526119caee620c58bab26a91c3320232fdfd43221fc691a28a48bd86b706757c2e3ec58d05871c92fac19'
+      sha512IPFS = 'f14100721f5cefe66c5ca1b721abb005d578e7cfb2e2e86ca527379471f2e7a19128d5fcbbf1aa71971f7b0b609dbb84c92447efa11398bc35011926021beb3f'
       break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)
