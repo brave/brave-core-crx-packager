@@ -11,7 +11,7 @@ import mkdirp from 'mkdirp'
 import path from 'path'
 import replace from 'replace-in-file'
 import util from '../lib/util.js'
-const ipfsVersion = '0.20.0'
+const ipfsVersion = '0.21.0'
 
 const getIpfsDaemonPath = (os, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
