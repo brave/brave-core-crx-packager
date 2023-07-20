@@ -26,6 +26,7 @@
     "tmp": "0.2.1"
   },
   "scripts": {
+    "preinstall": "npm --version; node --version; cargo --version; rustc --version",
     "clean": "rimraf build/",
     "test": "node --test test/*.js scripts/**/*.test.js",
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
