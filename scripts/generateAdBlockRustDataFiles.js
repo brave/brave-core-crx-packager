@@ -59,7 +59,7 @@ const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir,
     filterSet.addFilters(enforceBraveDirectives(title, data).split('\n'), parseOpts)
   }
   const client = new Engine(filterSet, true)
-  const arrayBuffer = client.serializeCompressed()
+  const arrayBuffer = client.serializeRaw()
   const outPath = getOutPath(outputDATFilename, outSubdir)
   fs.writeFileSync(outPath, Buffer.from(arrayBuffer))
 }
