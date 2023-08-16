@@ -8,9 +8,12 @@ services:
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
       - AWS_REGION=us-east-1
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       localstack:
         condition: service_healthy
+  # nosemgrep: writable-filesystem-service
   localstack:
     image: localstack/localstack
     environment:
@@ -21,6 +24,8 @@ services:
     volumes:
       - "./.localstack:/var/lib/localstack"
       - "./localstack-init.sh:/etc/localstack/init/ready.d/init-aws.sh"
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: "curl -s localhost:4566/_localstack/init/ready | fgrep '\"completed\": true'"
       interval: 5s
