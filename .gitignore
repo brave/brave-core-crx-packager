@@ -65,3 +65,6 @@ build
 
 # Lists for data-files-local-data-files
 brave-lists
+
+# localstack
+.localstack/
