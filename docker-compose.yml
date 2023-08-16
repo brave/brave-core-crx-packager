@@ -1,0 +1,33 @@
+version: '3'
+services:
+  app:
+    build: .
+    environment:
+      - S3_ENDPOINT=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_REGION=us-east-1
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      localstack:
+        condition: service_healthy
+  # nosemgrep: writable-filesystem-service
+  localstack:
+    image: localstack/localstack
+    environment:
+      - SERVICES=s3,dynamodb
+      - DEBUG=1
+      - PORT_S3=4566
+      - PORT_DYNAMODB=4567
+    volumes:
+      - "./.localstack:/var/lib/localstack"
+      - "./localstack-init.sh:/etc/localstack/init/ready.d/init-aws.sh"
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: "curl -s localhost:4566/_localstack/init/ready | fgrep '\"completed\": true'"
+      interval: 5s
+      retries: 10
+      timeout: 10s
