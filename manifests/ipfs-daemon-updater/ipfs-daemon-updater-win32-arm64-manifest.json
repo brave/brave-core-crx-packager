@@ -1,0 +1,7 @@
+{
+  "description": "Brave IPFS local node component",
+  "key": "x",
+  "manifest_version": 2,
+  "name": "Brave IPFS local node (Windows)",
+  "version": "0.0.0"
+}
