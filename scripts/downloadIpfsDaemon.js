@@ -83,6 +83,7 @@ downloadIpfsDaemon('darwin', 'arm64')
 downloadIpfsDaemon('linux', 'amd64')
 downloadIpfsDaemon('linux', 'arm64')
 downloadIpfsDaemon('win32', 'amd64')
+downloadIpfsDaemon('win32', 'arm64')
 
 export {
   ipfsVersion
