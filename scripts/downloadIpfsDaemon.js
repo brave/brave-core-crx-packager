@@ -39,6 +39,9 @@ const downloadIpfsDaemon = (platform, arch) => {
     case 'windows-amd64':
       sha512IPFS = '28955a5289dc6ed6ce26ae77476afe2fd05cd5a8c4a71e34827775b2a43860d968517ff3891fbfb53975e006282387829b20d75917015545a57ac9e4229762a8'
       break
+    case 'windows-arm64':
+      sha512IPFS = '4fc61bbaa4ecf8d1a783ec0b1a0f51ac127d0ad3c4e0f01a730a98027dc921a00398aeaa7bf74b5cd3771ac9257863bff462cc8f3b3d377648c9700ecd014fbd'
+      break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)
   }
@@ -80,6 +83,7 @@ downloadIpfsDaemon('darwin', 'arm64')
 downloadIpfsDaemon('linux', 'amd64')
 downloadIpfsDaemon('linux', 'arm64')
 downloadIpfsDaemon('win32', 'amd64')
+downloadIpfsDaemon('win32', 'arm64')
 
 export {
   ipfsVersion
