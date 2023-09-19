@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Engine, FilterFormat, FilterSet, RuleTypes } from 'adblock-rs'
-import { generateResourcesFile, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
+import { generateResourcesFile, getListCatalog, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
 import util from '../lib/util.js'
 import path from 'path'
 import fs from 'fs'
@@ -113,7 +113,11 @@ const generateDataFilesForAllRegions = () => {
       const catalogString = JSON.stringify(regions)
       fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), catalogString)
       fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
-      resolve()
+      getListCatalog().then(listCatalog => {
+        const catalogString = JSON.stringify(listCatalog)
+        fs.writeFileSync(getOutPath('list_catalog.json', regionalCatalogComponentId), catalogString)
+        resolve()
+      })
     }).then(() => Promise.all(regions.map(region =>
       generateDataFilesForCatalogEntry(region)
     )))
