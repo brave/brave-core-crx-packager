@@ -135,31 +135,8 @@ const generateDataFilesForDefaultAdblock = () => getDefaultLists()
   // default adblock DAT component requires this for historical reasons
   .then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
 
-// For adblock-rust-ffi, included just as a char array via hexdump
-const generateTestDataFile1 =
-  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad-banner' }], 'ad-banner.dat', 'test-data')
-// For adblock-rust-ffi, included just as a char array via hexdump
-const generateTestDataFile2 =
-  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad-banner$tag=abc' }], 'ad-banner-tag-abc.dat', 'test-data')
-// For brave-core ./data/adblock-data/adblock-default/rs-ABPFilterParserData.dat
-// For brave-core ./data/adblock-data/adblock-v3/rs-ABPFilterParserData.dat
-const generateTestDataFile3 =
-  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'adbanner\nad_banner' }], 'rs-default.dat', 'test-data')
-// For brave-core ./data/adblock-data/adblock-v4/rs-ABPFilterParserData.dat
-const generateTestDataFile4 =
-  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'v4_specific_banner.png' }], 'rs-v4.dat', 'test-data')
-// For brave-core ./brave/test/data/adblock-data/adblock-regional/
-// 9852EFC4-99E4-4F2D-A915-9C3196C7A1DE/rs-9852EFC4-99E4-4F2D-A915-9C3196C7A1DE.dat
-const generateTestDataFile5 =
-  generateDataFileFromLists.bind(null, [{ format: FilterFormat.STANDARD, data: 'ad_fr.png' }], 'rs-9852EFC4-99E4-4F2D-A915-9C3196C7A1DE.dat', 'test-data')
-
 generateDataFilesForDefaultAdblock()
   .then(generateDataFilesForResourcesComponent)
-  .then(generateTestDataFile1)
-  .then(generateTestDataFile2)
-  .then(generateTestDataFile3)
-  .then(generateTestDataFile4)
-  .then(generateTestDataFile5)
   .then(generateDataFilesForAllRegions)
   .then(() => {
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')
