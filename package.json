@@ -13,6 +13,7 @@
     "https-everywhere-builder": "github:brave/https-everywhere-builder",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
+    "tmp": "0.2.1",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
@@ -22,8 +23,7 @@
     "mkdirp": "2.1.6",
     "replace-in-file": "7.0.1",
     "rimraf": "5.0.1",
-    "standard": "17.1.0",
-    "tmp": "0.2.1"
+    "standard": "17.1.0"
   },
   "scripts": {
     "clean": "rimraf build/",
@@ -55,6 +55,7 @@
     "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
     "package-youtubedown": "node ./scripts/packageYoutubedown.js",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
+    "generate-puffpatches": "node ./scripts/generatePuffpatches",
     "upload-component": "node ./scripts/uploadComponent"
   },
   "repository": {
