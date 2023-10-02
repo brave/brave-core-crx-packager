@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Submodule Sync
-        uses: mheap/submodule-sync-action@a06903a4e38f042f6f52cc88d184ec1c930ee12d # v1
+        uses: mheap/submodule-sync-action@a06903a4e38f042f6f52cc88d184ec1c930ee12d # v1.4.1
         with:
           path: 'submodules/uBlock'
           ref: master
