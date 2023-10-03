@@ -23,7 +23,7 @@
     "mkdirp": "2.1.6",
     "replace-in-file": "7.0.1",
     "rimraf": "5.0.5",
-    "standard": "17.1.0",
+    "standard": "17.1.0"
   },
   "scripts": {
     "clean": "rimraf build/",
