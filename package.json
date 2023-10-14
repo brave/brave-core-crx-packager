@@ -13,6 +13,7 @@
     "https-everywhere-builder": "github:brave/https-everywhere-builder",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
+    "@sentry/node": "7.74.0",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
