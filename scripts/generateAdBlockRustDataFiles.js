@@ -4,6 +4,7 @@
 
 import { Engine, FilterSet, RuleTypes } from 'adblock-rs'
 import { generateResourcesFile, getListCatalog, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
+import Sentry from '../lib/sentry.js'
 import util from '../lib/util.js'
 import path from 'path'
 import fs from 'fs'
@@ -73,11 +74,13 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
 }
 
 /**
- * Convenience function that generates component files for a given catalog entry
+ * Convenience function that generates component files for a given catalog entry.
+ *
+ * If any list source cannot be downloaded, the promise will resolve but the new files will _not_ be generated.
  *
  * @param entry the corresponding entry directly from one of Brave's list catalogs
  * @param doIos boolean, whether or not filters for iOS should be created (currently only used by default list)
- * @return a Promise which resolves if successful or rejects if there's an error.
+ * @return a Promise which resolves upon completion
  */
 const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
   const lists = entry.sources
@@ -89,16 +92,24 @@ const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
     console.log(`${entry.langs} ${l.url}...`)
     promises.push(util.fetchTextFromURL(l.url).then(data => ({ title: l.title || entry.title, format: l.format, data })))
   })
-  let p = Promise.all(promises)
-  p = p.then((listBuffers) => {
-    generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
-    generateDataFileFromLists(listBuffers, outputDATFilename, entry.uuid)
-    if (doIos) {
-      // for iOS team - compile cosmetic filters only
-      generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
-    }
-  })
-  return p
+  return Promise.all(promises)
+    .catch()
+    .then(
+      (listBuffers) => {
+        generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
+        generateDataFileFromLists(listBuffers, outputDATFilename, entry.uuid)
+        if (doIos) {
+          // for iOS team - compile cosmetic filters only
+          generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
+        }
+      },
+      e => {
+        console.error(`Not publishing a new version of ${entry.title} due to failure downloading a source: ${e.message}`)
+        if (Sentry) {
+          Sentry.captureException(e, { level: 'warning' })
+        }
+      }
+    )
 }
 
 /**
