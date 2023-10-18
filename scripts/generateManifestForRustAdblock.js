@@ -21,6 +21,7 @@ const generateManifestFile = async (name, base64PublicKey, uuid) => {
 
   const filePath = path.join(outPath, uuid, 'manifest.json')
   return fs.writeFile(filePath, manifest)
+    .catch(e => console.warn('Skipped writing manifest for ' + name + ': ' + e.message))
 }
 
 const generateManifestFileForRegionalCatalog =
