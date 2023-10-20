@@ -107,7 +107,7 @@ npm run package-ntp-super-referrer -- --binary "/Applications/Google\\ Chrome.ap
 
 ## Generating differential updates
 
-To generate differential updates using [puffin](https://chromium.googlesource.com/chromium/src/+/main/third_party/puffin/) use the following command to fetch the last `n` versions and generate the patch files:
+To generate differential updates using [puffin](https://chromium.googlesource.com/chromium/src/+/main/third_party/puffin/) use the following command to fetch the last 10 versions and generate the patch files:
 
 ```bash
 aws-vault exec extensions-dev-role --  npm run generate-puffpatches -- --crx-directory ./build/ntp-sponsored-images/output -p 10
