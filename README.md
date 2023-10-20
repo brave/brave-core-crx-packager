@@ -105,6 +105,16 @@ Then, package assets to crx file for specific super referrer. It will generate c
 npm run package-ntp-super-referrer -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --key ntp-super-referrer-{super-referrer-code}.pem --super-referrer-name <super-referrer-code>
 ```
 
+## Generating differential updates
+
+To generate differential updates using [puffin](https://chromium.googlesource.com/chromium/src/+/main/third_party/puffin/) use the following command to fetch the last 10 versions and generate the patch files:
+
+```bash
+aws-vault exec extensions-dev-role --  npm run generate-puffpatches -- --crx-directory ./build/ntp-sponsored-images/output -p 10
+```
+
+*Note: `puffin` binary is required*
+
 ## Uploading
 
 After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`brave-extensions`).
