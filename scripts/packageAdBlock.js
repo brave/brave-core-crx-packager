@@ -9,7 +9,6 @@
 import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 import { regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
 
@@ -20,12 +19,7 @@ async function stageFiles (version, outputDir) {
   const resourceJsonPath = path.join('build', 'ad-block-updater', 'default', resourceFileName)
   const outputManifest = path.join(outputDir, 'manifest.json')
   const outputResourceJSON = path.join(outputDir, resourceFileName)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  replace.sync(replaceOptions)
+  util.copyManifestWithVersion(outputManifest, outputManifest, version)
   // Only copy resources.json into components with a UUID. We will migrate to
   // using component IDs instead of UUIDs for directory names.
   // UUIDs are 36 characters, component IDs are 32.

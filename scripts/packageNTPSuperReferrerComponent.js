@@ -6,7 +6,6 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
@@ -20,14 +19,7 @@ const stageFiles = (superReferrerName, version, outputDir) => {
   // Fix up the manifest version
   const originalManifest = getOriginalManifest(superReferrerName)
   const outputManifest = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifest, outputManifest)
-  replace.sync(replaceOptions)
+  util.copyManifestWithVersion(originalManifest, outputManifest, version)
 }
 
 const generateManifestFile = (superReferrerName, publicKey) => {

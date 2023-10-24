@@ -11,7 +11,6 @@ import { execSync } from 'child_process'
 import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 
 // Downloads the current (platform-specific) Tor client from S3
@@ -94,19 +93,11 @@ const stageFiles = (platform, torClient, version, outputDir) => {
   const outputTorrc = path.join(outputDir, 'tor-torrc')
   const inputTorrc = path.join('resources', 'tor', 'torrc')
 
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-
   mkdirp.sync(outputDir)
 
-  fs.copyFileSync(originalManifest, outputManifest)
   fs.copyFileSync(torClient, outputTorClient)
   fs.copyFileSync(inputTorrc, outputTorrc)
-
-  replace.sync(replaceOptions)
+  util.copyManifestWithVersion(originalManifest, outputManifest, version)
 }
 
 // Does a hash comparison on a file against a given hash

@@ -10,7 +10,6 @@ import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import recursive from 'recursive-readdir-sync'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 
 async function stageFiles (componentType, datFile, version, outputDir) {
@@ -46,14 +45,7 @@ async function stageFiles (componentType, datFile, version, outputDir) {
   // Fix up the manifest version
   const originalManifest = getOriginalManifest(componentType, datFileName)
   const outputManifest = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifest, outputManifest)
-  replace.sync(replaceOptions)
+  util.copyManifestWithVersion(originalManifest, outputManifest, version)
 }
 
 const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {

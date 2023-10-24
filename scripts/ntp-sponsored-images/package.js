@@ -7,7 +7,6 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../../lib/util.js'
 import params from './params.js'
 
@@ -21,14 +20,7 @@ const stageFiles = (locale, version, outputDir) => {
   // Fix up the manifest version
   const originalManifestPath = getManifestPath(locale)
   const outputManifestPath = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifestPath, ' to: ', outputManifestPath)
-  const replaceOptions = {
-    files: outputManifestPath,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifestPath, outputManifestPath)
-  replace.sync(replaceOptions)
+  util.copyManifestWithVersion(originalManifestPath, outputManifestPath, version)
 }
 
 const generateManifestFile = (regionPlatform, componentData) => {

@@ -9,7 +9,6 @@ import commander from 'commander'
 import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 const ipfsVersion = '0.23.0'
 
@@ -49,18 +48,10 @@ const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
   const outputManifest = path.join(outputDir, 'manifest.json')
   const outputIpfsClient = path.join(outputDir, path.parse(ipfsDaemon).base)
 
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-
   mkdirp.sync(outputDir)
 
-  fs.copyFileSync(originalManifest, outputManifest)
   fs.copyFileSync(ipfsDaemon, outputIpfsClient)
-
-  replace.sync(replaceOptions)
+  util.copyManifestWithVersion(originalManifest, outputManifest, version)
 }
 
 util.installErrorHandlers()
