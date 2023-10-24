@@ -4,7 +4,7 @@
 
 import commander from 'commander'
 import fs from 'fs-extra'
-import mkdirp from 'mkdirp'
+import { mkdirp } from 'mkdirp'
 import path from 'path'
 import replace from 'replace-in-file'
 import util from '../lib/util.js'
