@@ -66,7 +66,6 @@ const packageTorPluggableTransports = (binary, endpoint, region, platform, key, 
 
 const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
   const originalManifest = getOriginalManifest(platform)
-  const outputManifest = path.join(outputDir, 'manifest.json')
   const outputSnowflake = path.join(outputDir, path.parse(snowflake).base)
   const outputObfs4 = path.join(outputDir, path.parse(obfs4).base)
 
@@ -74,7 +73,7 @@ const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
 
   fs.copyFileSync(snowflake, outputSnowflake)
   fs.copyFileSync(obfs4, outputObfs4)
-  util.copyManifestWithVersion(originalManifest, outputManifest, version)
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
 util.installErrorHandlers()

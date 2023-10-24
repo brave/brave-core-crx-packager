@@ -17,9 +17,10 @@ async function stageFiles (version, outputDir) {
   // we don't need to stage the crx files
   const resourceFileName = 'resources.json'
   const resourceJsonPath = path.join('build', 'ad-block-updater', 'default', resourceFileName)
-  const outputManifest = path.join(outputDir, 'manifest.json')
   const outputResourceJSON = path.join(outputDir, resourceFileName)
-  util.copyManifestWithVersion(outputManifest, outputManifest, version)
+  const originalManifest = path.join(outputDir, 'manifest.json')
+  // note - in-place file replacement, unlike other components
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
   // Only copy resources.json into components with a UUID. We will migrate to
   // using component IDs instead of UUIDs for directory names.
   // UUIDs are 36 characters, component IDs are 32.

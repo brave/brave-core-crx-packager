@@ -88,7 +88,6 @@ const packageTorClient = (binary, endpoint, region, platform, key,
 
 const stageFiles = (platform, torClient, version, outputDir) => {
   const originalManifest = getOriginalManifest(platform)
-  const outputManifest = path.join(outputDir, 'manifest.json')
   const outputTorClient = path.join(outputDir, path.parse(torClient).base)
   const outputTorrc = path.join(outputDir, 'tor-torrc')
   const inputTorrc = path.join('resources', 'tor', 'torrc')
@@ -97,7 +96,7 @@ const stageFiles = (platform, torClient, version, outputDir) => {
 
   fs.copyFileSync(torClient, outputTorClient)
   fs.copyFileSync(inputTorrc, outputTorrc)
-  util.copyManifestWithVersion(originalManifest, outputManifest, version)
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
 // Does a hash comparison on a file against a given hash

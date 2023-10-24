@@ -45,13 +45,12 @@ const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
 
 const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
   const originalManifest = getOriginalManifest(platform)
-  const outputManifest = path.join(outputDir, 'manifest.json')
   const outputIpfsClient = path.join(outputDir, path.parse(ipfsDaemon).base)
 
   mkdirp.sync(outputDir)
 
   fs.copyFileSync(ipfsDaemon, outputIpfsClient)
-  util.copyManifestWithVersion(originalManifest, outputManifest, version)
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
 util.installErrorHandlers()

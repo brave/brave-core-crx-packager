@@ -44,8 +44,7 @@ async function stageFiles (componentType, datFile, version, outputDir) {
 
   // Fix up the manifest version
   const originalManifest = getOriginalManifest(componentType, datFileName)
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  util.copyManifestWithVersion(originalManifest, outputManifest, version)
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
 const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {

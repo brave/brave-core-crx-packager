@@ -18,9 +18,8 @@ const stageFiles = (locale, version, outputDir) => {
   fs.copySync(resourceDir, outputDir)
 
   // Fix up the manifest version
-  const originalManifestPath = getManifestPath(locale)
-  const outputManifestPath = path.join(outputDir, 'manifest.json')
-  util.copyManifestWithVersion(originalManifestPath, outputManifestPath, version)
+  const originalManifest = getManifestPath(locale)
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
 const generateManifestFile = (regionPlatform, componentData) => {

@@ -18,8 +18,7 @@ const stageFiles = (superReferrerName, version, outputDir) => {
 
   // Fix up the manifest version
   const originalManifest = getOriginalManifest(superReferrerName)
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  util.copyManifestWithVersion(originalManifest, outputManifest, version)
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
 const generateManifestFile = (superReferrerName, publicKey) => {
