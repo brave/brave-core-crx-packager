@@ -7,7 +7,7 @@
 
 import commander from 'commander'
 import fs from 'fs-extra'
-import mkdirp from 'mkdirp'
+import { mkdirp } from 'mkdirp'
 import path from 'path'
 import recursive from 'recursive-readdir-sync'
 import replace from 'replace-in-file'

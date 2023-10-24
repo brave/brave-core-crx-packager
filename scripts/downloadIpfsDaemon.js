@@ -5,7 +5,7 @@
 import crypto from 'crypto'
 import { execSync } from 'child_process'
 import fs from 'fs'
-import mkdirp from 'mkdirp'
+import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 const ipfsVersion = '0.23.0'
