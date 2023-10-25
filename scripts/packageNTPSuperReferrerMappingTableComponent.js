@@ -6,28 +6,15 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
 const stageFiles = (version, outputDir) => {
-  // Copy mapping table and manifest file to outputDir.
-  const mapFile = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', 'mapping-table', 'mapping-table.json')
-  const outputMapFile = path.join(outputDir, 'mapping-table.json')
-  console.log('copy ', mapFile, ' to:', outputMapFile)
-  fs.copyFileSync(mapFile, outputMapFile)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest()
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifest, outputManifest)
-  replace.sync(replaceOptions)
+  const files = [
+    { path: getOriginalManifest(), outputName: 'manifest.json' },
+    { path: path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', 'mapping-table', 'mapping-table.json') }
+  ]
+  util.stageFiles(files, version, outputDir)
 }
 
 const generateManifestFile = (publicKey) => {

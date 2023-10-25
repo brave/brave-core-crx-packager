@@ -6,28 +6,16 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
 const stageFiles = (superReferrerName, version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  // Copy resource files
-  const resourceDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', superReferrerName, '/')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest(superReferrerName)
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifest, outputManifest)
-  replace.sync(replaceOptions)
+  util.stageDir(
+    undefined,
+    path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', superReferrerName, '/'),
+    getOriginalManifest(superReferrerName),
+    version,
+    outputDir)
 }
 
 const generateManifestFile = (superReferrerName, publicKey) => {

@@ -6,7 +6,6 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
@@ -14,28 +13,14 @@ import ntpUtil from '../lib/ntpUtil.js'
   NOTE: For historical reason, this is named "Youtubedown" component, but
   we're packaging 'brave/playlist-component'.
 */
-const stageFiles = (version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  const resourceDir = path.join(path.resolve(), 'node_modules', 'playlist-component')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest()
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifest, outputManifest)
-  replace.sync(replaceOptions)
-}
-
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'node_modules', 'playlist-component', 'manifest.json')
 }
+
+const stageFiles = util.stageDir.bind(
+  undefined,
+  path.join(path.resolve(), 'node_modules', 'playlist-component'),
+  getOriginalManifest())
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey) => {

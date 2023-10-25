@@ -6,7 +6,6 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 
 const getComponentDataList = () => {
@@ -235,23 +234,12 @@ const getComponentDataList = () => {
 }
 
 const stageFiles = (locale, version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  // Copy resource files
-  const resourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest(locale)
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifest, outputManifest)
-  replace.sync(replaceOptions)
+  util.stageDir(
+    undefined,
+    path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/'),
+    getOriginalManifest(locale),
+    version,
+    outputDir)
 }
 
 const generateManifestFile = (componentData) => {

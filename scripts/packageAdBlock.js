@@ -9,28 +9,25 @@
 import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 import { regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
 
 async function stageFiles (version, outputDir) {
-  // ad-block components are in the correct folder
-  // we don't need to stage the crx files
-  const resourceFileName = 'resources.json'
-  const resourceJsonPath = path.join('build', 'ad-block-updater', 'default', resourceFileName)
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  const outputResourceJSON = path.join(outputDir, resourceFileName)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-  replace.sync(replaceOptions)
-  // Only copy resources.json into components with a UUID. We will migrate to
+  // ad-block components are already written in the output directory
+  // so we don't need to stage anything
+  const originalManifest = path.join(outputDir, 'manifest.json')
+  // note - in-place manifest replacement, unlike other components
+  util.copyManifestWithVersion(originalManifest, outputDir, version)
+  // Copy resources.json into components with a UUID. We will migrate to
   // using component IDs instead of UUIDs for directory names.
   // UUIDs are 36 characters, component IDs are 32.
-  if (path.basename(outputDir).length > 32 && resourceJsonPath !== outputResourceJSON) {
-    fs.copyFileSync(resourceJsonPath, outputResourceJSON)
+  if (path.basename(outputDir).length > 32) {
+    const resourceFileName = 'resources.json'
+    const resourceJsonPath = path.join('build', 'ad-block-updater', 'default', resourceFileName)
+    const outputResourceJSON = path.join(outputDir, resourceFileName)
+    if (resourceJsonPath !== outputResourceJSON) {
+      fs.copyFileSync(resourceJsonPath, outputResourceJSON)
+    }
   }
 }
 

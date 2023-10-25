@@ -10,7 +10,6 @@ import { execSync } from 'child_process'
 import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 
 const TOR_PLUGGABLE_TRANSPORTS_UPDATER = 'tor-pluggable-transports-updater'
@@ -66,24 +65,12 @@ const packageTorPluggableTransports = (binary, endpoint, region, platform, key, 
 }
 
 const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
-  const originalManifest = getOriginalManifest(platform)
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  const outputSnowflake = path.join(outputDir, path.parse(snowflake).base)
-  const outputObfs4 = path.join(outputDir, path.parse(obfs4).base)
-
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
-  }
-
-  mkdirp.sync(outputDir)
-
-  fs.copyFileSync(originalManifest, outputManifest)
-  fs.copyFileSync(snowflake, outputSnowflake)
-  fs.copyFileSync(obfs4, outputObfs4)
-
-  replace.sync(replaceOptions)
+  const files = [
+    { path: getOriginalManifest(platform), outputName: 'manifest.json' },
+    { path: snowflake },
+    { path: obfs4 }
+  ]
+  util.stageFiles(files, version, outputDir)
 }
 
 util.installErrorHandlers()

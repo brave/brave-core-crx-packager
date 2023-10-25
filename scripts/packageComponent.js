@@ -10,25 +10,14 @@ import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import recursive from 'recursive-readdir-sync'
-import replace from 'replace-in-file'
 import util from '../lib/util.js'
 
 async function stageFiles (componentType, datFile, version, outputDir) {
-  let datFileName
-
   if (componentNeedsStraightCopyFromUnpackedDir(componentType)) {
-    const originalDir = getManifestsDirByComponentType(componentType)
-    console.log('Copy dir:', originalDir, ' to:', outputDir)
-    fs.copySync(originalDir, outputDir)
-    if (componentType === 'wallet-data-files-updater') {
-      fs.unlinkSync(path.join(outputDir, 'package.json'))
-    }
+    util.stageDir(getManifestsDirByComponentType(componentType), getOriginalManifest(componentType), version, outputDir)
   } else {
-    const parsedDatFile = path.parse(datFile)
-    const datFileBase = parsedDatFile.base
-    datFileName = getNormalizedDATFileName(parsedDatFile.name)
     const datFileVersion = getDATFileVersionByComponentType(componentType)
-    let outputDatDir = path.join(outputDir, datFileVersion)
+    let outputDatDir = datFileVersion
     if (componentType === 'local-data-files-updater') {
       const index = datFile.indexOf('/dist/')
       if (index !== -1) {
@@ -37,23 +26,20 @@ async function stageFiles (componentType, datFile, version, outputDir) {
         outputDatDir = path.join(outputDatDir, baseDir)
       }
     }
-    const outputDatFile = path.join(outputDatDir, datFileBase)
-    mkdirp.sync(outputDatDir)
-    console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
-    fs.copyFileSync(datFile, outputDatFile)
+    const parsedDatFile = path.parse(datFile)
+    const datFileBase = parsedDatFile.base
+    mkdirp.sync(path.join(outputDir, outputDatDir))
+    const datFileName = getNormalizedDATFileName(parsedDatFile.name)
+    const files = [
+      { path: getOriginalManifest(componentType, datFileName), outputName: 'manifest.json' },
+      { path: datFile, outputName: path.join(outputDatDir, datFileBase) }
+    ]
+    util.stageFiles(files, version, outputDir)
   }
 
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest(componentType, datFileName)
-  const outputManifest = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifest, ' to: ', outputManifest)
-  const replaceOptions = {
-    files: outputManifest,
-    from: /0\.0\.0/,
-    to: version
+  if (componentType === 'wallet-data-files-updater') {
+    fs.unlinkSync(path.join(outputDir, 'package.json'))
   }
-  fs.copyFileSync(originalManifest, outputManifest)
-  replace.sync(replaceOptions)
 }
 
 const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {

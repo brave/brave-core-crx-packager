@@ -7,28 +7,16 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
-import replace from 'replace-in-file'
 import util from '../../lib/util.js'
 import params from './params.js'
 
 const stageFiles = (locale, version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  // Copy resource files
-  const resourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifestPath = getManifestPath(locale)
-  const outputManifestPath = path.join(outputDir, 'manifest.json')
-  console.log('copy manifest file: ', originalManifestPath, ' to: ', outputManifestPath)
-  const replaceOptions = {
-    files: outputManifestPath,
-    from: /0\.0\.0/,
-    to: version
-  }
-  fs.copyFileSync(originalManifestPath, outputManifestPath)
-  replace.sync(replaceOptions)
+  util.stageDir(
+    undefined,
+    path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/'),
+    getManifestPath(locale),
+    version,
+    outputDir)
 }
 
 const generateManifestFile = (regionPlatform, componentData) => {
