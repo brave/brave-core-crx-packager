@@ -11,15 +11,12 @@ import util from '../../lib/util.js'
 import params from './params.js'
 
 const stageFiles = (locale, version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  // Copy resource files
-  const resourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getManifestPath(locale)
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
+  util.stageDir(
+    undefined,
+    path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/'),
+    getManifestPath(locale),
+    version,
+    outputDir)
 }
 
 const generateManifestFile = (regionPlatform, componentData) => {

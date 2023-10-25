@@ -9,16 +9,14 @@ import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
-const stageFiles = (version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  const resourceDir = path.join(path.resolve(), 'build', 'ntp-background-images', 'resources')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest()
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
+const getOriginalManifest = () => {
+  return path.join(path.resolve(), 'build', 'ntp-background-images', 'ntp-background-images-manifest.json')
 }
+
+const stageFiles = util.stageDir.bind(
+  undefined,
+  path.join(path.resolve(), 'build', 'ntp-background-images', 'resources'),
+  getOriginalManifest())
 
 const generateManifestFile = (publicKey) => {
   const manifestFile = getOriginalManifest()
@@ -30,10 +28,6 @@ const generateManifestFile = (publicKey) => {
     version: '0.0.0'
   }
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
-}
-
-const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'build', 'ntp-background-images', 'ntp-background-images-manifest.json')
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,

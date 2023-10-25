@@ -234,15 +234,12 @@ const getComponentDataList = () => {
 }
 
 const stageFiles = (locale, version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  // Copy resource files
-  const resourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest(locale)
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
+  util.stageDir(
+    undefined,
+    path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/'),
+    getOriginalManifest(locale),
+    version,
+    outputDir)
 }
 
 const generateManifestFile = (componentData) => {

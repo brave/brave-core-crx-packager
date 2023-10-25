@@ -13,21 +13,11 @@ import recursive from 'recursive-readdir-sync'
 import util from '../lib/util.js'
 
 async function stageFiles (componentType, datFile, version, outputDir) {
-  let datFileName
-
   if (componentNeedsStraightCopyFromUnpackedDir(componentType)) {
-    const originalDir = getManifestsDirByComponentType(componentType)
-    console.log('Copy dir:', originalDir, ' to:', outputDir)
-    fs.copySync(originalDir, outputDir)
-    if (componentType === 'wallet-data-files-updater') {
-      fs.unlinkSync(path.join(outputDir, 'package.json'))
-    }
+    util.stageDir(getManifestsDirByComponentType(componentType), getOriginalManifest(componentType), version, outputDir)
   } else {
-    const parsedDatFile = path.parse(datFile)
-    const datFileBase = parsedDatFile.base
-    datFileName = getNormalizedDATFileName(parsedDatFile.name)
     const datFileVersion = getDATFileVersionByComponentType(componentType)
-    let outputDatDir = path.join(outputDir, datFileVersion)
+    let outputDatDir = datFileVersion
     if (componentType === 'local-data-files-updater') {
       const index = datFile.indexOf('/dist/')
       if (index !== -1) {
@@ -36,15 +26,20 @@ async function stageFiles (componentType, datFile, version, outputDir) {
         outputDatDir = path.join(outputDatDir, baseDir)
       }
     }
-    const outputDatFile = path.join(outputDatDir, datFileBase)
-    mkdirp.sync(outputDatDir)
-    console.log('copy dat file: ', datFile, ' to: ', outputDatFile)
-    fs.copyFileSync(datFile, outputDatFile)
+    const parsedDatFile = path.parse(datFile)
+    const datFileBase = parsedDatFile.base
+    mkdirp.sync(path.join(outputDir, outputDatDir))
+    const datFileName = getNormalizedDATFileName(parsedDatFile.name)
+    const files = [
+      { path: getOriginalManifest(componentType, datFileName), outputName: 'manifest.json' },
+      { path: datFile, outputName: path.join(outputDatDir, datFileBase) }
+    ]
+    util.stageFiles(files, version, outputDir)
   }
 
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest(componentType, datFileName)
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
+  if (componentType === 'wallet-data-files-updater') {
+    fs.unlinkSync(path.join(outputDir, 'package.json'))
+  }
 }
 
 const componentNeedsStraightCopyFromUnpackedDir = (componentType) => {

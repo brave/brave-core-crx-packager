@@ -13,20 +13,14 @@ import ntpUtil from '../lib/ntpUtil.js'
   NOTE: For historical reason, this is named "Youtubedown" component, but
   we're packaging 'brave/playlist-component'.
 */
-const stageFiles = (version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  const resourceDir = path.join(path.resolve(), 'node_modules', 'playlist-component')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest()
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
-}
-
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'node_modules', 'playlist-component', 'manifest.json')
 }
+
+const stageFiles = util.stageDir.bind(
+  undefined,
+  path.join(path.resolve(), 'node_modules', 'playlist-component'),
+  getOriginalManifest())
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey) => {

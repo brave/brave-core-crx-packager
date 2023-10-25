@@ -10,15 +10,12 @@ import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
 const stageFiles = (superReferrerName, version, outputDir) => {
-  // Copy resources and manifest file to outputDir.
-  // Copy resource files
-  const resourceDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', superReferrerName, '/')
-  console.log('copy dir:', resourceDir, ' to:', outputDir)
-  fs.copySync(resourceDir, outputDir)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest(superReferrerName)
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
+  util.stageDir(
+    undefined,
+    path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', superReferrerName, '/'),
+    getOriginalManifest(superReferrerName),
+    version,
+    outputDir)
 }
 
 const generateManifestFile = (superReferrerName, publicKey) => {

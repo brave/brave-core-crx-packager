@@ -7,7 +7,6 @@
 
 import commander from 'commander'
 import fs from 'fs'
-import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 const ipfsVersion = '0.23.0'
@@ -44,13 +43,11 @@ const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
 }
 
 const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
-  const originalManifest = getOriginalManifest(platform)
-  const outputIpfsClient = path.join(outputDir, path.parse(ipfsDaemon).base)
-
-  mkdirp.sync(outputDir)
-
-  fs.copyFileSync(ipfsDaemon, outputIpfsClient)
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
+  const files = [
+    { path: getOriginalManifest(platform), outputName: 'manifest.json' },
+    { path: ipfsDaemon }
+  ]
+  util.stageFiles(files, version, outputDir)
 }
 
 util.installErrorHandlers()

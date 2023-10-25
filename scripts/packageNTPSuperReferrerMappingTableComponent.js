@@ -10,15 +10,11 @@ import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
 const stageFiles = (version, outputDir) => {
-  // Copy mapping table and manifest file to outputDir.
-  const mapFile = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', 'mapping-table', 'mapping-table.json')
-  const outputMapFile = path.join(outputDir, 'mapping-table.json')
-  console.log('copy ', mapFile, ' to:', outputMapFile)
-  fs.copyFileSync(mapFile, outputMapFile)
-
-  // Fix up the manifest version
-  const originalManifest = getOriginalManifest()
-  util.copyManifestWithVersion(originalManifest, outputDir, version)
+  const files = [
+    { path: getOriginalManifest(), outputName: 'manifest.json' },
+    { path: path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', 'mapping-table', 'mapping-table.json') }
+  ]
+  util.stageFiles(files, version, outputDir)
 }
 
 const generateManifestFile = (publicKey) => {
