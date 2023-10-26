@@ -235,7 +235,6 @@ const getComponentDataList = () => {
 
 const stageFiles = (locale, version, outputDir) => {
   util.stageDir(
-    undefined,
     path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/'),
     getOriginalManifest(locale),
     version,

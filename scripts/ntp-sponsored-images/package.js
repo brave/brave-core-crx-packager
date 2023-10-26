@@ -12,7 +12,6 @@ import params from './params.js'
 
 const stageFiles = (locale, version, outputDir) => {
   util.stageDir(
-    undefined,
     path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/'),
     getManifestPath(locale),
     version,
