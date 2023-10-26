@@ -11,7 +11,6 @@ import ntpUtil from '../lib/ntpUtil.js'
 
 const stageFiles = (superReferrerName, version, outputDir) => {
   util.stageDir(
-    undefined,
     path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', superReferrerName, '/'),
     getOriginalManifest(superReferrerName),
     version,
