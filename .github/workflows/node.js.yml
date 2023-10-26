@@ -31,6 +31,5 @@ jobs:
     - run: npm run lint
     - run: npm test
     - run: npm run data-files-ad-block-rust
-    - run: npm run data-files-https-everywhere
     - run: npm run data-files-local-data-files
     - run: npm audit
