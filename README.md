@@ -57,7 +57,6 @@ where:
 The currently supported component extension types are:
 
 * `ad-block`
-* `https-everywhere`
 * `tor-client`
 * `local-data-files` (formerly `tracking-protection`)
 

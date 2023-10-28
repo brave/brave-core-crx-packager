@@ -57,8 +57,6 @@ const getDATFileVersionByComponentType = (componentType) => {
     case 'ethereum-remote-client':
     case 'wallet-data-files-updater':
       return '0'
-    case 'https-everywhere-updater':
-      return '6.0'
     case 'local-data-files-updater':
       return '1'
     default:
@@ -70,7 +68,6 @@ const getDATFileVersionByComponentType = (componentType) => {
 const validComponentTypes = [
   'ethereum-remote-client',
   'wallet-data-files-updater',
-  'https-everywhere-updater',
   'local-data-files-updater'
 ]
 
@@ -80,7 +77,6 @@ const getManifestsDirByComponentType = (componentType) => {
       return path.join('node_modules', 'ethereum-remote-client')
     case 'wallet-data-files-updater':
       return path.join('node_modules', 'brave-wallet-lists')
-    case 'https-everywhere-updater':
     case 'local-data-files-updater':
       // TODO(emerick): Make these work like ad-block (i.e., update
       // the corresponding repos with a script to generate the
@@ -93,7 +89,6 @@ const getManifestsDirByComponentType = (componentType) => {
 }
 
 const getNormalizedDATFileName = (datFileName) =>
-  datFileName === 'httpse.leveldb' ||
   datFileName === 'Greaselion' ||
   datFileName === 'debounce' ||
   datFileName === 'request-otr' ||
@@ -114,8 +109,6 @@ const getDATFileListByComponentType = (componentType) => {
     case 'ethereum-remote-client':
     case 'wallet-data-files-updater':
       return ['']
-    case 'https-everywhere-updater':
-      return path.join('node_modules', 'https-everywhere-builder', 'out', 'httpse.leveldb.zip').split()
     case 'local-data-files-updater':
       return [path.join('brave-lists', 'debounce.json'),
         path.join('brave-lists', 'request-otr.json'),
@@ -184,7 +177,7 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-t, --type <type>', 'component extension type', /^(https-everywhere-updater|local-data-files-updater|ethereum-remote-client|wallet-data-files-updater)$/i)
+    .option('-t, --type <type>', 'component extension type', /^(local-data-files-updater|ethereum-remote-client|wallet-data-files-updater)$/i)
     .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 
