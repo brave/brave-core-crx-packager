@@ -18,31 +18,27 @@ const getOriginalManifest = () => {
 
 const stageFiles = (version, outputDir) => {
   const datFileVersion = '1'
-  const fileList = [
-    path.join('brave-lists', 'debounce.json'),
-    path.join('brave-lists', 'request-otr.json'),
-    path.join('brave-lists', 'clean-urls.json'),
-    path.join('brave-lists', 'https-upgrade-exceptions-list.txt'),
-    path.join('brave-lists', 'localhost-permission-allow-list.txt')
+  const files = [
+    { path: getOriginalManifest(), outputName: 'manifest.json' },
+    { path: path.join('brave-lists', 'debounce.json'), outputName: path.join(datFileVersion, 'debounce.json') },
+    { path: path.join('brave-lists', 'request-otr.json'), outputName: path.join(datFileVersion, 'request-otr.json') },
+    { path: path.join('brave-lists', 'clean-urls.json'), outputName: path.join(datFileVersion, 'clean-urls.json') },
+    { path: path.join('brave-lists', 'https-upgrade-exceptions-list.txt'), outputName: path.join(datFileVersion, 'https-upgrade-exceptions-list.txt') },
+    { path: path.join('brave-lists', 'localhost-permission-allow-list.txt'), outputName: path.join(datFileVersion, 'localhost-permission-allow-list.txt') }
   ].concat(
-    recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')))
-  fileList.forEach(datFile => {
-    let outputDatDir = datFileVersion
-    const index = datFile.indexOf('/dist/')
-    if (index !== -1) {
-      let baseDir = datFile.substring(index + '/dist/'.length)
+    recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')).map(f => {
+      let outputDatDir = datFileVersion
+      const index = f.indexOf('/dist/')
+      let baseDir = f.substring(index + '/dist/'.length)
       baseDir = baseDir.substring(0, baseDir.lastIndexOf('/'))
       outputDatDir = path.join(outputDatDir, baseDir)
-    }
-    const parsedDatFile = path.parse(datFile)
-    const datFileBase = parsedDatFile.base
-    mkdirp.sync(path.join(outputDir, outputDatDir))
-    const files = [
-      { path: getOriginalManifest(), outputName: 'manifest.json' },
-      { path: datFile, outputName: path.join(outputDatDir, datFileBase) }
-    ]
-    util.stageFiles(files, version, outputDir)
-  })
+      mkdirp.sync(path.join(outputDir, outputDatDir))
+      return {
+        path: f,
+        outputName: path.join(outputDatDir, path.parse(f).base)
+      }
+    }))
+  util.stageFiles(files, version, outputDir)
 }
 
 const postNextVersionWork = (key, publisherProofKey, binary, localRun, version) => {
