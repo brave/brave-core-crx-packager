@@ -233,7 +233,7 @@ const getComponentDataList = () => {
     {
       locale: 'iso_639_1_en',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzngyM+Pe2FfLj208mi07ZkPKHnPwEHa+WynJbADoRWyfcSz+OPL4YSrXOur9q9gYG3R8sBjSYGSkm3cdUqm/eP5VVr+yWUr8Vt+0GomIev1i4CT95RL40Lxn/JJgCpbimwb8BFh22e15k2Glo75oC1zp5g264D2A+kLMWflLPaEEyLDs0m3LuRO2JeTJ77OcElWwF13m/3v1jKQJNM4cVh3ZPd0AfN0ogmZ9TMP56SuJu+PsiYyYB0nfDhF9P9rJwp4OlwKKkaBMiUJ0k6ywmmuhE8B670WCBnwuxiMuCffcT7ddhoSrqNijRyh2J2f4zJ4rXCi+qvYyHDQbEJp6FQIDAQAB',
-      id: 'mlhrirukbjwwthagksxkbxzzffdmfebp'
+      id: 'cjmmboogmlmkpeppjmoepfjbljeajcib'
     }
   ]
 }
