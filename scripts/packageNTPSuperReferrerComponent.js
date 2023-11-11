@@ -4,7 +4,6 @@
 
 import commander from 'commander'
 import fs from 'fs-extra'
-import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
@@ -36,12 +35,10 @@ const getOriginalManifest = (superReferrerName) => {
 const generateCRXFile = (binary, endpoint, region, superReferrerName,
   componentID, privateKeyFile, publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer')
+
   const stagingDir = path.join(rootBuildDir, 'staging', superReferrerName)
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
+  const crxFile = path.join(rootBuildDir, 'output', `ntp-super-referrer-${superReferrerName}.crx`)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-super-referrer-${superReferrerName}.crx`)
     stageFiles(superReferrerName, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)

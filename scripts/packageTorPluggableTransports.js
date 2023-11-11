@@ -46,18 +46,17 @@ const getOriginalManifest = (platform) => {
 }
 
 const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey) => {
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
-    const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
-    const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
+  const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
+  const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
 
-    const stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, platform)
-    const crxOutputDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER)
-    const crxFile = path.join(crxOutputDir, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
-    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
+  const stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, platform)
+  const crxFile = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
+  util.getNextVersion(endpoint, region, id).then((version) => {
     stageFiles(platform, snowflake, obfs4, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)

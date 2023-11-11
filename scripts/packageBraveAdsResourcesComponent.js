@@ -270,14 +270,12 @@ const getOriginalManifest = (locale) => {
 const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
   componentData) => {
   const locale = componentData.locale
+  const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
   const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
+
   const stagingDir = path.join(rootBuildDir, 'staging', locale)
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
+  const crxFile = path.join(rootBuildDir, 'output', `user-model-installer-${locale}.crx`)
   util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
-    const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
     stageFiles(locale, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)

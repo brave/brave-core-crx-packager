@@ -45,8 +45,7 @@ const postNextVersionWork = (key, publisherProofKey, binary, localRun, version) 
   const componentType = 'local-data-files-updater'
   const datFileName = 'default'
   const stagingDir = path.join('build', componentType, datFileName)
-  const crxOutputDir = path.join('build', componentType)
-  const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
+  const crxFile = path.join('build', componentType, `${componentType}-${datFileName}.crx`)
   let privateKeyFile = ''
   if (!localRun) {
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)

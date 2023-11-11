@@ -4,7 +4,6 @@
 
 import commander from 'commander'
 import fs from 'fs-extra'
-import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
@@ -21,12 +20,10 @@ const stageFiles = util.stageDir.bind(
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'playlist')
+
   const stagingDir = path.join(rootBuildDir, 'staging')
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
+  const crxFile = path.join(rootBuildDir, 'output', 'playlist.crx')
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, 'playlist.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)

@@ -48,15 +48,13 @@ function getManifestPath (regionPlatform) {
 
 const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
   componentData, publisherProofKey) => {
+  // Desktop private key file names do not have the -desktop suffix, but android has -android
+  const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
+
   const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
+  const crxFile = path.join(rootBuildDir, 'output', `ntp-sponsored-images-${platformRegion}.crx`)
   util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-sponsored-images-${platformRegion}.crx`)
-    // Desktop private key file names do not have the -desktop suffix, but android has -android
-    const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
     stageFiles(platformRegion, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)

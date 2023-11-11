@@ -25,16 +25,15 @@ const getOriginalManifest = (platform) => {
 const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
   publisherProofKey) => {
   const platform = `${os}-${arch}`
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+  const ipfsDaemon = getIpfsDaemonPath(os, arch)
 
+  const stagingDir = path.join('build', 'ipfs-daemon-updater', platform)
+  const crxFile = path.join('build', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}.crx`)
   util.getNextVersion(endpoint, region, id).then((version) => {
-    const stagingDir = path.join('build', 'ipfs-daemon-updater', platform)
-    const ipfsDaemon = getIpfsDaemonPath(os, arch)
-    const crxOutputDir = path.join('build', 'ipfs-daemon-updater')
-    const crxFile = path.join(crxOutputDir, `ipfs-daemon-updater-${platform}.crx`)
-    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
     stageFiles(platform, ipfsDaemon, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)

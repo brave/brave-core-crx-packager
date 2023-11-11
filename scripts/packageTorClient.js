@@ -69,16 +69,15 @@ const getOriginalManifest = (platform) => {
 
 const packageTorClient = (binary, endpoint, region, platform, key,
   publisherProofKey) => {
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+  const torClient = downloadTorClient(platform)
 
+  const stagingDir = path.join('build', 'tor-client-updater', platform)
+  const crxFile = path.join('build', 'tor-client-updater', `tor-client-updater-${platform}.crx`)
   util.getNextVersion(endpoint, region, id).then((version) => {
-    const stagingDir = path.join('build', 'tor-client-updater', platform)
-    const torClient = downloadTorClient(platform)
-    const crxOutputDir = path.join('build', 'tor-client-updater')
-    const crxFile = path.join(crxOutputDir, `tor-client-updater-${platform}.crx`)
-    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
     stageFiles(platform, torClient, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)

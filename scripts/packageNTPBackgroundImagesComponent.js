@@ -4,7 +4,6 @@
 
 import commander from 'commander'
 import fs from 'fs-extra'
-import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
@@ -33,12 +32,10 @@ const generateManifestFile = (publicKey) => {
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-background-images')
+
   const stagingDir = path.join(rootBuildDir, 'staging')
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
+  const crxFile = path.join(rootBuildDir, 'output', 'ntp-background-images.crx')
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, 'ntp-background-images.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)

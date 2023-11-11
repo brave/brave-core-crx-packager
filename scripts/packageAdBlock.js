@@ -22,17 +22,17 @@ async function stageFiles (version, outputDir) {
 
 const postNextVersionWork = (componentSubdir, key, publisherProofKey,
   binary, localRun, version, contentHash) => {
+  const crxName = `ad-block-updater-${componentSubdir}`
+  const privateKeyFile = path.join(key, `${crxName}.pem`)
   const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
-  const crxOutputDir = path.join('build', 'ad-block-updater')
-  const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
-  const contentHashFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.contentHash`)
+  const crxFile = path.join('build', 'ad-block-updater', `${crxName}.crx`)
+  const contentHashFile = path.join('build', 'ad-block-updater', `${crxName}.contentHash`)
   stageFiles(version, stagingDir).then(() => {
     // Remove any existing `.contentHash` file for determinism
     if (fs.existsSync(contentHashFile)) {
       fs.unlinkSync(contentHashFile)
     }
     if (!localRun) {
-      const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
         stagingDir)
     }

@@ -44,12 +44,13 @@ const getOriginalManifest = (componentType) => {
 
 const postNextVersionWork = (componentType, key, publisherProofKey,
   binary, localRun, version) => {
-  const stagingDir = path.join('build', componentType)
-  const crxFile = path.join(stagingDir, `${componentType}.crx`)
   let privateKeyFile = ''
   if (!localRun) {
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}.pem`)
   }
+
+  const stagingDir = path.join('build', componentType)
+  const crxFile = path.join(stagingDir, `${componentType}.crx`)
   stageFiles(componentType, version, stagingDir)
   if (!localRun) {
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
