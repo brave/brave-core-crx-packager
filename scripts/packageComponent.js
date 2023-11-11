@@ -42,45 +42,37 @@ const getOriginalManifest = (componentType) => {
   return path.join(getPackageDirByComponentType(componentType), 'manifest.json')
 }
 
-const postNextVersionWork = (componentType, key, publisherProofKey,
-  binary, localRun, version) => {
-  let privateKeyFile = ''
-  if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}.pem`)
-  }
-
-  const stagingDir = path.join('build', componentType)
-  const crxFile = path.join(stagingDir, `${componentType}.crx`)
-  stageFiles(componentType, version, stagingDir)
-  if (!localRun) {
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-  }
-  console.log(`Generated ${crxFile} with version number ${version}`)
-}
-
-const processDATFile = (binary, endpoint, region, componentType, key,
+const generateCRXFile = async (binary, endpoint, region, componentType, key,
   publisherProofKey, localRun) => {
   const originalManifest = getOriginalManifest(componentType)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
+  let privateKeyFile = ''
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(componentType, key, publisherProofKey,
-        binary, localRun, version)
-    })
-  } else {
-    postNextVersionWork(componentType, key, publisherProofKey,
-      binary, localRun, '1.0.0')
+    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}.pem`)
   }
+  const stagingDir = path.join('build', componentType)
+  const crxFile = path.join(stagingDir, `${componentType}.crx`)
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    id,
+    stageFiles.bind(undefined, componentType),
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    localRun)
 }
 
-const processJob = (commander, keyParam) => {
+const processJob = async (commander, keyParam) => {
   if (!validComponentTypes.includes(commander.type)) {
     throw new Error('Unrecognized component extension type: ' + commander.type)
   }
-  processDATFile(commander.binary, commander.endpoint,
+  await generateCRXFile(commander.binary, commander.endpoint,
     commander.region, commander.type, keyParam,
     commander.publisherProofKey,
     commander.localRun)
@@ -109,8 +101,8 @@ if (!commander.localRun) {
 }
 
 if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyParam)
+  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
+    await processJob(commander, keyParam)
   })
 } else {
   processJob(commander, keyParam)

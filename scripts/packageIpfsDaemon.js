@@ -22,7 +22,7 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}-manifest.json`)
 }
 
-const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
+const packageIpfsDaemon = async (binary, endpoint, region, os, arch, key,
   publisherProofKey) => {
   const platform = `${os}-${arch}`
   const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
@@ -33,12 +33,18 @@ const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
 
   const stagingDir = path.join('build', 'ipfs-daemon-updater', platform)
   const crxFile = path.join('build', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}.crx`)
-  util.getNextVersion(endpoint, region, id).then((version) => {
-    stageFiles(platform, ipfsDaemon, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    id,
+    stageFiles.bind(undefined, platform, ipfsDaemon),
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    false)
 }
 
 const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
@@ -67,17 +73,17 @@ if (fs.existsSync(commander.keyFile)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
+  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'darwin', 'amd64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'darwin', 'arm64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'linux', 'amd64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'linux', 'arm64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'win32', 'amd64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
     'win32', 'arm64', keyParam, commander.publisherProofKey)
 })

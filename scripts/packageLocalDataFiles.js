@@ -41,41 +41,35 @@ const stageFiles = (version, outputDir) => {
   util.stageFiles(files, version, outputDir)
 }
 
-const postNextVersionWork = (key, publisherProofKey, binary, localRun, version) => {
-  const componentType = 'local-data-files-updater'
-  const datFileName = 'default'
-  const stagingDir = path.join('build', componentType, datFileName)
-  const crxFile = path.join('build', componentType, `${componentType}-${datFileName}.crx`)
-  let privateKeyFile = ''
-  if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
-  }
-  stageFiles(version, stagingDir)
-  if (!localRun) {
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-  }
-  console.log(`Generated ${crxFile} with version number ${version}`)
-}
-
-const processDATFile = (binary, endpoint, region, key, publisherProofKey, localRun) => {
+const generateCRXFile = async (binary, endpoint, region, key, publisherProofKey, localRun) => {
   const originalManifest = getOriginalManifest()
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
+  const componentType = 'local-data-files-updater'
+  const datFileName = 'default'
+  let privateKeyFile = ''
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(key, publisherProofKey,
-        binary, localRun, version)
-    })
-  } else {
-    postNextVersionWork(key, publisherProofKey,
-      binary, localRun, '1.0.0')
+    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
   }
+  const stagingDir = path.join('build', componentType, datFileName)
+  const crxFile = path.join('build', componentType, `${componentType}-${datFileName}.crx`)
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    id,
+    stageFiles,
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    localRun)
 }
 
-const processJob = (commander, keyParam) => {
-  processDATFile(commander.binary, commander.endpoint, commander.region,
+const processJob = async (commander, keyParam) => {
+  await generateCRXFile(commander.binary, commander.endpoint, commander.region,
     keyParam, commander.publisherProofKey, commander.localRun)
 }
 
@@ -101,8 +95,8 @@ if (!commander.localRun) {
 }
 
 if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyParam)
+  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
+    await processJob(commander, keyParam)
   })
 } else {
   processJob(commander, keyParam)

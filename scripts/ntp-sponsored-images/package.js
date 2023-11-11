@@ -46,7 +46,7 @@ function getManifestPath (regionPlatform) {
   return path.join(getManifestsDir(), `${regionPlatform}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
+const generateCRXFile = async (binary, endpoint, region, keyDir, platformRegion,
   componentData, publisherProofKey) => {
   // Desktop private key file names do not have the -desktop suffix, but android has -android
   const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
@@ -54,12 +54,18 @@ const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
 
   const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
   const crxFile = path.join(rootBuildDir, 'output', `ntp-sponsored-images-${platformRegion}.crx`)
-  util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    stageFiles(platformRegion, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    componentData.id,
+    stageFiles.bind(undefined, platformRegion),
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    false)
 }
 
 util.installErrorHandlers()
@@ -80,11 +86,11 @@ if (fs.existsSync(commander.keysDirectory)) {
 
 const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
   for (const platformRegion of Object.keys(targetComponents)) {
     const componentData = targetComponents[platformRegion]
     generateManifestFile(platformRegion, componentData)
-    generateCRXFile(commander.binary, commander.endpoint, commander.region,
+    await generateCRXFile(commander.binary, commander.endpoint, commander.region,
       keyDir, platformRegion, componentData,
       commander.publisherProofKey)
   }

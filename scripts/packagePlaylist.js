@@ -17,18 +17,24 @@ const stageFiles = util.stageDir.bind(
   path.join(path.resolve(), 'node_modules', 'playlist-component'),
   getOriginalManifest())
 
-const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
+const generateCRXFile = async (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'playlist')
 
   const stagingDir = path.join(rootBuildDir, 'staging')
   const crxFile = path.join(rootBuildDir, 'output', 'playlist.crx')
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
-    stageFiles(version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    componentID,
+    stageFiles,
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    false)
 }
 
 util.installErrorHandlers()
@@ -45,8 +51,8 @@ if (fs.existsSync(commander.key)) {
   throw new Error('Missing or invalid private key')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
   const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region,
+  await generateCRXFile(commander.binary, commander.endpoint, commander.region,
     componentID, privateKeyFile, commander.publisherProofKey)
 })

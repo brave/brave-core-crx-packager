@@ -12,7 +12,7 @@ import path from 'path'
 import util from '../lib/util.js'
 import { getListCatalog, regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
 
-async function stageFiles (version, outputDir) {
+function stageFiles (version, outputDir) {
   // ad-block components are already written in the output directory
   // so we don't need to stage anything
   const originalManifest = path.join(outputDir, 'manifest.json')
@@ -20,68 +20,53 @@ async function stageFiles (version, outputDir) {
   util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
-const postNextVersionWork = (componentSubdir, key, publisherProofKey,
-  binary, localRun, version, contentHash) => {
-  const crxName = `ad-block-updater-${componentSubdir}`
-  const privateKeyFile = path.join(key, `${crxName}.pem`)
-  const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
-  const crxFile = path.join('build', 'ad-block-updater', `${crxName}.crx`)
-  const contentHashFile = path.join('build', 'ad-block-updater', `${crxName}.contentHash`)
-  stageFiles(version, stagingDir).then(() => {
-    // Remove any existing `.contentHash` file for determinism
-    if (fs.existsSync(contentHashFile)) {
-      fs.unlinkSync(contentHashFile)
-    }
-    if (!localRun) {
-      util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-        stagingDir)
-    }
-    if (contentHash !== undefined) {
-      fs.writeFileSync(contentHashFile, contentHash)
-    }
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
-}
-
 const getOriginalManifest = (componentSubdir) => {
   const manifestsDir = path.join('build', 'ad-block-updater')
   return path.join(manifestsDir, componentSubdir, 'manifest.json')
 }
 
-const processComponent = (binary, endpoint, region, keyDir,
+const processComponent = async (binary, endpoint, region, keyDir,
   publisherProofKey, localRun, componentSubdir) => {
   const originalManifest = getOriginalManifest(componentSubdir)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  let fileToHash
-  if (componentSubdir === regionalCatalogComponentId) {
-    fileToHash = 'regional_catalog.json'
-  } else if (componentSubdir === resourcesComponentId) {
-    fileToHash = 'resources.json'
-  } else {
-    fileToHash = 'list.txt'
+  const crxName = `ad-block-updater-${componentSubdir}`
+  const privateKeyFile = localRun ? undefined : path.join(keyDir, `${crxName}.pem`)
+  const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
+  const crxFile = path.join('build', 'ad-block-updater', `${crxName}.crx`)
+  const contentHashFile = path.join('build', 'ad-block-updater', `${crxName}.contentHash`)
+
+  const contentHashFn = () => {
+    let fileToHash
+    if (componentSubdir === regionalCatalogComponentId) {
+      fileToHash = 'regional_catalog.json'
+    } else if (componentSubdir === resourcesComponentId) {
+      fileToHash = 'resources.json'
+    } else {
+      fileToHash = 'list.txt'
+    }
+    if (fileToHash !== undefined) {
+      const contentFile = path.join('build', 'ad-block-updater', componentSubdir, fileToHash)
+      return util.generateSHA256HashOfFile(contentFile)
+    } else {
+      return undefined
+    }
   }
 
-  let contentHash
-  if (fileToHash !== undefined) {
-    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, fileToHash)
-    contentHash = util.generateSHA256HashOfFile(contentFile)
-  }
-
-  if (!localRun) {
-    util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
-      if (version !== undefined) {
-        postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
-          binary, localRun, version, contentHash)
-      } else {
-        console.log('content for ' + id + ' was not updated, skipping!')
-      }
-    })
-  } else {
-    postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      binary, localRun, '1.0.0', contentHash)
-  }
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    id,
+    stageFiles,
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    localRun,
+    contentHashFn,
+    contentHashFile)
 }
 
 const getComponentList = async () => {

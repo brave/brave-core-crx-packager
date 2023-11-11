@@ -32,18 +32,24 @@ const getOriginalManifest = (superReferrerName) => {
   return path.join(path.resolve(), 'build', 'ntp-super-referrer', `${superReferrerName}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, superReferrerName,
+const generateCRXFile = async (binary, endpoint, region, superReferrerName,
   componentID, privateKeyFile, publisherProofKey) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer')
 
   const stagingDir = path.join(rootBuildDir, 'staging', superReferrerName)
   const crxFile = path.join(rootBuildDir, 'output', `ntp-super-referrer-${superReferrerName}.crx`)
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
-    stageFiles(superReferrerName, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    componentID,
+    stageFiles.bind(undefined, superReferrerName),
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    false)
 }
 
 util.installErrorHandlers()
@@ -61,10 +67,10 @@ if (fs.existsSync(commander.key)) {
   throw new Error('Missing or invalid private key')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(commander.superReferrerName, publicKey)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region,
+  await generateCRXFile(commander.binary, commander.endpoint, commander.region,
     commander.superReferrerName, componentID, privateKeyFile,
     commander.publisherProofKey)
 })

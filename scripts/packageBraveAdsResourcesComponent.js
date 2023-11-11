@@ -267,7 +267,7 @@ const getOriginalManifest = (locale) => {
   return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
+const generateCRXFile = async (binary, endpoint, region, keyDir, publisherProofKey,
   componentData) => {
   const locale = componentData.locale
   const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
@@ -275,12 +275,18 @@ const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
 
   const stagingDir = path.join(rootBuildDir, 'staging', locale)
   const crxFile = path.join(rootBuildDir, 'output', `user-model-installer-${locale}.crx`)
-  util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    stageFiles(locale, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+
+  util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    componentData.id,
+    stageFiles.bind(undefined, locale),
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    false)
 }
 
 util.installErrorHandlers()
@@ -297,10 +303,10 @@ if (fs.existsSync(commander.keysDirectory)) {
   throw new Error('Missing or invalid private key directory')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
   generateManifestFiles()
-  getComponentDataList().forEach(
+  await Promise.all(getComponentDataList().map(
     generateCRXFile.bind(null, commander.binary, commander.endpoint,
       commander.region, keyDir,
-      commander.publisherProofKey))
+      commander.publisherProofKey)))
 })

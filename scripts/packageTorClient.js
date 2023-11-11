@@ -67,7 +67,7 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
 }
 
-const packageTorClient = (binary, endpoint, region, platform, key,
+const packageTorClient = async (binary, endpoint, region, platform, key,
   publisherProofKey) => {
   const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
   const originalManifest = getOriginalManifest(platform)
@@ -77,12 +77,18 @@ const packageTorClient = (binary, endpoint, region, platform, key,
 
   const stagingDir = path.join('build', 'tor-client-updater', platform)
   const crxFile = path.join('build', 'tor-client-updater', `tor-client-updater-${platform}.crx`)
-  util.getNextVersion(endpoint, region, id).then((version) => {
-    stageFiles(platform, torClient, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    id,
+    stageFiles.bind(undefined, platform, torClient),
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    false)
 }
 
 const stageFiles = (platform, torClient, version, outputDir) => {
@@ -120,13 +126,13 @@ if (fs.existsSync(commander.keyFile)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
+util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
+  await packageTorClient(commander.binary, commander.endpoint, commander.region,
     'darwin', keyParam, commander.publisherProofKey)
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
+  await packageTorClient(commander.binary, commander.endpoint, commander.region,
     'linux', keyParam, commander.publisherProofKey)
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
+  await packageTorClient(commander.binary, commander.endpoint, commander.region,
     'linux-arm64', keyParam, commander.publisherProofKey)
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
+  await packageTorClient(commander.binary, commander.endpoint, commander.region,
     'win32', keyParam, commander.publisherProofKey)
 })

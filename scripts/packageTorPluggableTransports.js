@@ -45,7 +45,7 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`)
 }
 
-const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey) => {
+const packageTorPluggableTransports = async (binary, endpoint, region, platform, key, publisherProofKey) => {
   const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
@@ -56,11 +56,18 @@ const packageTorPluggableTransports = (binary, endpoint, region, platform, key, 
 
   const stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, platform)
   const crxFile = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
-  util.getNextVersion(endpoint, region, id).then((version) => {
-    stageFiles(platform, snowflake, obfs4, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey, stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    id,
+    stageFiles.bind(undefined, platform, snowflake, obfs4),
+    stagingDir,
+    crxFile,
+    privateKeyFile,
+    false)
 }
 
 const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
@@ -90,11 +97,11 @@ if (fs.existsSync(commander.keyFile)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
+util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
+  await packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
     'darwin', keyParam, commander.publisherProofKey)
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
+  await packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
     'linux', keyParam, commander.publisherProofKey)
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
+  await packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
     'win32', keyParam, commander.publisherProofKey)
 })
