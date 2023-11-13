@@ -232,8 +232,13 @@ const getComponentDataList = () => {
     },
     {
       locale: 'iso_639_1_en',
-      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzQ4G7payAy40xArtOZLV4hVGJNS+WWm4p7ISQs9q58EOquZB4Z01K320oqQoGPZSbY26+wfGTOXOpAQW7lV1ThMHcb5fZVUuWNkpta+TjKYz88B30ZCTDeokhjPT5KRPYGODvimMNQ9pWtgxYY+asuEnQdO1w92zCmEHR4KdylyDGiPuKERLqWWs5hjKZv5Zg6242Q64pcZc59lUly8Xu48IbROefZm19w6W3syMK3MBqwQ3m/DXeTzJ9xuNZ8ARPnOUL4EvDm4INuDwxWzgPeavIU8bewgfa4+bGYmmrQ0mPJ6bkUzMIeaYtXQMPdD+SBNYUH7ZPAlWK8aZNTZ/TQIDAQAB',
-      id: 'kglppciafpehhjdhgefiljcmemakfjhk'
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp3999qnB5RBaRYj2VwIgbHUyPrfwXsFVn8apmCcT23UHO33cAGHDVKSKvmpXn1L+jBfThPjY9EtW5yA1+6tmC7iJIesJjWbM/G/JA9Btc6f58a0xuPa86goCM10/EocttsoheOzi7A4DUGqCAhBh2HwhzRWxmJnYURtYJz5jX+gLbE8m0mxHZLktKIBPVqw3CbKeWN5kU1Pppg+Wh/xdTxOXhwBo6MNWog+oZEzSSvJ5zY1/vfX0VIMVYiHyNFvyNf5Bdu7aK9PDj3iQs6s5Ru7ahAQg2RglbvI7Axr4eSgKaxg6k/n6h83ltWdAoZqwbC07U0NIb9MtXmZLU76+OwIDAQAB',
+      id: 'ocilmpijebaopmdifcomolmpigakocmo'
+    },
+    {
+      locale: 'iso_639_1_es',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv0BM4xF02OwjKxXbWA5EYzHOGQoK6enQBFPDy6nzOqSk02qpn6jDGpfbWi1rCsxp5RoBO8uhZLO4O/aJOGok9zQ/SuzhQDcgB08l1NwCwMQEojrkMKo64cQaymN5WUictvEOIn0bD4X2H0+BzIl/QJFOwGiZDIiw5ducDlXq8ciWKxN2ZZv4gIV1S5mm23x4/Qj8RY+uHV7+dSTSAYswG2+gjuULj+cPSlmaJHcNs/HWaeg+gSwTxYcMEK7keuEf0YMbN7vfGT3Zx+dmB67uMZ8fAR0tjSeNizpzaoUdrXA/okA04+v64+5YCyPuU+zzVk+NoP6UbKhvHTLJGGqK/wIDAQAB',
+      id: 'elecgkckipdmnkkgndidemmdhdcdfhnp'
     }
   ]
 }
