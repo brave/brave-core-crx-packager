@@ -1,6 +1,6 @@
 # Changelog
 
-## Updated kubo to 0.24.0, from 0.23.0 (21-Nov-2023)
+## Updated kubo to 0.24.0, from 0.23.0 (23-Nov-2023)
 - [brave-browser#34188](https://github.com/brave/brave-browser/issues/34188) - Update kubo to 0.24.0
 - For full changelog, see https://github.com/ipfs/kubo/releases/tag/v0.24.0
 
