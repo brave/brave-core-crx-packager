@@ -12,7 +12,7 @@
     "ethereum-remote-client": "0.1.107",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
-    "@sentry/node": "7.81.1",
+    "@sentry/node": "7.82.0",
     "tmp": "0.2.1",
     "unzip-crx-3": "0.2.0"
   },
