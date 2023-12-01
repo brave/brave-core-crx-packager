@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This component is for the Brave Player feature, which supports playback of third-party videos in a controlled environment.
+//
+// The component ships a test script that can be injected into supported webpages.
+// The test script notifies the browser of optimal times to suggest enabling the Brave Player feature.
+
 // Example usage:
 //  npm run package-brave-player -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/brave-player.pem
 
