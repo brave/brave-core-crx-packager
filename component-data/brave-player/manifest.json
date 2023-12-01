@@ -1,0 +1,7 @@
+{
+    "description": "Files for the Brave Player feature",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2DxY0UhAdz0JjOOZo+NH67etkNOyHsHA5nS+IUHZP3+zBzEYL9EHuxlOkEWsGwvUpluhdhR58HF+PxU/KHEivWjy/vV30k0ST98mO2Vp2hjoBXU5lluhoZJSDRaBQ6S2zwGZmIHGfQvE0bNJD2esZx0hRiZT79swcy/9NOq6nhxbaRwx//qWjaWsYg5RAP257XjpWpXTl+Ncg61zCDTrM/rHzDVKD+d6MODiGZ7Ytwf/95VDPN+XNmHlmcLh8ilNU4uK4qDFNcEPH0FqLvkM8NBWb4fKecl5OVUjIfzgkwnKaIatoSsPCkEotO2w+L6nwzsdgm0Tr+CqvHrCqTRo8QIDAQAB",
+    "manifest_version": 2,
+    "name": "Brave Player files",
+    "version": "0.0.0"
+}
