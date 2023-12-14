@@ -5,6 +5,7 @@
 import { Engine, FilterSet, RuleTypes } from 'adblock-rs'
 import { generateResourcesFile, getListCatalog, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
 import Sentry from '../lib/sentry.js'
+import commander from 'commander'
 import util from '../lib/util.js'
 import path from 'path'
 import fs from 'fs'
@@ -146,9 +147,24 @@ const generateDataFilesForDefaultAdblock = () => getDefaultLists()
   // default adblock DAT component requires this for historical reasons
   .then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
 
-generateDataFilesForDefaultAdblock()
-  .then(generateDataFilesForResourcesComponent)
-  .then(generateDataFilesForAllRegions)
+const generationMap = new Map([
+  ['default', generateDataFilesForDefaultAdblock],
+  ['resources', generateDataFilesForResourcesComponent],
+  ['regions', generateDataFilesForAllRegions],
+]);
+
+const allFiles = Array.from(generationMap.keys());
+
+commander
+  .option('-f, --files [files...]', `select which data files to generate (${allFiles})`, allFiles.join(' '))
+  .parse(process.argv)
+
+let promise = Promise.resolve();
+commander.files.trim().split(' ').forEach(fileType => {
+  promise = promise.then(generationMap.get(fileType))
+})
+
+promise
   .then(() => {
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')
   })
