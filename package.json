@@ -21,7 +21,7 @@
     "fs-extra": "11.2.0",
     "level": "8.0.0",
     "mkdirp": "3.0.1",
-    "replace-in-file": "7.0.2",
+    "replace-in-file": "7.1.0",
     "rimraf": "5.0.5",
     "standard": "17.1.0"
   },
