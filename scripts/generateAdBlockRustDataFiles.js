@@ -3,7 +3,15 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Engine, FilterSet, RuleTypes } from 'adblock-rs'
-import { generateResourcesFile, getListCatalog, getDefaultLists, getRegionalLists, resourcesComponentId, regionalCatalogComponentId } from '../lib/adBlockRustUtils.js'
+import {
+  generateResourcesFile,
+  getListCatalog,
+  getDefaultLists,
+  getRegionalLists,
+  resourcesComponentId,
+  regionalCatalogComponentId,
+  sanityCheckList
+} from '../lib/adBlockRustUtils.js'
 import Sentry from '../lib/sentry.js'
 import util from '../lib/util.js'
 import path from 'path'
@@ -90,10 +98,15 @@ const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
-    promises.push(util.fetchTextFromURL(l.url).then(data => ({ title: l.title || entry.title, format: l.format, data })))
+    promises.push(util.fetchTextFromURL(l.url)
+      .then(data => ({ title: l.title || entry.title, format: l.format, data }))
+      .then(listBuffer => {
+        sanityCheckList(listBuffer)
+        return listBuffer
+      })
+    )
   })
   return Promise.all(promises)
-    .catch()
     .then(
       (listBuffers) => {
         generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
