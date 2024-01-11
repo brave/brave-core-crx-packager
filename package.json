@@ -6,8 +6,8 @@
   "dependencies": {
     "adblock-rs": "0.8.5",
     "ajv": "8.12.0",
-    "@aws-sdk/client-dynamodb": "3.485.0",
-    "@aws-sdk/client-s3": "3.485.0",
+    "@aws-sdk/client-dynamodb": "3.489.0",
+    "@aws-sdk/client-s3": "3.489.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "ethereum-remote-client": "0.1.107",
     "playlist-component": "github:brave/playlist-component",
