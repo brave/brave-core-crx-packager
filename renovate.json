@@ -4,7 +4,7 @@
   ],
   "packageRules": [
     {
-      "packageNames": ["aws-sdk-js-v3"],
+      "packageNames": ["@aws-sdk", "@sentry/node"],
       "matchUpdateTypes": ["patch", "minor"],
       "automerge": true
     }
