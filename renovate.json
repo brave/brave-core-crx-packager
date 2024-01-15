@@ -4,7 +4,7 @@
   ],
   "packageRules": [
     {
-      "packageNames": ["@aws-sdk", "@sentry/node"],
+      "packageNames": ["@aws-sdk", "@aws-sdk/client-dynamodb", "@aws-sdk/client-s3", "@sentry/node"],
       "matchUpdateTypes": ["patch", "minor"],
       "automerge": true
     }
