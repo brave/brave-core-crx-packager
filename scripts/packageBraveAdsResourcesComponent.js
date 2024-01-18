@@ -236,11 +236,6 @@ const getComponentDataList = () => {
       id: 'knjanagkmnjgjjiekhmhclcbcdbjajmk'
     },
     {
-      locale: 'iso_639_1_zh',
-      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5gsdeMl6rI/OmDF5uxPEMJ+7CyMDDHoi61AZS+cp+DquTRWRvgPgwde5G/xihE3kIfcyG9yfRtxH11c7ftTCmbdE+h8Q+10ERbP5yHf2ZeYhSr8XqzZdfoppxRpqIerRl4gtPxuEek/yLJRBnjaBqbljHOTEe2Wh1tbS3jAWd+joPE1HVU2rz/axo1t/M8Ge+IWp38xOu7lss7118imi+RiePg1+dNt+F0aP2IjIw4COAF4CIaMqvhJEh/oupZJ6vNsciqJ/xRE+N6bSoZ6xSV4XvCj6S1LKwKa/ssyCsWkQtKCClfQKBh3enpB1p4Inwl1sybsLqp/P7Y2ixbHIAQIDAQAB',
-      id: 'clegognodnfcpbmhpfgbpckebppbaebp'
-    },
-    {
       locale: 'iso_639_1_nl',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqmvrb9bQRc3l6huDHj2XAICyzaGpqCFJhmEeYt3MwoCUAol2BwYCjLJiVSl2h7raeukW0HSZGj+VO89SUDjeGKPmDqNjZ5UOTHcTEsUTvOTdjV40g7/6OYEA70KkMQyz2ep2Rpb4ep+Us6+9K/X9JtGni5PbeB2ksl91ZH3AYnfpAMa6pFXGO54L3IA5Uj4EPx7cdCy24g0jrNN33WOA6DPTGaGhvrAmaTjj5AGuPmf3RRfr6Mo8+dNqpIRuhm4OQPHq0JNhupKXedTvuKGabgqQPr7VrL9YScz+s4mdioi95x65KixKf9+ugKBvesWgkDILC801jkA8GOcUiW7WWQIDAQAB',
       id: 'neglbnegiidighiifljiphcldmgibifn'
@@ -281,11 +276,6 @@ const getComponentDataList = () => {
       id: 'apaklaabmoggbjglopdnboibkipdindg'
     },
     {
-      locale: 'iso_639_1_ja',
-      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsv0yCEjWOtSR8uZJvHCeUY9LrfvlxB915s/rMPAEMm5cKyDySJm/CRV0SZIl+4Ntxqd8axkbvNuMrz1Sy7M4NcIHOiWetOu3h8W+b1VfLrX+JLlLVVS6uxTm/h3ymz7UF9+ymiXIfqBkZ3UZTFXPU3J3HsSMLKiqogYtBNtudh5Bz51fAVB4PLjWHqnTFk037702zLda1aqhw/Jodg0IR63M5sIoX5qF4te5k/MmTNyqs/AUfhxvRQjkTOviAovQcOew6uD01qtzQ6LrVj77H4EgnyYobO8cjphw+jwuBeFBnfwMv7QtmGjIyNa/vgTE5w2EA/ltjw3QfwYNYWg1eQIDAQAB',
-      id: 'anbffbdnbfabjafoemkhoaelpodojknn'
-    },
-    {
       locale: 'iso_639_1_ko',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkG4PYLf8y9XUDoTCpZxaJ/GAnj73lUZnbOhUxhhYrrPYaHgeU3D8jdJKW/684YZpq5mFwrRTR+MJR6z8Yq/Rlp2aglilQtO/YXBU9FAUVcZQ/PGLnLT5OTsDVQEFcMSDZXttpqNlhiJM1Lp1i69i1j3nTM86lVY3LFJ/hBIdqvDkFR/k4Ri8z7LbKGHWbIIXfN1lGffxenhAbBqYE0dCMw3k7AjbbsGL81XyFbKZYmLhP2c/59Ojh09EPYJeEQc97oHbTzdPmQGM6O2OycJ/QoMHyx2RMaQHcvAVCCAjw9t9aaPTSUEXMekMoEETRzB2UJV0eydYyHsYC0R/UuPGmQIDAQAB',
       id: 'deadocmlegcgnokbhhpgblpofkpkeocg'
@@ -324,6 +314,16 @@ const getComponentDataList = () => {
       locale: 'iso_639_1_tr',
       key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3G/tB8EoYR2ECOgWfDIiUQyNhzfJQHiZzQ4HNOAW8gcPp22+j2B3fxIchZG0gk0LXChLAN33Nn5Hr99h59MfqHRio+oxD+IrwFW7PIo1NyPqMaDDpcUpOnNny6BC9A+pQB0qOKnmV7IfHjSZxwaRRp6Zjy7UsnvZuXn7dW/VPOCjBdhzbZah6yUkw27u11e9X1+uKF7kplSLGMlwxi9lmqOAgcplucuy8X2n6dlC8RA6spvy6E1TiV8PtCkFbz+3aiaN9l0fPy1ZjTQGfW1/PGXCkS3rAXhlZN9nk9coDNbGSt6EOg/JxWtlCXRsIV/0ahI1WIfobuzIfVLDaTH9CwIDAQAB',
       id: 'edjnpechdkjgcfjepfnnabdkcfcfllpd'
+    },
+    {
+      locale: 'iso_639_1_id',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAySkQbcg3QR4BaZnxORHUY6xkJ4aKnV6Gt/4Thh+dxAfb3InB6pdVN0sNcEFZ6YBbFkKyIVhp8qQHzRc72izTTrI2TytXgUyG44riLCE5B2i/bXcILnQIZtzqIhmXKLJ1HR70FN6lWmj0ThwK4vCjbQ2vuQmEKVoaUDRXWP7d4nryZQVYZSqbKKZwJZLQFT47752vqGxqwq8hrNWIckV5Z7eTkLP/Eh8gVt7k08zD4YHkNsUQJvZwlVqrb5xHLgwbeyKC/SQRXqhec+HAih8afnGdhOcYEtBqIehu+8RzpiHwmBg1Xw+VQQgF0IyTYQKR9nsDiwtVD07WSPWSuEznkwIDAQAB',
+      id: 'gbmolmcnbhegkhjhbhjehcpbjonjlgfg'
+    },
+    {
+      locale: 'iso_639_1_vi',
+      key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzkuNPJhkNQfWFGRyUnBlsa+Zqr4Jjy+vwUNL83+mxgKjUlskx0XCWvWfwVFIufe669t0vt3myPaHkazmZkkVqwKMTqbk+gySX4shQUuKEX9o+WiJ/IKwNRp5xMkxE+XLIrq6yVCeJooVdYQVwqrlP+nxfyCi0Nh+IEVPg/CY3BgAnpfrK8puC486aI/BuQhPgbOx0F1vKvMEto0zfH7AVCq4dJtxHCw5sv5+PMsLf9EWSYxD2D5MuR7rWxgQT8SLsbkSERgmcIzhkPznO+f0zgdkXsqs138yylwts3QVHSM22HeLQIDGTldZ+PUp2kyxHFXCZfh4wOwGyeinzJf9fQIDAQAB',
+      id: 'pbjakpdfjkmcajeobebemnjglbjiniln'
     }
   ]
 }
