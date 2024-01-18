@@ -1,5 +1,13 @@
 {
   "extends": [
     "local>brave/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "packageNames": ["@aws-sdk", "@aws-sdk/client-dynamodb", "@aws-sdk/client-s3", "@sentry/node"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "autoApprove": true,
+      "automerge": true
+    }
   ]
 }

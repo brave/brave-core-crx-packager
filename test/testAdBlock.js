@@ -4,7 +4,7 @@ import tmp from 'tmp'
 import fs from 'fs'
 import { spawnSync } from 'child_process'
 
-import { generateResourcesFile } from '../lib/adBlockRustUtils.js'
+import { generateResourcesFile, sanityCheckList } from '../lib/adBlockRustUtils.js'
 
 test('generateResourcesFile', async (t) => {
   const tmpfile = tmp.fileSync({ discardDescriptor: true })
@@ -23,4 +23,16 @@ test('generateResourcesFile', async (t) => {
       }
     }
   })
+})
+
+test('sanityCheckList', async (t) => {
+  // Verify that https://bravesoftware.slack.com/archives/C2FQMN4AD/p1704501704164999 would have been caught
+  const corruptedList = fs.readFileSync('./test/elc-1.0.3814-corrupted.txt', { encoding: 'utf8' })
+  let failureMessage
+  try {
+    sanityCheckList({ title: 'corrupted list', data: corruptedList, format: 'Standard' })
+  } catch (error) {
+    failureMessage = error.message
+  }
+  assert.ok(failureMessage.startsWith('corrupted list failed sanity check for'))
 })
