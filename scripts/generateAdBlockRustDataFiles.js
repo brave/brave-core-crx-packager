@@ -90,7 +90,7 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
  * @param doIos boolean, whether or not filters for iOS should be created (currently only used by default list)
  * @return a Promise which resolves upon completion
  */
-const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
+const generateDataFilesForCatalogEntry = (entry) => {
   const lists = entry.sources
   // default adblock DAT component requires this for historical reasons
   const outputDATFilename = (entry.uuid === 'default') ? 'rs-ABPFilterParserData.dat' : `rs-${entry.uuid}.dat`
@@ -111,10 +111,6 @@ const generateDataFilesForCatalogEntry = (entry, doIos = false) => {
       (listBuffers) => {
         generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
         generateDataFileFromLists(listBuffers, outputDATFilename, entry.uuid)
-        if (doIos) {
-          // for iOS team - compile cosmetic filters only
-          generateDataFileFromLists(listBuffers, 'ios-cosmetic-filters.dat', 'test-data', RuleTypes.COSMETIC_ONLY)
-        }
       },
       e => {
         console.error(`Not publishing a new version of ${entry.title} due to failure downloading a source: ${e.message}`)
@@ -153,9 +149,7 @@ const generateDataFilesForResourcesComponent = () => {
 }
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists()
-  // TODO convert to map/Promise.all once 'ios-cosmetic-filters.dat' is no longer required
-  .then(defaultLists => generateDataFilesForCatalogEntry(defaultLists[0], true)
-    .then(() => generateDataFilesForCatalogEntry(defaultLists[1], false)))
+  .then(defaultLists => Promise.all(defaultLists.map(list => generateDataFilesForCatalogEntry(list))))
   // default adblock DAT component requires this for historical reasons
   .then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
 
