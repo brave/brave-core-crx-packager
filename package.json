@@ -19,7 +19,7 @@
   "devDependencies": {
     "commander": "2.20.3",
     "fs-extra": "11.2.0",
-    "level": "8.0.0",
+    "level": "8.0.1",
     "mkdirp": "3.0.1",
     "replace-in-file": "7.1.0",
     "rimraf": "5.0.5",
