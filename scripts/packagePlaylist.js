@@ -24,13 +24,13 @@ const stageFiles = util.stageDir.bind(
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey) => {
-  const rootBuildDir = path.join(path.resolve(), 'build', 'youtubedown')
+  const rootBuildDir = path.join(path.resolve(), 'build', 'playlist')
   const stagingDir = path.join(rootBuildDir, 'staging')
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, 'youtubedown.crx')
+    const crxFile = path.join(crxOutputDir, 'playlist.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)
