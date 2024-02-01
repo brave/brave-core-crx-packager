@@ -10,8 +10,8 @@ import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
 /*
-  NOTE: For historical reason, this is named "Youtubedown" component, but
-  we're packaging 'brave/playlist-component'.
+  NOTE: References to "Youtubedown" are for historical reasons.
+  We're packaging 'brave/playlist-component'.
 */
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'node_modules', 'playlist-component', 'manifest.json')
