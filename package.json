@@ -38,7 +38,6 @@
     "generate-ntp-super-referrer-mapping-table": "node scripts/generateNTPSuperReferrerMappingTable.js",
     "generate-user-model-installer-updates": "node scripts/generateBraveAdsResourcesComponentInputFiles.js",
     "lint": "standard lib scripts test",
-    "import-cws-components": "node ./scripts/importCWSComponents",
     "package-brave-player": "node ./scripts/packageBravePlayer",
     "package-ethereum-remote-client": "node ./scripts/packageComponent --type ethereum-remote-client",
     "package-ad-block": "node ./scripts/packageAdBlock",
