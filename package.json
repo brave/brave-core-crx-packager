@@ -36,7 +36,6 @@
     "generate-ntp-sponsored-images": "node scripts/ntp-sponsored-images/generate",
     "generate-ntp-super-referrer": "node scripts/generateNTPSuperReferrer.js",
     "generate-ntp-super-referrer-mapping-table": "node scripts/generateNTPSuperReferrerMappingTable.js",
-    "generate-youtubedown": "node ./scripts/generateYoutubedown.js",
     "generate-user-model-installer-updates": "node scripts/generateBraveAdsResourcesComponentInputFiles.js",
     "lint": "standard lib scripts test",
     "import-cws-components": "node ./scripts/importCWSComponents",
@@ -52,7 +51,7 @@
     "package-ntp-sponsored-images": "node ./scripts/ntp-sponsored-images/package",
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
     "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
-    "package-youtubedown": "node ./scripts/packageYoutubedown.js",
+    "package-playlist": "node ./scripts/packagePlaylist.js",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
     "generate-puffpatches": "node ./scripts/generatePuffpatches",
     "upload-component": "node ./scripts/uploadComponent"
