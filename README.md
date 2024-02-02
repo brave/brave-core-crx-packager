@@ -178,20 +178,6 @@ To upload the component, pass crx directory that has generated crx file and endp
 aws exec extensions-dev-role -- npm run upload-user-model-installer-updates -- --crx-directory ./build/user-model-installer/output
 ```
 
-### Importing Chrome Web Store extensions
-
-To import the current list of supported Chrome Web Store extensions, use the following command:
-
-```bash
-npm run import-cws-components -- --endpoint <endpoint>
-```
-
-where:
-
-* `endpoint` is the DynamoDB endpoint (use http://localhost:8000 if setup locally)
-
-This will download the supported extensions from the Chrome Web Store and upload them to S3.
-
 ## Versioning
 
 Versioning occurs automatically. The first time an extension is packaged, it receives the version number `1.0.0`. When uploaded, that version number along with other metadata is stored in DynamoDB. Subsequent packagings increment the last component of the version number by one.
