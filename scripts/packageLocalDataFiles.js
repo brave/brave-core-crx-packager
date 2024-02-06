@@ -12,58 +12,66 @@ import path from 'path'
 import recursive from 'recursive-readdir-sync'
 import util from '../lib/util.js'
 
+const componentType = 'local-data-files-updater'
+const datFileName = 'default'
+
 const getOriginalManifest = () => {
   return path.join('manifests', 'local-data-files-updater', 'default-manifest.json')
 }
 
-const stageFiles = (version, outputDir) => {
-  const datFileVersion = '1'
-  const files = [
-    { path: getOriginalManifest(), outputName: 'manifest.json' },
-    { path: path.join('brave-lists', 'debounce.json'), outputName: path.join(datFileVersion, 'debounce.json') },
-    { path: path.join('brave-lists', 'request-otr.json'), outputName: path.join(datFileVersion, 'request-otr.json') },
-    { path: path.join('brave-lists', 'clean-urls.json'), outputName: path.join(datFileVersion, 'clean-urls.json') },
-    { path: path.join('brave-lists', 'https-upgrade-exceptions-list.txt'), outputName: path.join(datFileVersion, 'https-upgrade-exceptions-list.txt') },
-    { path: path.join('brave-lists', 'localhost-permission-allow-list.txt'), outputName: path.join(datFileVersion, 'localhost-permission-allow-list.txt') }
-  ].concat(
-    recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')).map(f => {
-      let outputDatDir = datFileVersion
-      const index = f.indexOf('/dist/')
-      let baseDir = f.substring(index + '/dist/'.length)
-      baseDir = baseDir.substring(0, baseDir.lastIndexOf('/'))
-      outputDatDir = path.join(outputDatDir, baseDir)
-      mkdirp.sync(path.join(outputDir, outputDatDir))
-      return {
-        path: f,
-        outputName: path.join(outputDatDir, path.parse(f).base)
-      }
-    }))
-  util.stageFiles(files, version, outputDir)
+class LocalDataFiles {
+  stagingDir = path.join('build', componentType, datFileName)
+  crxFile = path.join('build', componentType, `${componentType}-${datFileName}.crx`)
+  componentId = (() => {
+    const originalManifest = getOriginalManifest()
+    const parsedManifest = util.parseManifest(originalManifest)
+    return util.getIDFromBase64PublicKey(parsedManifest.key)
+  })()
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `${componentType}-${datFileName}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    const datFileVersion = '1'
+    const files = [
+      { path: getOriginalManifest(), outputName: 'manifest.json' },
+      { path: path.join('brave-lists', 'debounce.json'), outputName: path.join(datFileVersion, 'debounce.json') },
+      { path: path.join('brave-lists', 'request-otr.json'), outputName: path.join(datFileVersion, 'request-otr.json') },
+      { path: path.join('brave-lists', 'clean-urls.json'), outputName: path.join(datFileVersion, 'clean-urls.json') },
+      { path: path.join('brave-lists', 'https-upgrade-exceptions-list.txt'), outputName: path.join(datFileVersion, 'https-upgrade-exceptions-list.txt') },
+      { path: path.join('brave-lists', 'localhost-permission-allow-list.txt'), outputName: path.join(datFileVersion, 'localhost-permission-allow-list.txt') }
+    ].concat(
+      recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')).map(f => {
+        let outputDatDir = datFileVersion
+        const index = f.indexOf('/dist/')
+        let baseDir = f.substring(index + '/dist/'.length)
+        baseDir = baseDir.substring(0, baseDir.lastIndexOf('/'))
+        outputDatDir = path.join(outputDatDir, baseDir)
+        mkdirp.sync(path.join(outputDir, outputDatDir))
+        return {
+          path: f,
+          outputName: path.join(outputDatDir, path.parse(f).base)
+        }
+      }))
+    util.stageFiles(files, version, outputDir)
+  }
 }
 
 const generateCRXFile = async (binary, endpoint, region, key, publisherProofKey, localRun) => {
-  const originalManifest = getOriginalManifest()
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+  const descriptor = new LocalDataFiles()
 
-  const componentType = 'local-data-files-updater'
-  const datFileName = 'default'
   let privateKeyFile = ''
   if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
+    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
   }
-  const stagingDir = path.join('build', componentType, datFileName)
-  const crxFile = path.join('build', componentType, `${componentType}-${datFileName}.crx`)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    id,
-    stageFiles,
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     localRun)
 }

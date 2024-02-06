@@ -8,14 +8,11 @@ import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
+const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-background-images')
+
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'build', 'ntp-background-images', 'ntp-background-images-manifest.json')
 }
-
-const stageFiles = util.stageDir.bind(
-  undefined,
-  path.join(path.resolve(), 'build', 'ntp-background-images', 'resources'),
-  getOriginalManifest())
 
 const generateManifestFile = (publicKey) => {
   const manifestFile = getOriginalManifest()
@@ -29,22 +26,36 @@ const generateManifestFile = (publicKey) => {
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-const generateCRXFile = async (binary, endpoint, region, componentID, privateKeyFile,
-  publisherProofKey) => {
-  const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-background-images')
+class NTPBackgroundImagesComponent {
+  constructor (privateKeyFile) {
+    const [publicKey, componentId] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+    this.publicKey = publicKey
+    this.componentId = componentId
+  }
 
-  const stagingDir = path.join(rootBuildDir, 'staging')
-  const crxFile = path.join(rootBuildDir, 'output', 'ntp-background-images.crx')
+  stagingDir = path.join(rootBuildDir, 'staging')
+  crxFile = path.join(rootBuildDir, 'output', 'ntp-background-images.crx')
+
+  async stageFiles (version, outputDir) {
+    generateManifestFile(this.publicKey)
+    util.stageDir(
+      path.join(path.resolve(), 'build', 'ntp-background-images', 'resources'),
+      getOriginalManifest(),
+      version,
+      outputDir)
+  }
+}
+
+const generateCRXFile = async (binary, endpoint, region, privateKeyFile,
+  publisherProofKey) => {
+  const descriptor = new NTPBackgroundImagesComponent(privateKeyFile)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    componentID,
-    stageFiles,
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     false)
 }
@@ -64,8 +75,6 @@ if (fs.existsSync(commander.key)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateManifestFile(publicKey)
   await generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey)
+    privateKeyFile, commander.publisherProofKey)
 })

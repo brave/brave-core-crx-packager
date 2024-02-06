@@ -10,68 +10,82 @@ import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
 
-const stageFiles = (componentType, version, outputDir) => {
-  util.stageDir(getPackageDirByComponentType(componentType), getOriginalManifest(componentType), version, outputDir)
+const getOriginalManifest = (packageDir) => {
+  return path.join(packageDir, 'manifest.json')
+}
 
-  if (componentType === 'wallet-data-files-updater') {
+class EthereumRemoteClient {
+  constructor () {
+    const originalManifest = getOriginalManifest(this.packageDir)
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
+  }
+
+  componentType = 'ethereum-remote-client'
+  packageDir = path.join('node_modules', 'ethereum-remote-client')
+
+  stagingDir = path.join('build', this.componentType)
+  crxFile = path.join(this.stagingDir, `${this.componentType}.crx`)
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `${this.componentType}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    util.stageDir(this.packageDir, getOriginalManifest(this.packageDir), version, outputDir)
+  }
+}
+
+class WalletDataFilesUpdater {
+  constructor () {
+    const originalManifest = getOriginalManifest(this.packageDir)
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
+  }
+
+  componentType = 'wallet-data-files-updater'
+  packageDir = path.join('node_modules', 'brave-wallet-lists')
+
+  stagingDir = path.join('build', this.componentType)
+  crxFile = path.join(this.stagingDir, `${this.componentType}.crx`)
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `${this.componentType}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    util.stageDir(this.packageDir, getOriginalManifest(this.packageDir), version, outputDir)
     fs.unlinkSync(path.join(outputDir, 'package.json'))
   }
 }
 
-const validComponentTypes = [
-  'ethereum-remote-client',
-  'wallet-data-files-updater'
-]
-
-const getPackageNameByComponentType = (componentType) => {
-  switch (componentType) {
-    case 'ethereum-remote-client':
-      return componentType
-    case 'wallet-data-files-updater':
-      return 'brave-wallet-lists'
-    default:
-      // shouldn't be possible to get here
-      return null
-  }
-}
-const getPackageDirByComponentType = (componentType) => {
-  return path.join('node_modules', getPackageNameByComponentType(componentType))
-}
-
-const getOriginalManifest = (componentType) => {
-  return path.join(getPackageDirByComponentType(componentType), 'manifest.json')
-}
-
 const generateCRXFile = async (binary, endpoint, region, componentType, key,
   publisherProofKey, localRun) => {
-  const originalManifest = getOriginalManifest(componentType)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+  let descriptor
+  if (componentType === 'ethereum-remote-client') {
+    descriptor = new EthereumRemoteClient()
+  } else if (componentType === 'wallet-data-files-updater') {
+    descriptor = new WalletDataFilesUpdater()
+  } else {
+    throw new Error('Unrecognized component extension type: ' + commander.type)
+  }
 
   let privateKeyFile = ''
   if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}.pem`)
+    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
   }
-  const stagingDir = path.join('build', componentType)
-  const crxFile = path.join(stagingDir, `${componentType}.crx`)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    id,
-    stageFiles.bind(undefined, componentType),
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     localRun)
 }
 
 const processJob = async (commander, keyParam) => {
-  if (!validComponentTypes.includes(commander.type)) {
-    throw new Error('Unrecognized component extension type: ' + commander.type)
-  }
   await generateCRXFile(commander.binary, commander.endpoint,
     commander.region, commander.type, keyParam,
     commander.publisherProofKey,
@@ -84,7 +98,7 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-t, --type <type>', 'component extension type', /^(local-data-files-updater|ethereum-remote-client|wallet-data-files-updater)$/i)
+    .option('-t, --type <type>', 'component extension type', /^(ethereum-remote-client|wallet-data-files-updater)$/i)
     .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 

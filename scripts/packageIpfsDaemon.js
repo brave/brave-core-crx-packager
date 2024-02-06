@@ -22,37 +22,48 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}-manifest.json`)
 }
 
+class IpfsDaemon {
+  constructor (os, arch) {
+    this.os = os
+    this.arch = arch
+    this.platform = `${this.os}-${this.arch}`
+
+    const originalManifest = getOriginalManifest(this.platform)
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
+
+    this.stagingDir = path.join('build', 'ipfs-daemon-updater', this.platform)
+    this.crxFile = path.join('build', 'ipfs-daemon-updater', `ipfs-daemon-updater-${this.platform}.crx`)
+  }
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `ipfs-daemon-updater-${this.platform}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    const ipfsDaemon = getIpfsDaemonPath(this.os, this.arch)
+    const files = [
+      { path: getOriginalManifest(this.platform), outputName: 'manifest.json' },
+      { path: ipfsDaemon }
+    ]
+    util.stageFiles(files, version, outputDir)
+  }
+}
+
 const packageIpfsDaemon = async (binary, endpoint, region, os, arch, key,
   publisherProofKey) => {
-  const platform = `${os}-${arch}`
-  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
-  const originalManifest = getOriginalManifest(platform)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
-  const ipfsDaemon = getIpfsDaemonPath(os, arch)
+  const descriptor = new IpfsDaemon(os, arch)
 
-  const stagingDir = path.join('build', 'ipfs-daemon-updater', platform)
-  const crxFile = path.join('build', 'ipfs-daemon-updater', `ipfs-daemon-updater-${platform}.crx`)
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    id,
-    stageFiles.bind(undefined, platform, ipfsDaemon),
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     false)
-}
-
-const stageFiles = (platform, ipfsDaemon, version, outputDir) => {
-  const files = [
-    { path: getOriginalManifest(platform), outputName: 'manifest.json' },
-    { path: ipfsDaemon }
-  ]
-  util.stageFiles(files, version, outputDir)
 }
 
 util.installErrorHandlers()

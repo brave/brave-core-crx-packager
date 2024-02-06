@@ -8,12 +8,10 @@ import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
-const stageFiles = (version, outputDir) => {
-  const files = [
-    { path: getOriginalManifest(), outputName: 'manifest.json' },
-    { path: path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', 'mapping-table', 'mapping-table.json') }
-  ]
-  util.stageFiles(files, version, outputDir)
+const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table')
+
+const getOriginalManifest = () => {
+  return path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table-manifest.json')
 }
 
 const generateManifestFile = async (publicKey) => {
@@ -28,26 +26,36 @@ const generateManifestFile = async (publicKey) => {
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table-manifest.json')
+class NTPSuperReferrerMappingTableComponent {
+  constructor (privateKeyFile) {
+    const [publicKey, componentId] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+    this.publicKey = publicKey
+    this.componentId = componentId
+  }
+
+  stagingDir = path.join(rootBuildDir, 'staging')
+  crxFile = path.join(rootBuildDir, 'output', 'ntp-super-referrer-mapping-table.crx')
+
+  async stageFiles (version, outputDir) {
+    generateManifestFile(this.publicKey)
+    const files = [
+      { path: getOriginalManifest(), outputName: 'manifest.json' },
+      { path: path.join(path.resolve(), 'build', 'ntp-super-referrer', 'resources', 'mapping-table', 'mapping-table.json') }
+    ]
+    util.stageFiles(files, version, outputDir)
+  }
 }
 
-const generateCRXFile = async (binary, endpoint, region, componentID, privateKeyFile,
+const generateCRXFile = async (binary, endpoint, region, privateKeyFile,
   publisherProofKey) => {
-  const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer', 'mapping-table')
-
-  const stagingDir = path.join(rootBuildDir, 'staging')
-  const crxFile = path.join(rootBuildDir, 'output', 'ntp-super-referrer-mapping-table.crx')
+  const descriptor = new NTPSuperReferrerMappingTableComponent(privateKeyFile)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    componentID,
-    stageFiles,
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     false)
 }
@@ -67,8 +75,6 @@ if (fs.existsSync(commander.key)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateManifestFile(publicKey)
   await generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey)
+    privateKeyFile, commander.publisherProofKey)
 })

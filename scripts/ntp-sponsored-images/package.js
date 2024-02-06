@@ -10,19 +10,13 @@ import path from 'path'
 import util from '../../lib/util.js'
 import params from './params.js'
 
-const stageFiles = (locale, version, outputDir) => {
-  util.stageDir(
-    path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/'),
-    getManifestPath(locale),
-    version,
-    outputDir)
-}
+const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
 
-const generateManifestFile = (regionPlatform, componentData) => {
+const generateManifestFile = (regionPlatform, publicKey) => {
   const manifestPath = getManifestPath(regionPlatform)
   const manifestContent = {
     description: `Brave NTP sponsored images component (${regionPlatform})`,
-    key: componentData.key,
+    key: publicKey,
     manifest_version: 2,
     name: 'Brave NTP sponsored images',
     version: '0.0.0'
@@ -46,24 +40,44 @@ function getManifestPath (regionPlatform) {
   return path.join(getManifestsDir(), `${regionPlatform}-manifest.json`)
 }
 
+class NtpSponsoredImages {
+  constructor (platformRegion, componentData) {
+    this.platformRegion = platformRegion
+    this.locale = componentData.locale
+    this.publicKey = componentData.key
+    this.componentId = componentData.id
+
+    this.stagingDir = path.join(rootBuildDir, 'staging', this.platformRegion)
+    this.crxFile = path.join(rootBuildDir, 'output', `ntp-sponsored-images-${this.platformRegion}.crx`)
+  }
+
+  privateKeyFromDir (keyDir) {
+    // Desktop private key file names do not have the -desktop suffix, but android has -android
+    return path.join(keyDir, `ntp-sponsored-images-${this.platformRegion.replace('-desktop', '')}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    generateManifestFile(this.platformRegion, this.publicKey)
+    util.stageDir(
+      path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', this.locale, '/'),
+      getManifestPath(this.locale),
+      version,
+      outputDir)
+  }
+}
+
 const generateCRXFile = async (binary, endpoint, region, keyDir, platformRegion,
   componentData, publisherProofKey) => {
-  // Desktop private key file names do not have the -desktop suffix, but android has -android
-  const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
-  const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
+  const descriptor = new NtpSponsoredImages(platformRegion, componentData)
 
-  const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
-  const crxFile = path.join(rootBuildDir, 'output', `ntp-sponsored-images-${platformRegion}.crx`)
+  const privateKeyFile = descriptor.privateKeyFromDir(keyDir)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    componentData.id,
-    stageFiles.bind(undefined, platformRegion),
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     false)
 }
@@ -89,7 +103,6 @@ const targetComponents = params.getTargetComponents(commander.targetRegions, com
 util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
   for (const platformRegion of Object.keys(targetComponents)) {
     const componentData = targetComponents[platformRegion]
-    generateManifestFile(platformRegion, componentData)
     await generateCRXFile(commander.binary, commander.endpoint, commander.region,
       keyDir, platformRegion, componentData,
       commander.publisherProofKey)

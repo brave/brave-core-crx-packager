@@ -19,44 +19,45 @@ const getOriginalManifest = () => {
   return path.join('component-data', 'brave-player', 'manifest.json')
 }
 
-const stageFiles = (version, outputDir) => {
-  util.stageDir(path.join('component-data', 'brave-player'), getOriginalManifest(), version, outputDir)
+class BravePlayer {
+  constructor () {
+    const originalManifest = getOriginalManifest()
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
+
+    this.stagingDir = path.join('build', 'brave-player')
+    this.crxFile = path.join('build', 'brave-player.crx')
+  }
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, 'brave-player.pem')
+  }
+
+  async stageFiles (version, outputDir) {
+    util.stageDir(path.join('component-data', 'brave-player'), getOriginalManifest(), version, outputDir)
+  }
 }
 
-const postNextVersionWork = (key, publisherProofKey, binary, localRun, version) => {
-  const stagingDir = path.join('build', 'brave-player')
-  const crxOutputDir = path.join('build')
-  const crxFile = path.join(crxOutputDir, 'brave-player.crx')
+const packageBravePlayer = async (binary, endpoint, region, key, publisherProofKey, localRun) => {
+  const descriptor = new BravePlayer()
+
   let privateKeyFile = ''
   if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, 'brave-player.pem')
+    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
   }
-  stageFiles(version, stagingDir)
-  if (!localRun) {
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-  }
-  console.log(`Generated ${crxFile} with version number ${version}`)
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    descriptor,
+    privateKeyFile,
+    localRun)
 }
 
-const processDATFile = (binary, endpoint, region, key, publisherProofKey, localRun) => {
-  const originalManifest = getOriginalManifest()
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
-
-  if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(key, publisherProofKey,
-        binary, localRun, version)
-    })
-  } else {
-    postNextVersionWork(key, publisherProofKey,
-      binary, localRun, '1.0.0')
-  }
-}
-
-const processJob = (commander, keyParam) => {
-  processDATFile(commander.binary, commander.endpoint, commander.region,
+const processJob = async (commander, keyParam) => {
+  await packageBravePlayer(commander.binary, commander.endpoint, commander.region,
     keyParam, commander.publisherProofKey, commander.localRun)
 }
 
@@ -82,8 +83,8 @@ if (!commander.localRun) {
 }
 
 if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyParam)
+  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
+    await processJob(commander, keyParam)
   })
 } else {
   processJob(commander, keyParam)

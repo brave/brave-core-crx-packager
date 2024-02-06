@@ -63,49 +63,58 @@ const downloadTorClient = (platform) => {
   return torClient
 }
 
-const getOriginalManifest = (platform) => {
-  return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
-}
-
-const packageTorClient = async (binary, endpoint, region, platform, key,
-  publisherProofKey) => {
-  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
-  const originalManifest = getOriginalManifest(platform)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
-  const torClient = downloadTorClient(platform)
-
-  const stagingDir = path.join('build', 'tor-client-updater', platform)
-  const crxFile = path.join('build', 'tor-client-updater', `tor-client-updater-${platform}.crx`)
-
-  await util.prepareNextVersionCRX(
-    binary,
-    publisherProofKey,
-    endpoint,
-    region,
-    id,
-    stageFiles.bind(undefined, platform, torClient),
-    stagingDir,
-    crxFile,
-    privateKeyFile,
-    false)
-}
-
-const stageFiles = (platform, torClient, version, outputDir) => {
-  const files = [
-    { path: getOriginalManifest(platform), outputName: 'manifest.json' },
-    { path: torClient },
-    { path: path.join('resources', 'tor', 'torrc'), outputName: 'tor-torrc' }
-  ]
-  util.stageFiles(files, version, outputDir)
-}
-
 // Does a hash comparison on a file against a given hash
 const verifyChecksum = (file, hash) => {
   const filecontent = fs.readFileSync(file)
   const computedHash = crypto.createHash('sha512').update(filecontent).digest('hex')
   console.log(`${file} has hash ${computedHash}`)
   return hash === computedHash
+}
+
+const getOriginalManifest = (platform) => {
+  return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
+}
+
+class TorClient {
+  constructor (platform) {
+    this.platform = platform
+    const originalManifest = getOriginalManifest(this.platform)
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
+
+    this.stagingDir = path.join('build', 'tor-client-updater', this.platform)
+    this.crxFile = path.join('build', 'tor-client-updater', `tor-client-updater-${this.platform}.crx`)
+  }
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `tor-client-updater-${this.platform}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    const torClient = downloadTorClient(this.platform)
+    const files = [
+      { path: getOriginalManifest(this.platform), outputName: 'manifest.json' },
+      { path: torClient },
+      { path: path.join('resources', 'tor', 'torrc'), outputName: 'tor-torrc' }
+    ]
+    util.stageFiles(files, version, outputDir)
+  }
+}
+
+const packageTorClient = async (binary, endpoint, region, platform, key,
+  publisherProofKey) => {
+  const descriptor = new TorClient(platform)
+
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
+
+  await util.prepareNextVersionCRX(
+    binary,
+    publisherProofKey,
+    endpoint,
+    region,
+    descriptor,
+    privateKeyFile,
+    false)
 }
 
 util.installErrorHandlers()

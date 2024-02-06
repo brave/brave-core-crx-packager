@@ -233,12 +233,16 @@ const getComponentDataList = () => {
   ]
 }
 
-const stageFiles = (locale, version, outputDir) => {
-  util.stageDir(
-    path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/'),
-    getOriginalManifest(locale),
-    version,
-    outputDir)
+const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
+
+const getManifestsDir = () => {
+  const targetResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'manifiest-files')
+  mkdirp.sync(targetResourceDir)
+  return targetResourceDir
+}
+
+const getOriginalManifest = (locale) => {
+  return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
 const generateManifestFile = (componentData) => {
@@ -253,38 +257,41 @@ const generateManifestFile = (componentData) => {
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-const generateManifestFiles = () => {
-  getComponentDataList().forEach(generateManifestFile)
-}
+class BraveAdsResourcesComponent {
+  constructor (componentData) {
+    this.locale = componentData.locale
+    this.publicKey = componentData.key
+    this.componentId = componentData.id
+    this.stagingDir = path.join(rootBuildDir, 'staging', this.locale)
+    this.crxFile = path.join(rootBuildDir, 'output', `user-model-installer-${this.locale}.crx`)
+  }
 
-const getManifestsDir = () => {
-  const targetResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'manifiest-files')
-  mkdirp.sync(targetResourceDir)
-  return targetResourceDir
-}
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `user-model-installer-${this.locale}.pem`)
+  }
 
-const getOriginalManifest = (locale) => {
-  return path.join(getManifestsDir(), `${locale}-manifest.json`)
+  async stageFiles (version, outputDir) {
+    generateManifestFile(this.componentData)
+    util.stageDir(
+      path.join(path.resolve(), 'build', 'user-model-installer', 'resources', this.locale, '/'),
+      getOriginalManifest(this.locale),
+      version,
+      outputDir)
+  }
 }
 
 const generateCRXFile = async (binary, endpoint, region, keyDir, publisherProofKey,
   componentData) => {
-  const locale = componentData.locale
-  const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
-  const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
+  const descriptor = new BraveAdsResourcesComponent(componentData)
 
-  const stagingDir = path.join(rootBuildDir, 'staging', locale)
-  const crxFile = path.join(rootBuildDir, 'output', `user-model-installer-${locale}.crx`)
+  const privateKeyFile = descriptor.privateKeyFromDir(keyDir)
 
-  util.prepareNextVersionCRX(
+  await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    componentData.id,
-    stageFiles.bind(undefined, locale),
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     false)
 }
@@ -304,7 +311,6 @@ if (fs.existsSync(commander.keysDirectory)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  generateManifestFiles()
   await Promise.all(getComponentDataList().map(
     generateCRXFile.bind(null, commander.binary, commander.endpoint,
       commander.region, keyDir,

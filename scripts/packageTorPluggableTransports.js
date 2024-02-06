@@ -45,38 +45,48 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`)
 }
 
+class TorPluggableTransports {
+  constructor (platform) {
+    this.platform = platform
+
+    const originalManifest = getOriginalManifest(this.platform)
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
+
+    this.stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, this.platform)
+    this.crxFile = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${this.platform}.crx`)
+  }
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${this.platform}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    const snowflake = downloadTorPluggableTransport(this.platform, 'snowflake')
+    const obfs4 = downloadTorPluggableTransport(this.platform, 'obfs4')
+
+    const files = [
+      { path: getOriginalManifest(this.platform), outputName: 'manifest.json' },
+      { path: snowflake },
+      { path: obfs4 }
+    ]
+    util.stageFiles(files, version, outputDir)
+  }
+}
+
 const packageTorPluggableTransports = async (binary, endpoint, region, platform, key, publisherProofKey) => {
-  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
-  const originalManifest = getOriginalManifest(platform)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+  const descriptor = new TorPluggableTransports(platform)
 
-  const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
-  const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
-
-  const stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, platform)
-  const crxFile = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
+  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    id,
-    stageFiles.bind(undefined, platform, snowflake, obfs4),
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     false)
-}
-
-const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
-  const files = [
-    { path: getOriginalManifest(platform), outputName: 'manifest.json' },
-    { path: snowflake },
-    { path: obfs4 }
-  ]
-  util.stageFiles(files, version, outputDir)
 }
 
 util.installErrorHandlers()

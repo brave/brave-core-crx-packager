@@ -8,31 +8,36 @@ import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
-const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'node_modules', 'playlist-component', 'manifest.json')
+const rootBuildDir = path.join(path.resolve(), 'build', 'playlist')
+
+class Playlist {
+  constructor (privateKeyFile) {
+    const [, componentId] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+    this.componentId = componentId
+  }
+
+  stagingDir = path.join(rootBuildDir, 'staging')
+  crxFile = path.join(rootBuildDir, 'output', 'playlist.crx')
+
+  async stageFiles (version, outputDir) {
+    const originalManifest = path.join(path.resolve(), 'node_modules', 'playlist-component', 'manifest.json')
+    util.stageDir(
+      path.join(path.resolve(), 'node_modules', 'playlist-component'),
+      originalManifest,
+      version,
+      outputDir)
+  }
 }
 
-const stageFiles = util.stageDir.bind(
-  undefined,
-  path.join(path.resolve(), 'node_modules', 'playlist-component'),
-  getOriginalManifest())
-
-const generateCRXFile = async (binary, endpoint, region, componentID, privateKeyFile,
-  publisherProofKey) => {
-  const rootBuildDir = path.join(path.resolve(), 'build', 'playlist')
-
-  const stagingDir = path.join(rootBuildDir, 'staging')
-  const crxFile = path.join(rootBuildDir, 'output', 'playlist.crx')
+const generateCRXFile = async (binary, endpoint, region, privateKeyFile, publisherProofKey) => {
+  const descriptor = new Playlist(privateKeyFile)
 
   await util.prepareNextVersionCRX(
     binary,
     publisherProofKey,
     endpoint,
     region,
-    componentID,
-    stageFiles,
-    stagingDir,
-    crxFile,
+    descriptor,
     privateKeyFile,
     false)
 }
@@ -52,7 +57,6 @@ if (fs.existsSync(commander.key)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   await generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey)
+    privateKeyFile, commander.publisherProofKey)
 })
