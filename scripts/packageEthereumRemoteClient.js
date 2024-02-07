@@ -21,14 +21,13 @@ class EthereumRemoteClient {
     this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
   }
 
-  componentType = 'ethereum-remote-client'
   packageDir = path.join('node_modules', 'ethereum-remote-client')
 
-  stagingDir = path.join('build', this.componentType)
-  crxFile = path.join(this.stagingDir, `${this.componentType}.crx`)
+  stagingDir = path.join('build', 'ethereum-remote-client')
+  crxFile = path.join(this.stagingDir, 'ethereum-remote-client.crx')
 
   privateKeyFromDir (keyDir) {
-    return path.join(keyDir, `${this.componentType}.pem`)
+    return path.join(keyDir, 'ethereum-remote-client.pem')
   }
 
   async stageFiles (version, outputDir) {
@@ -36,39 +35,9 @@ class EthereumRemoteClient {
   }
 }
 
-class WalletDataFilesUpdater {
-  constructor () {
-    const originalManifest = getOriginalManifest(this.packageDir)
-    const parsedManifest = util.parseManifest(originalManifest)
-    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
-  }
-
-  componentType = 'wallet-data-files-updater'
-  packageDir = path.join('node_modules', 'brave-wallet-lists')
-
-  stagingDir = path.join('build', this.componentType)
-  crxFile = path.join(this.stagingDir, `${this.componentType}.crx`)
-
-  privateKeyFromDir (keyDir) {
-    return path.join(keyDir, `${this.componentType}.pem`)
-  }
-
-  async stageFiles (version, outputDir) {
-    util.stageDir(this.packageDir, getOriginalManifest(this.packageDir), version, outputDir)
-    fs.unlinkSync(path.join(outputDir, 'package.json'))
-  }
-}
-
-const generateCRXFile = async (binary, endpoint, region, componentType, key,
+const generateCRXFile = async (binary, endpoint, region, key,
   publisherProofKey, localRun) => {
-  let descriptor
-  if (componentType === 'ethereum-remote-client') {
-    descriptor = new EthereumRemoteClient()
-  } else if (componentType === 'wallet-data-files-updater') {
-    descriptor = new WalletDataFilesUpdater()
-  } else {
-    throw new Error('Unrecognized component extension type: ' + commander.type)
-  }
+  const descriptor = new EthereumRemoteClient()
 
   let privateKeyFile = ''
   if (!localRun) {
@@ -87,8 +56,7 @@ const generateCRXFile = async (binary, endpoint, region, componentType, key,
 
 const processJob = async (commander, keyParam) => {
   await generateCRXFile(commander.binary, commander.endpoint,
-    commander.region, commander.type, keyParam,
-    commander.publisherProofKey,
+    commander.region, keyParam, commander.publisherProofKey,
     commander.localRun)
 }
 
@@ -98,7 +66,6 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-t, --type <type>', 'component extension type', /^(ethereum-remote-client|wallet-data-files-updater)$/i)
     .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 
