@@ -10,7 +10,7 @@ import util from '../lib/util.js'
 
 const outPath = path.join('build', 'ad-block-updater')
 
-const generateManifestFile = async (name, base64PublicKey, uuid) => {
+const generateManifestFile = async (name, base64PublicKey, subdir) => {
   const manifest = '{\n' +
                  '  "description": "Brave Ad Block Updater extension",\n' +
                  '  "key": "' + base64PublicKey + '",\n' +
@@ -19,7 +19,7 @@ const generateManifestFile = async (name, base64PublicKey, uuid) => {
                  '  "version": "0.0.0"\n' +
                  '}\n'
 
-  const filePath = path.join(outPath, uuid, 'manifest.json')
+  const filePath = path.join(outPath, subdir, 'manifest.json')
   return fs.writeFile(filePath, manifest)
     .catch(e => console.warn('Skipped writing manifest for ' + name + ': ' + e.message))
 }
@@ -34,10 +34,7 @@ const generateManifestFilesForAllLists = async () => {
   const catalog = await getListCatalog()
   return Promise.all(catalog.map(async entry => {
     const title = util.escapeStringForJSON(entry.title)
-    await generateManifestFile(title, entry.base64_public_key, entry.uuid)
-    if (entry.list_text_component) {
-      await generateManifestFile(title + ' (plaintext)', entry.list_text_component.base64_public_key, entry.list_text_component.component_id)
-    }
+    await generateManifestFile(title + ' (plaintext)', entry.list_text_component.base64_public_key, entry.list_text_component.component_id)
   }))
 }
 

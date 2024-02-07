@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Engine, FilterSet, RuleTypes } from 'adblock-rs'
 import {
   generateResourcesFile,
   getListCatalog,
@@ -52,28 +51,6 @@ const enforceBraveDirectives = (title, data) => {
 }
 
 /**
- * Parses the passed in filter rule data and serializes a data file to disk.
- *
- * @param filterRuleData An array of { format, data, includeRedirectUrls, ruleTypes } where format is one of `adblock-rust`'s supported filter parsing formats and data is a newline-separated list of such filters.
- * includeRedirectUrls is a boolean: https://github.com/brave/adblock-rust/pull/184. We only support redirect URLs on filter lists we maintain and trust.
- * ruleTypes was added with https://github.com/brave/brave-core-crx-packager/pull/298 and allows for { RuleTypes.ALL, RuleTypes.NETWORK_ONLY, RuleTypes.COSMETIC_ONLY }
- * @param outputDATFilename The filename of the DAT file to create.
- */
-const generateDataFileFromLists = (filterRuleData, outputDATFilename, outSubdir, defaultRuleType = RuleTypes.ALL) => {
-  const filterSet = new FilterSet(false)
-  for (let { title, format, data, includeRedirectUrls, ruleTypes } of filterRuleData) {
-    includeRedirectUrls = Boolean(includeRedirectUrls)
-    ruleTypes = ruleTypes || defaultRuleType
-    const parseOpts = { format, includeRedirectUrls, ruleTypes }
-    filterSet.addFilters(enforceBraveDirectives(title, data).split('\n'), parseOpts)
-  }
-  const client = new Engine(filterSet, true)
-  const arrayBuffer = client.serializeRaw()
-  const outPath = getOutPath(outputDATFilename, outSubdir)
-  fs.writeFileSync(outPath, Buffer.from(arrayBuffer))
-}
-
-/**
  * Serializes the provided lists to disk in one file as `list.txt` under the given component subdirectory.
  */
 const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
@@ -92,8 +69,6 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
  */
 const generateDataFilesForCatalogEntry = (entry) => {
   const lists = entry.sources
-  // default adblock DAT component requires this for historical reasons
-  const outputDATFilename = (entry.uuid === 'default') ? 'rs-ABPFilterParserData.dat' : `rs-${entry.uuid}.dat`
 
   const promises = []
   lists.forEach((l) => {
@@ -108,10 +83,7 @@ const generateDataFilesForCatalogEntry = (entry) => {
   })
   return Promise.all(promises)
     .then(
-      (listBuffers) => {
-        generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id)
-        generateDataFileFromLists(listBuffers, outputDATFilename, entry.uuid)
-      },
+      listBuffers => generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id),
       e => {
         console.error(`Not publishing a new version of ${entry.title} due to failure downloading a source: ${e.message}`)
         if (Sentry) {
@@ -131,7 +103,6 @@ const generateDataFilesForAllRegions = () => {
   return getRegionalLists().then(regions => {
     return new Promise((resolve, reject) => {
       const catalogString = JSON.stringify(regions)
-      fs.writeFileSync(getOutPath('regional_catalog.json', 'default'), catalogString)
       fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
       getListCatalog().then(listCatalog => {
         const catalogString = JSON.stringify(listCatalog)
@@ -150,8 +121,6 @@ const generateDataFilesForResourcesComponent = () => {
 
 const generateDataFilesForDefaultAdblock = () => getDefaultLists()
   .then(defaultLists => Promise.all(defaultLists.map(list => generateDataFilesForCatalogEntry(list))))
-  // default adblock DAT component requires this for historical reasons
-  .then(() => generateResourcesFile(getOutPath('resources.json', 'default')))
 
 generateDataFilesForDefaultAdblock()
   .then(generateDataFilesForResourcesComponent)

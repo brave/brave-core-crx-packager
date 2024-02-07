@@ -10,7 +10,7 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
-import { regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
+import { getListCatalog, regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
 
 async function stageFiles (version, outputDir) {
   // ad-block components are already written in the output directory
@@ -18,17 +18,6 @@ async function stageFiles (version, outputDir) {
   const originalManifest = path.join(outputDir, 'manifest.json')
   // note - in-place manifest replacement, unlike other components
   util.copyManifestWithVersion(originalManifest, outputDir, version)
-  // Copy resources.json into components with a UUID. We will migrate to
-  // using component IDs instead of UUIDs for directory names.
-  // UUIDs are 36 characters, component IDs are 32.
-  if (path.basename(outputDir).length > 32) {
-    const resourceFileName = 'resources.json'
-    const resourceJsonPath = path.join('build', 'ad-block-updater', 'default', resourceFileName)
-    const outputResourceJSON = path.join(outputDir, resourceFileName)
-    if (resourceJsonPath !== outputResourceJSON) {
-      fs.copyFileSync(resourceJsonPath, outputResourceJSON)
-    }
-  }
 }
 
 const postNextVersionWork = (componentSubdir, key, publisherProofKey,
@@ -70,7 +59,7 @@ const processComponent = (binary, endpoint, region, keyDir,
     fileToHash = 'regional_catalog.json'
   } else if (componentSubdir === resourcesComponentId) {
     fileToHash = 'resources.json'
-  } else if (componentSubdir.length === 32) {
+  } else {
     fileToHash = 'list.txt'
   }
 
@@ -95,19 +84,20 @@ const processComponent = (binary, endpoint, region, keyDir,
   }
 }
 
-const getComponentList = () => {
-  return fs.readdirSync(path.join('build', 'ad-block-updater'))
-    .filter(dir => {
-      return fs.existsSync(path.join('build', 'ad-block-updater', dir, 'manifest.json'))
-    })
-    .reduce((acc, val) => {
-      acc.push(path.join(val))
-      return acc
-    }, [])
+const getComponentList = async () => {
+  const output = [
+    regionalCatalogComponentId,
+    resourcesComponentId
+  ]
+  const catalog = await getListCatalog()
+  catalog.forEach(entry => {
+    output.push(entry.list_text_component.component_id)
+  })
+  return output
 }
 
-const processJob = (commander, keyDir) => {
-  getComponentList()
+const processJob = async (commander, keyDir) => {
+  (await getComponentList())
     .forEach(processComponent.bind(null, commander.binary, commander.endpoint,
       commander.region, keyDir,
       commander.publisherProofKey,
@@ -129,8 +119,8 @@ if (!commander.localRun) {
   } else {
     throw new Error('Missing or invalid private key file/directory')
   }
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyDir)
+  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
+    await processJob(commander, keyDir)
   })
 } else {
   processJob(commander, undefined)
