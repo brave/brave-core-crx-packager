@@ -5,10 +5,9 @@
 // Example usage:
 // npm run package-ipfs-daemon -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
-import commander from 'commander'
-import fs from 'fs'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 const ipfsVersion = '0.24.0'
 
 const getIpfsDaemonPath = (os, arch) => {
@@ -50,51 +49,16 @@ class IpfsDaemon {
   }
 }
 
-const packageIpfsDaemon = async (binary, endpoint, region, os, arch, key,
-  publisherProofKey) => {
-  const descriptor = new IpfsDaemon(os, arch)
+const osArchVariants = [
+  ['darwin', 'amd64'],
+  ['darwin', 'arm64'],
+  ['linux', 'amd64'],
+  ['linux', 'arm64'],
+  ['win32', 'amd64'],
+  ['win32', 'arm64']
+]
 
-  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
-
-  await util.prepareNextVersionCRX(
-    binary,
-    publisherProofKey,
-    endpoint,
-    region,
-    descriptor,
-    privateKeyFile,
-    false)
-}
-
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
-  .parse(process.argv)
-
-let keyParam = ''
-
-if (fs.existsSync(commander.keyFile)) {
-  keyParam = commander.keyFile
-} else if (fs.existsSync(commander.keysDirectory)) {
-  keyParam = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
-}
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'darwin', 'amd64', keyParam, commander.publisherProofKey)
-  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'darwin', 'arm64', keyParam, commander.publisherProofKey)
-  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'linux', 'amd64', keyParam, commander.publisherProofKey)
-  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'linux', 'arm64', keyParam, commander.publisherProofKey)
-  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'win32', 'amd64', keyParam, commander.publisherProofKey)
-  await packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'win32', 'arm64', keyParam, commander.publisherProofKey)
-})
+const args = getPackagingArgs()
+Promise.all(osArchVariants.map(([os, arch]) =>
+  packageComponent(args, new IpfsDaemon(os, arch))
+))

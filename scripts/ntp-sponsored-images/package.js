@@ -3,12 +3,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../../lib/util.js'
 import params from './params.js'
+import { getPackagingArgs, packageComponent } from './packageComponent'
 
 const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
 
@@ -66,45 +66,14 @@ class NtpSponsoredImages {
   }
 }
 
-const generateCRXFile = async (binary, endpoint, region, keyDir, platformRegion,
-  componentData, publisherProofKey) => {
-  const descriptor = new NtpSponsoredImages(platformRegion, componentData)
+const args = getPackagingArgs([
+  ['-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', ''],
+  ['-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', '']
+])
 
-  const privateKeyFile = descriptor.privateKeyFromDir(keyDir)
+const targetComponents = params.getTargetComponents(args.targetRegions, args.excludedTargetRegions)
 
-  await util.prepareNextVersionCRX(
-    binary,
-    publisherProofKey,
-    endpoint,
-    region,
-    descriptor,
-    privateKeyFile,
-    false)
+for (const platformRegion of Object.keys(targetComponents)) {
+  const componentData = targetComponents[platformRegion]
+  packageComponent(args, new NtpSponsoredImages(platformRegion, componentData))
 }
-
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
-    .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', ''))
-  .parse(process.argv)
-
-let keyDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keyDir = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key directory')
-}
-
-const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  for (const platformRegion of Object.keys(targetComponents)) {
-    const componentData = targetComponents[platformRegion]
-    await generateCRXFile(commander.binary, commander.endpoint, commander.region,
-      keyDir, platformRegion, componentData,
-      commander.publisherProofKey)
-  }
-})

@@ -5,12 +5,12 @@
 // Example usage:
 // npm run package-tor-pluggable-transports -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
-import commander from 'commander'
 import { execSync } from 'child_process'
 import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
 const TOR_PLUGGABLE_TRANSPORTS_UPDATER = 'tor-pluggable-transports-updater'
 
@@ -74,44 +74,7 @@ class TorPluggableTransports {
   }
 }
 
-const packageTorPluggableTransports = async (binary, endpoint, region, platform, key, publisherProofKey) => {
-  const descriptor = new TorPluggableTransports(platform)
+const platforms = ['darwin', 'linux', 'win32']
 
-  const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
-
-  await util.prepareNextVersionCRX(
-    binary,
-    publisherProofKey,
-    endpoint,
-    region,
-    descriptor,
-    privateKeyFile,
-    false)
-}
-
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
-  .parse(process.argv)
-
-let keyParam = ''
-
-if (fs.existsSync(commander.keyFile)) {
-  keyParam = commander.keyFile
-} else if (fs.existsSync(commander.keysDirectory)) {
-  keyParam = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
-}
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  await packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'darwin', keyParam, commander.publisherProofKey)
-  await packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'linux', keyParam, commander.publisherProofKey)
-  await packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'win32', keyParam, commander.publisherProofKey)
-})
+const args = getPackagingArgs()
+Promise.all(platforms.map(platform => packageComponent(args, new TorPluggableTransports(platform))))

@@ -5,10 +5,9 @@
 // Example usage:
 //  npm run package-ethereum-remote-client -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ethereum-remote-client.pem
 
-import commander from 'commander'
-import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
 const getOriginalManifest = (packageDir) => {
   return path.join(packageDir, 'manifest.json')
@@ -35,56 +34,5 @@ class EthereumRemoteClient {
   }
 }
 
-const generateCRXFile = async (binary, endpoint, region, key,
-  publisherProofKey, localRun) => {
-  const descriptor = new EthereumRemoteClient()
-
-  let privateKeyFile = ''
-  if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : descriptor.privateKeyFromDir(key)
-  }
-
-  await util.prepareNextVersionCRX(
-    binary,
-    publisherProofKey,
-    endpoint,
-    region,
-    descriptor,
-    privateKeyFile,
-    localRun)
-}
-
-const processJob = async (commander, keyParam) => {
-  await generateCRXFile(commander.binary, commander.endpoint,
-    commander.region, keyParam, commander.publisherProofKey,
-    commander.localRun)
-}
-
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
-  .parse(process.argv)
-
-let keyParam = ''
-
-if (!commander.localRun) {
-  if (fs.existsSync(commander.keyFile)) {
-    keyParam = commander.keyFile
-  } else if (fs.existsSync(commander.keysDirectory)) {
-    keyParam = commander.keysDirectory
-  } else {
-    throw new Error('Missing or invalid private key file/directory')
-  }
-}
-
-if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-    await processJob(commander, keyParam)
-  })
-} else {
-  processJob(commander, keyParam)
-}
+const args = getPackagingArgs()
+packageComponent(args, new EthereumRemoteClient())

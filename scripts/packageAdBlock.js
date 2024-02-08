@@ -6,11 +6,11 @@
 // Example usage:
 //  npm run package-ad-block -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ad-block-updater-regional-component-keys
 
-import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import Sentry from '../lib/sentry.js'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 import {
   downloadListsForEntry,
   generatePlaintextListFromLists,
@@ -169,23 +169,6 @@ class AdblockResources {
   }
 }
 
-const processComponent = async (binary, endpoint, region, keyParam,
-  publisherProofKey, localRun, descriptor) => {
-  let privateKeyFile = ''
-  if (!localRun) {
-    privateKeyFile = !fs.lstatSync(keyParam).isDirectory() ? keyParam : descriptor.privateKeyFromDir(keyParam)
-  }
-
-  await util.prepareNextVersionCRX(
-    binary,
-    publisherProofKey,
-    endpoint,
-    region,
-    descriptor,
-    privateKeyFile,
-    localRun)
-}
-
 const getAdblockComponentDescriptors = async () => {
   const output = [
     new AdblockCatalog(),
@@ -195,32 +178,7 @@ const getAdblockComponentDescriptors = async () => {
   return output
 }
 
-const processJob = async (commander, keyDir) => {
-  (await getAdblockComponentDescriptors())
-    .map(processComponent.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey,
-      commander.localRun))
-}
-
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
-  .parse(process.argv)
-
-if (!commander.localRun) {
-  let keyDir = ''
-  if (fs.existsSync(commander.keysDirectory)) {
-    keyDir = commander.keysDirectory
-  } else {
-    throw new Error('Missing or invalid private key file/directory')
-  }
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-    await processJob(commander, keyDir)
-  })
-} else {
-  processJob(commander, undefined)
-}
+const args = getPackagingArgs()
+await Promise.all((await getAdblockComponentDescriptors()).map(descriptor =>
+  packageComponent(args, descriptor)
+))

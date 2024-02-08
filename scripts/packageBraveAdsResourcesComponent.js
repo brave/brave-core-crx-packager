@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
 const getComponentDataList = () => {
   return [
@@ -245,11 +245,11 @@ const getOriginalManifest = (locale) => {
   return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
-const generateManifestFile = (componentData) => {
-  const manifestFile = getOriginalManifest(componentData.locale)
+const generateManifestFile = (locale, key) => {
+  const manifestFile = getOriginalManifest(locale)
   const manifestContent = {
     description: 'Brave Ads Resources Component',
-    key: componentData.key,
+    key,
     manifest_version: 2,
     name: 'Brave Ads Resources',
     version: '0.0.0'
@@ -271,7 +271,7 @@ class BraveAdsResourcesComponent {
   }
 
   async stageFiles (version, outputDir) {
-    generateManifestFile(this.componentData)
+    generateManifestFile(this.locale, this.key)
     util.stageDir(
       path.join(path.resolve(), 'build', 'user-model-installer', 'resources', this.locale, '/'),
       getOriginalManifest(this.locale),
@@ -280,39 +280,8 @@ class BraveAdsResourcesComponent {
   }
 }
 
-const generateCRXFile = async (binary, endpoint, region, keyDir, publisherProofKey,
-  componentData) => {
-  const descriptor = new BraveAdsResourcesComponent(componentData)
+const args = getPackagingArgs()
 
-  const privateKeyFile = descriptor.privateKeyFromDir(keyDir)
-
-  await util.prepareNextVersionCRX(
-    binary,
-    publisherProofKey,
-    endpoint,
-    region,
-    descriptor,
-    privateKeyFile,
-    false)
-}
-
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
-  .parse(process.argv)
-
-let keyDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keyDir = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key directory')
-}
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-  await Promise.all(getComponentDataList().map(
-    generateCRXFile.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey)))
-})
+await Promise.all(getComponentDataList().map(componentData =>
+  packageComponent(args, new BraveAdsResourcesComponent(componentData))
+))
