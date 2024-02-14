@@ -2,115 +2,57 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Example usage:
-//  npm run package-ethereum-remote-client -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ethereum-remote-client.pem
-
 import commander from 'commander'
-import fs from 'fs-extra'
-import path from 'path'
+import fs from 'fs/promises'
 import util from '../lib/util.js'
 
-const stageFiles = (componentType, version, outputDir) => {
-  util.stageDir(getPackageDirByComponentType(componentType), getOriginalManifest(componentType), version, outputDir)
+const getPackagingArgs = (additionalParams) => {
+  util.installErrorHandlers()
 
-  if (componentType === 'wallet-data-files-updater') {
-    fs.unlinkSync(path.join(outputDir, 'package.json'))
-  }
-}
-
-const validComponentTypes = [
-  'ethereum-remote-client',
-  'wallet-data-files-updater'
-]
-
-const getPackageNameByComponentType = (componentType) => {
-  switch (componentType) {
-    case 'ethereum-remote-client':
-      return componentType
-    case 'wallet-data-files-updater':
-      return 'brave-wallet-lists'
-    default:
-      // shouldn't be possible to get here
-      return null
-  }
-}
-const getPackageDirByComponentType = (componentType) => {
-  return path.join('node_modules', getPackageNameByComponentType(componentType))
-}
-
-const getOriginalManifest = (componentType) => {
-  return path.join(getPackageDirByComponentType(componentType), 'manifest.json')
-}
-
-const postNextVersionWork = (componentType, key, publisherProofKey,
-  binary, localRun, version) => {
-  const stagingDir = path.join('build', componentType)
-  const crxFile = path.join(stagingDir, `${componentType}.crx`)
-  let privateKeyFile = ''
-  if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}.pem`)
-  }
-  stageFiles(componentType, version, stagingDir)
-  if (!localRun) {
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-  }
-  console.log(`Generated ${crxFile} with version number ${version}`)
-}
-
-const processDATFile = (binary, endpoint, region, componentType, key,
-  publisherProofKey, localRun) => {
-  const originalManifest = getOriginalManifest(componentType)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
-
-  if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(componentType, key, publisherProofKey,
-        binary, localRun, version)
-    })
-  } else {
-    postNextVersionWork(componentType, key, publisherProofKey,
-      binary, localRun, '1.0.0')
-  }
-}
-
-const processJob = (commander, keyParam) => {
-  if (!validComponentTypes.includes(commander.type)) {
-    throw new Error('Unrecognized component extension type: ' + commander.type)
-  }
-  processDATFile(commander.binary, commander.endpoint,
-    commander.region, commander.type, keyParam,
-    commander.publisherProofKey,
-    commander.localRun)
-}
-
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
+  let setup = commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-t, --type <type>', 'component extension type', /^(local-data-files-updater|ethereum-remote-client|wallet-data-files-updater)$/i)
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
-  .parse(process.argv)
+    .option('-f, --key-file <file>', 'private key file for signing crx')
+    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
+    .option('-b, --binary <binary>', 'Path to the Chromium based executable to use to generate the CRX file')
+    .option('-p, --publisher-proof-key <file>', 'File containing private key for generating publisher proof')
+    .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')
+    .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
 
-let keyParam = ''
+  if (additionalParams !== undefined) {
+    for (const param of additionalParams) {
+      setup = setup.option(...param)
+    }
+  }
 
-if (!commander.localRun) {
-  if (fs.existsSync(commander.keyFile)) {
-    keyParam = commander.keyFile
-  } else if (fs.existsSync(commander.keysDirectory)) {
-    keyParam = commander.keysDirectory
-  } else {
+  return setup.parse(process.argv)
+}
+
+const packageComponent = async (packagingArgs, componentClass) => {
+  let privateKeyFile = ''
+
+  if (packagingArgs.keyFile !== undefined && (await fs.lstat(packagingArgs.keyFile)).isFile()) {
+    privateKeyFile = packagingArgs.keyFile
+  } else if (packagingArgs.keysDirectory !== undefined && (await fs.lstat(packagingArgs.keysDirectory)).isDirectory()) {
+    privateKeyFile = componentClass.privateKeyFromDir(packagingArgs.keysDirectory)
+  } else if (packagingArgs.localRun !== true) {
     throw new Error('Missing or invalid private key file/directory')
   }
+
+  if (packagingArgs.localRun !== true) {
+    await util.createTableIfNotExists(packagingArgs.endpoint, packagingArgs.region)
+  }
+
+  await util.prepareNextVersionCRX(
+    packagingArgs.binary,
+    packagingArgs.publisherProofKey,
+    packagingArgs.endpoint,
+    packagingArgs.region,
+    componentClass,
+    privateKeyFile,
+    packagingArgs.localRun)
 }
 
-if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyParam)
-  })
-} else {
-  processJob(commander, keyParam)
+export {
+  getPackagingArgs,
+  packageComponent
 }

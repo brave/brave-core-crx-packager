@@ -3,26 +3,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../../lib/util.js'
 import params from './params.js'
+import { getPackagingArgs, packageComponent } from './packageComponent'
 
-const stageFiles = (locale, version, outputDir) => {
-  util.stageDir(
-    path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/'),
-    getManifestPath(locale),
-    version,
-    outputDir)
-}
+const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
 
-const generateManifestFile = (regionPlatform, componentData) => {
+const generateManifestFile = (regionPlatform, publicKey) => {
   const manifestPath = getManifestPath(regionPlatform)
   const manifestContent = {
     description: `Brave NTP sponsored images component (${regionPlatform})`,
-    key: componentData.key,
+    key: publicKey,
     manifest_version: 2,
     name: 'Brave NTP sponsored images',
     version: '0.0.0'
@@ -46,48 +40,40 @@ function getManifestPath (regionPlatform) {
   return path.join(getManifestsDir(), `${regionPlatform}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
-  componentData, publisherProofKey) => {
-  const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
-  const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
-  util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-sponsored-images-${platformRegion}.crx`)
-    // Desktop private key file names do not have the -desktop suffix, but android has -android
-    const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
-    stageFiles(platformRegion, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
-}
+class NtpSponsoredImages {
+  constructor (platformRegion, componentData) {
+    this.platformRegion = platformRegion
+    this.locale = componentData.locale
+    this.publicKey = componentData.key
+    this.componentId = componentData.id
 
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
-    .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', ''))
-  .parse(process.argv)
-
-let keyDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keyDir = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key directory')
-}
-
-const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  for (const platformRegion of Object.keys(targetComponents)) {
-    const componentData = targetComponents[platformRegion]
-    generateManifestFile(platformRegion, componentData)
-    generateCRXFile(commander.binary, commander.endpoint, commander.region,
-      keyDir, platformRegion, componentData,
-      commander.publisherProofKey)
+    this.stagingDir = path.join(rootBuildDir, 'staging', this.platformRegion)
+    this.crxFile = path.join(rootBuildDir, 'output', `ntp-sponsored-images-${this.platformRegion}.crx`)
   }
-})
+
+  privateKeyFromDir (keyDir) {
+    // Desktop private key file names do not have the -desktop suffix, but android has -android
+    return path.join(keyDir, `ntp-sponsored-images-${this.platformRegion.replace('-desktop', '')}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    generateManifestFile(this.platformRegion, this.publicKey)
+    util.stageDir(
+      path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', this.locale, '/'),
+      getManifestPath(this.locale),
+      version,
+      outputDir)
+  }
+}
+
+const args = getPackagingArgs([
+  ['-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', ''],
+  ['-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', '']
+])
+
+const targetComponents = params.getTargetComponents(args.targetRegions, args.excludedTargetRegions)
+
+for (const platformRegion of Object.keys(targetComponents)) {
+  const componentData = targetComponents[platformRegion]
+  packageComponent(args, new NtpSponsoredImages(platformRegion, componentData))
+}

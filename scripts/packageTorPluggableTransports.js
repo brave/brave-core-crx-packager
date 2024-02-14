@@ -5,12 +5,12 @@
 // Example usage:
 // npm run package-tor-pluggable-transports -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
-import commander from 'commander'
 import { execSync } from 'child_process'
 import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
 const TOR_PLUGGABLE_TRANSPORTS_UPDATER = 'tor-pluggable-transports-updater'
 
@@ -45,57 +45,36 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`)
 }
 
-const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey) => {
-  const originalManifest = getOriginalManifest(platform)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
+class TorPluggableTransports {
+  constructor (platform) {
+    this.platform = platform
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
-    const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
-    const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
+    const originalManifest = getOriginalManifest(this.platform)
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-    const stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, platform)
-    const crxOutputDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER)
-    const crxFile = path.join(crxOutputDir, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
-    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
-    stageFiles(platform, snowflake, obfs4, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey, stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+    this.stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, this.platform)
+    this.crxFile = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${this.platform}.crx`)
+  }
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${this.platform}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    const snowflake = downloadTorPluggableTransport(this.platform, 'snowflake')
+    const obfs4 = downloadTorPluggableTransport(this.platform, 'obfs4')
+
+    const files = [
+      { path: getOriginalManifest(this.platform), outputName: 'manifest.json' },
+      { path: snowflake },
+      { path: obfs4 }
+    ]
+    util.stageFiles(files, version, outputDir)
+  }
 }
 
-const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
-  const files = [
-    { path: getOriginalManifest(platform), outputName: 'manifest.json' },
-    { path: snowflake },
-    { path: obfs4 }
-  ]
-  util.stageFiles(files, version, outputDir)
-}
+const platforms = ['darwin', 'linux', 'win32']
 
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
-  .parse(process.argv)
-
-let keyParam = ''
-
-if (fs.existsSync(commander.keyFile)) {
-  keyParam = commander.keyFile
-} else if (fs.existsSync(commander.keysDirectory)) {
-  keyParam = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
-}
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'darwin', keyParam, commander.publisherProofKey)
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'linux', keyParam, commander.publisherProofKey)
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'win32', keyParam, commander.publisherProofKey)
-})
+const args = getPackagingArgs()
+Promise.all(platforms.map(platform => packageComponent(args, new TorPluggableTransports(platform))))

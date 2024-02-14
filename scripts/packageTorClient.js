@@ -5,13 +5,13 @@
 // Example usage:
 // npm run package-tor-client -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --keys-directory path/to/key/dir
 
-import commander from 'commander'
 import crypto from 'crypto'
 import { execSync } from 'child_process'
 import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
 // Downloads the current (platform-specific) Tor client from S3
 const downloadTorClient = (platform) => {
@@ -63,38 +63,6 @@ const downloadTorClient = (platform) => {
   return torClient
 }
 
-const getOriginalManifest = (platform) => {
-  return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
-}
-
-const packageTorClient = (binary, endpoint, region, platform, key,
-  publisherProofKey) => {
-  const originalManifest = getOriginalManifest(platform)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
-
-  util.getNextVersion(endpoint, region, id).then((version) => {
-    const stagingDir = path.join('build', 'tor-client-updater', platform)
-    const torClient = downloadTorClient(platform)
-    const crxOutputDir = path.join('build', 'tor-client-updater')
-    const crxFile = path.join(crxOutputDir, `tor-client-updater-${platform}.crx`)
-    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `tor-client-updater-${platform}.pem`)
-    stageFiles(platform, torClient, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
-}
-
-const stageFiles = (platform, torClient, version, outputDir) => {
-  const files = [
-    { path: getOriginalManifest(platform), outputName: 'manifest.json' },
-    { path: torClient },
-    { path: path.join('resources', 'tor', 'torrc'), outputName: 'tor-torrc' }
-  ]
-  util.stageFiles(files, version, outputDir)
-}
-
 // Does a hash comparison on a file against a given hash
 const verifyChecksum = (file, hash) => {
   const filecontent = fs.readFileSync(file)
@@ -103,31 +71,37 @@ const verifyChecksum = (file, hash) => {
   return hash === computedHash
 }
 
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
-  .parse(process.argv)
-
-let keyParam = ''
-
-if (fs.existsSync(commander.keyFile)) {
-  keyParam = commander.keyFile
-} else if (fs.existsSync(commander.keysDirectory)) {
-  keyParam = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
+const getOriginalManifest = (platform) => {
+  return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
-    'darwin', keyParam, commander.publisherProofKey)
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
-    'linux', keyParam, commander.publisherProofKey)
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
-    'linux-arm64', keyParam, commander.publisherProofKey)
-  packageTorClient(commander.binary, commander.endpoint, commander.region,
-    'win32', keyParam, commander.publisherProofKey)
-})
+class TorClient {
+  constructor (platform) {
+    this.platform = platform
+    const originalManifest = getOriginalManifest(this.platform)
+    const parsedManifest = util.parseManifest(originalManifest)
+    this.componentId = util.getIDFromBase64PublicKey(parsedManifest.key)
+
+    this.stagingDir = path.join('build', 'tor-client-updater', this.platform)
+    this.crxFile = path.join('build', 'tor-client-updater', `tor-client-updater-${this.platform}.crx`)
+  }
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `tor-client-updater-${this.platform}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    const torClient = downloadTorClient(this.platform)
+    const files = [
+      { path: getOriginalManifest(this.platform), outputName: 'manifest.json' },
+      { path: torClient },
+      { path: path.join('resources', 'tor', 'torrc'), outputName: 'tor-torrc' }
+    ]
+    util.stageFiles(files, version, outputDir)
+  }
+}
+
+const platforms = ['darwin', 'linux', 'linux-arm64', 'win32']
+
+const args = getPackagingArgs()
+Promise.all(platforms.map(platform => packageComponent(args, new TorClient(platform))))

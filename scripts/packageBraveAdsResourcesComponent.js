@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
 const getComponentDataList = () => {
   return [
@@ -233,29 +233,7 @@ const getComponentDataList = () => {
   ]
 }
 
-const stageFiles = (locale, version, outputDir) => {
-  util.stageDir(
-    path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/'),
-    getOriginalManifest(locale),
-    version,
-    outputDir)
-}
-
-const generateManifestFile = (componentData) => {
-  const manifestFile = getOriginalManifest(componentData.locale)
-  const manifestContent = {
-    description: 'Brave Ads Resources Component',
-    key: componentData.key,
-    manifest_version: 2,
-    name: 'Brave Ads Resources',
-    version: '0.0.0'
-  }
-  fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
-}
-
-const generateManifestFiles = () => {
-  getComponentDataList().forEach(generateManifestFile)
-}
+const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
 
 const getManifestsDir = () => {
   const targetResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'manifiest-files')
@@ -267,42 +245,43 @@ const getOriginalManifest = (locale) => {
   return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
-  componentData) => {
-  const locale = componentData.locale
-  const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
-  const stagingDir = path.join(rootBuildDir, 'staging', locale)
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
-  util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
-    const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
-    stageFiles(locale, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+const generateManifestFile = (locale, key) => {
+  const manifestFile = getOriginalManifest(locale)
+  const manifestContent = {
+    description: 'Brave Ads Resources Component',
+    key,
+    manifest_version: 2,
+    name: 'Brave Ads Resources',
+    version: '0.0.0'
+  }
+  fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-util.installErrorHandlers()
+class BraveAdsResourcesComponent {
+  constructor (componentData) {
+    this.locale = componentData.locale
+    this.publicKey = componentData.key
+    this.componentId = componentData.id
+    this.stagingDir = path.join(rootBuildDir, 'staging', this.locale)
+    this.crxFile = path.join(rootBuildDir, 'output', `user-model-installer-${this.locale}.crx`)
+  }
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
-  .parse(process.argv)
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `user-model-installer-${this.locale}.pem`)
+  }
 
-let keyDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keyDir = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key directory')
+  async stageFiles (version, outputDir) {
+    generateManifestFile(this.locale, this.key)
+    util.stageDir(
+      path.join(path.resolve(), 'build', 'user-model-installer', 'resources', this.locale, '/'),
+      getOriginalManifest(this.locale),
+      version,
+      outputDir)
+  }
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  generateManifestFiles()
-  getComponentDataList().forEach(
-    generateCRXFile.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey))
-})
+const args = getPackagingArgs()
+
+await Promise.all(getComponentDataList().map(componentData =>
+  packageComponent(args, new BraveAdsResourcesComponent(componentData))
+))
