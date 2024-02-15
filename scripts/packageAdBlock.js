@@ -54,6 +54,12 @@ const processComponent = (binary, endpoint, region, keyDir,
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
+  // TODO - previous download failures should prevent the attempt to package the component.
+  if (!fs.existsSync(originalManifest)) {
+    console.warn(`Missing manifest for ${componentSubdir}. Skipping.`)
+    return
+  }
+
   let fileToHash
   if (componentSubdir === regionalCatalogComponentId) {
     fileToHash = 'regional_catalog.json'
