@@ -3,54 +3,36 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-//  npm run package-ethereum-remote-client -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/ethereum-remote-client.pem
+//  npm run wallet-data-files-updater -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/wallet-data-files-updater.pem
 
 import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
 
-const stageFiles = (componentType, version, outputDir) => {
-  util.stageDir(getPackageDirByComponentType(componentType), getOriginalManifest(componentType), version, outputDir)
+const stageFiles = (version, outputDir) => {
+  util.stageDir(getPackageDir(), getOriginalManifest(), version, outputDir)
 
-  if (componentType === 'wallet-data-files-updater') {
-    fs.unlinkSync(path.join(outputDir, 'package.json'))
-  }
+  fs.unlinkSync(path.join(outputDir, 'package.json'))
 }
 
-const validComponentTypes = [
-  'ethereum-remote-client',
-  'wallet-data-files-updater'
-]
-
-const getPackageNameByComponentType = (componentType) => {
-  switch (componentType) {
-    case 'ethereum-remote-client':
-      return componentType
-    case 'wallet-data-files-updater':
-      return 'brave-wallet-lists'
-    default:
-      // shouldn't be possible to get here
-      return null
-  }
-}
-const getPackageDirByComponentType = (componentType) => {
-  return path.join('node_modules', getPackageNameByComponentType(componentType))
+const getPackageDir = () => {
+  return path.join('node_modules', 'brave-wallet-lists')
 }
 
-const getOriginalManifest = (componentType) => {
-  return path.join(getPackageDirByComponentType(componentType), 'manifest.json')
+const getOriginalManifest = () => {
+  return path.join(getPackageDir(), 'manifest.json')
 }
 
-const postNextVersionWork = (componentType, key, publisherProofKey,
-  binary, localRun, version) => {
+const postNextVersionWork = (key, publisherProofKey, binary, localRun, version) => {
+  const componentType = 'wallet-data-files-updater'
   const stagingDir = path.join('build', componentType)
   const crxFile = path.join(stagingDir, `${componentType}.crx`)
   let privateKeyFile = ''
   if (!localRun) {
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}.pem`)
   }
-  stageFiles(componentType, version, stagingDir)
+  stageFiles(version, stagingDir)
   if (!localRun) {
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       stagingDir)
@@ -58,30 +40,25 @@ const postNextVersionWork = (componentType, key, publisherProofKey,
   console.log(`Generated ${crxFile} with version number ${version}`)
 }
 
-const processDATFile = (binary, endpoint, region, componentType, key,
-  publisherProofKey, localRun) => {
-  const originalManifest = getOriginalManifest(componentType)
+const processDATFile = (binary, endpoint, region, key, publisherProofKey, localRun) => {
+  const originalManifest = getOriginalManifest()
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   if (!localRun) {
     util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(componentType, key, publisherProofKey,
+      postNextVersionWork(key, publisherProofKey,
         binary, localRun, version)
     })
   } else {
-    postNextVersionWork(componentType, key, publisherProofKey,
+    postNextVersionWork(key, publisherProofKey,
       binary, localRun, '1.0.0')
   }
 }
 
 const processJob = (commander, keyParam) => {
-  if (!validComponentTypes.includes(commander.type)) {
-    throw new Error('Unrecognized component extension type: ' + commander.type)
-  }
   processDATFile(commander.binary, commander.endpoint,
-    commander.region, commander.type, keyParam,
-    commander.publisherProofKey,
+    commander.region, keyParam, commander.publisherProofKey,
     commander.localRun)
 }
 
@@ -91,7 +68,6 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-t, --type <type>', 'component extension type', /^(local-data-files-updater|ethereum-remote-client|wallet-data-files-updater)$/i)
     .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 
