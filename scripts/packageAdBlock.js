@@ -51,14 +51,15 @@ const getOriginalManifest = (componentSubdir) => {
 const processComponent = (binary, endpoint, region, keyDir,
   publisherProofKey, localRun, componentSubdir) => {
   const originalManifest = getOriginalManifest(componentSubdir)
-  const parsedManifest = util.parseManifest(originalManifest)
-  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   // TODO - previous download failures should prevent the attempt to package the component.
   if (!fs.existsSync(originalManifest)) {
     console.warn(`Missing manifest for ${componentSubdir}. Skipping.`)
     return
   }
+
+  const parsedManifest = util.parseManifest(originalManifest)
+  const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   let fileToHash
   if (componentSubdir === regionalCatalogComponentId) {
