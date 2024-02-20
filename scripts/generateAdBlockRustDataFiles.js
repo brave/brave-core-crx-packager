@@ -50,6 +50,18 @@ const enforceBraveDirectives = (title, data) => {
   }
 }
 
+const removeIncompatibleRules = (listBuffer) => {
+  // Prior to adblock-rust 0.8.7, scriptlet arguments with trailing escaped commas can cause crashes.
+  listBuffer.data = listBuffer.data.split('\n').filter(line => {
+    line = line.trim()
+    if (line.indexOf('+js(') >= 0 && line.endsWith('\\,)')) {
+      return false
+    }
+    return true
+  }).join('\n')
+  return listBuffer
+}
+
 /**
  * Serializes the provided lists to disk in one file as `list.txt` under the given component subdirectory.
  */
@@ -76,8 +88,9 @@ const generateDataFilesForCatalogEntry = (entry) => {
     promises.push(util.fetchTextFromURL(l.url)
       .then(data => ({ title: l.title || entry.title, format: l.format, data }))
       .then(listBuffer => {
-        sanityCheckList(listBuffer)
-        return listBuffer
+        const compat = removeIncompatibleRules(listBuffer)
+        sanityCheckList(compat)
+        return compat
       })
     )
   })
