@@ -11,7 +11,6 @@ pipeline {
             steps {
                 script {
                     GITHUB_API = 'https://api.github.com/repos/brave'
-                    PIPELINE_NAME = 'pr-brave-core-ext-tor-client-update-publish-dev-pr-test-' + CHANGE_BRANCH.replace('/', '-')
 
                     withCredentials([usernamePassword(credentialsId: 'brave-builds-github-token-for-pr-builder', usernameVariable: 'PR_BUILDER_USER', passwordVariable: 'PR_BUILDER_TOKEN')]) {
                         def prDetails = readJSON(text: httpRequest(url: GITHUB_API + '/brave-core-crx-packager/pulls?head=brave:' + CHANGE_BRANCH, customHeaders: [[name: 'Authorization', value: 'token ' + PR_BUILDER_TOKEN]]).content)[0]
@@ -31,34 +30,25 @@ pipeline {
                         }
                     }
 
-                    jobDsl(scriptText: """
-                        pipelineJob('${PIPELINE_NAME}') {
-                            // this list has to match the parameters in the Jenkinsfile from devops repo
-                            parameters {
-                                stringParam('BRANCH', '${CHANGE_BRANCH}')
-                            }
-                            definition {
-                                cpsScm {
-                                    scm {
-                                        git {
-                                            remote {
-                                                credentials('brave-builds-github-token-for-pr-builder')
-                                                github('brave/devops', 'https')
-                                            }
-                                            branch('master')
-                                        }
-                                    }
-                                    scriptPath("jenkins/jobs/extensions/dev/brave-core-ext-tor-client-update-publish-dev-pr-test.Jenkinsfile")
-                                }
-                            }
-                        }
-                    """)
-
-                    params = [
-                        string(name: 'BRANCH', value: CHANGE_BRANCH)
-                    ]
-
-                    currentBuild.result = build(job: PIPELINE_NAME, parameters: params, propagate: false).result
+                    sh "git fetch origin master"
+                    def modifiedFiles = sh(
+                        script: "git diff --name-only origin/master",
+                        returnStdout: true
+                    ).trim().split("\n")
+        
+                    def filePath = 'scripts/packageTorClient.js'
+                    if (!modifiedFiles.contains(filePath)) {
+                        print("No changes detected in ${filePath}")
+                        currentBuild.result = 'SUCCESS'
+                    } else {
+                        def pipelineName = "brave-core-ext-tor-client-update-publish-dev"
+                        def params = [
+                            string(name: "BRANCH", value: env.CHANGE_BRANCH),
+                            booleanParam(name: "UPLOAD", value: false)
+                        ]
+                        print("Changes detected in ${filePath}. Running ${pipelineName}")
+                        currentBuild.result = build(job: pipelineName, parameters: params, wait: true, propagate: false).result
+                    }
                 }
             }
         }
