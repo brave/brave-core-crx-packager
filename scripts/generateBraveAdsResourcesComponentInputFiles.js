@@ -73,7 +73,9 @@ const getComponentList = () => {
     'iso_639_1_ro',
     'iso_639_1_ru',
     'iso_639_1_sv',
-    'iso_639_1_tr'
+    'iso_639_1_tr',
+    'iso_639_1_id',
+    'iso_639_1_vi'
   ]
 }
 
