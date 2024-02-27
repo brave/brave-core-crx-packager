@@ -28,16 +28,16 @@ const downloadTorClient = (platform) => {
 
   switch (platform) {
     case 'darwin':
-      sha512Tor = 'd2b8e2efc9f885d771246b1acf564ad5ad18297434a98e3bda63b6785d90ba7dbad1eaa89b32cd1a8bfd19fdc3ba84c7990a06025be374c2fc6523be280b8701'
+      sha512Tor = '287c50a1911b23b76e2126102b7c71791b28876d5ebe40796747160196f166607951aa6f4c28fc099d5304616aad40e641b32107a95cd56bcadf2ad601c709f0'
       break
     case 'linux':
-      sha512Tor = '7463aa35c5341331fc024bc38bd24f10c5d032b508da60bc281b1cd01f5be336b8478580ab96430daeed5f57aebdfe65ec1f87d97b9fc344c335ed75a8c8106f'
+      sha512Tor = 'c0e74adf02c22ddd32cab7370d8bf578a8e70de2a60042a8c3077bcd1e5dd101daeb56cdffdb749c01315a743310bfa719426ab78b4fe521f43039ea7ea69851'
       break
     case 'linux-arm64':
-      sha512Tor = '5f16f5e9e0431dffc4a1a4ab53f7a43751d51cdec6b4fec918dfe53139456289544574909ee8a7ba4f64d3c2c2edd97285c20dc7a74b651192bdd6a2e6edb4a8'
+      sha512Tor = '1cdc862e9e854b2597e07abee03e1c4b59fee0905fa3eabd5d4a99c3b71a22483e4135e38018d834b01d7667bdc25ed497159149adc2be357388167a049e46fc'
       break
     case 'win32':
-      sha512Tor = 'c5952c67ec10ad75f9bc0854563049162a456b469cfffeb4c271de5b1164bd2e79d636b8293a1cb529d4c7783e1591d25c287a0cbe5a31c8ecda44136ff89988'
+      sha512Tor = '00bc175ccfadf6897608ce48b999133551414d495e98fef9dbcadc3f59387cb78410c6493ec8777fc20130c6d677b70874530727481506b794e0adfb15d72c73'
       break
     default:
       throw new Error('Tor client download failed; unrecognized platform: ' + platform)
