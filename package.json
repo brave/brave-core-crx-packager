@@ -11,7 +11,6 @@
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
     "@sentry/node": "7.102.1",
-    "tmp": "0.2.1",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {

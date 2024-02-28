@@ -1,15 +1,17 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import tmp from 'tmp'
 import fs from 'fs'
+import { tmpdir } from 'os'
+import path from 'path'
 import { spawnSync } from 'child_process'
 
 import { generateResourcesFile, sanityCheckList } from '../lib/adBlockRustUtils.js'
 
 test('generateResourcesFile', async (t) => {
-  const tmpfile = tmp.fileSync({ discardDescriptor: true })
-  return generateResourcesFile(tmpfile.name).then(() => {
-    const filedata = fs.readFileSync(tmpfile.name)
+  const tempUserDataDir = fs.mkdtempSync(path.join(tmpdir(), 'generate-resources-file-'))
+  const tmpfile = path.join(tempUserDataDir, 'resourcefile')
+  return generateResourcesFile(tmpfile).then(() => {
+    const filedata = fs.readFileSync(tmpfile)
     const resources = JSON.parse(filedata)
     assert.ok(Object.prototype.toString.call(resources) === '[object Array]')
     assert.ok(resources.length >= 10)
