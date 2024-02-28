@@ -54,12 +54,12 @@ util.installErrorHandlers()
 util.addCommonScriptOptions(
   commander
     .option('-n, --super-referrer-name <name>', 'super referrer name for this component')
-    .option('-k, --key <file>', 'file containing private key for signing crx file'))
+    .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
   .parse(process.argv)
 
 let privateKeyFile = ''
-if (fs.existsSync(commander.key)) {
-  privateKeyFile = commander.key
+if (fs.existsSync(commander.keyFile)) {
+  privateKeyFile = commander.keyFile
 } else {
   throw new Error('Missing or invalid private key')
 }
