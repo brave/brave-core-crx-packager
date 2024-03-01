@@ -15,7 +15,7 @@ services:
         condition: service_healthy
   # nosemgrep: writable-filesystem-service
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack@sha256:a3927228e76b2d1154e39fbcb8226ae971df9523b00940ae2f390f52b37ca32b
     environment:
       - SERVICES=s3,dynamodb
       - DEBUG=1
