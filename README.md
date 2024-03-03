@@ -101,7 +101,7 @@ npm run generate-ntp-super-referrer -- --data-url <s3 buckets url> --super-refer
 Then, package assets to crx file for specific super referrer. It will generate component crx file at `./build/ntp-super-referrer/output`.
 
 ```bash
-npm run package-ntp-super-referrer -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --key ntp-super-referrer-{super-referrer-code}.pem --super-referrer-name <super-referrer-code>
+npm run package-ntp-super-referrer -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --key-file ntp-super-referrer-{super-referrer-code}.pem --super-referrer-name <super-referrer-code>
 ```
 
 ## Generating differential updates
