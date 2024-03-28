@@ -20,6 +20,7 @@ const stageFiles = (version, outputDir) => {
   const datFileVersion = '1'
   const files = [
     { path: getOriginalManifest(), outputName: 'manifest.json' },
+    { path: path.join('brave-lists', 'webcompat-exceptions.json'), outputName: path.join(datFileVersion, 'webcompat-exceptions.json') },
     { path: path.join('brave-lists', 'debounce.json'), outputName: path.join(datFileVersion, 'debounce.json') },
     { path: path.join('brave-lists', 'request-otr.json'), outputName: path.join(datFileVersion, 'request-otr.json') },
     { path: path.join('brave-lists', 'clean-urls.json'), outputName: path.join(datFileVersion, 'clean-urls.json') },
