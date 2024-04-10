@@ -8,7 +8,7 @@ import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
-const ipfsVersion = '0.26.0'
+const ipfsVersion = '0.27.0'
 
 // Downloads the current (platform-specific) Ipfs Daemon from ipfs.io
 const downloadIpfsDaemon = (platform, arch) => {
@@ -25,22 +25,22 @@ const downloadIpfsDaemon = (platform, arch) => {
   let sha512IPFS = ''
   switch (build) {
     case 'darwin-amd64':
-      sha512IPFS = '30e25d1067c6454722b203432980504df51b7dc4d83326d1819256a3460b686942cf41547fbf40ee3577f1a28890e97e86b51ce7a447ff9037465a67f0fb3bc8'
+      sha512IPFS = 'aee927085da7615af78203b8dd6e07b39b37bac03d61a44aa27a26fbee5bb742c67a587bc27b95712ad6f92122c24024086ef9e37b294a6d2c4645732ff6fbcf'
       break
     case 'darwin-arm64':
-      sha512IPFS = 'd9affadf087eb57127b14564ac62da20dcce4f5ded7236d2186d90d215bf9c9e6584ea65c84b2e692cb7fc3dd023aaf4b4a427a652c0b9411accd12958676e29'
+      sha512IPFS = '567ab29f018ad91e00b8cf222b05665c6357d1cf0a9bc68711f14b65355b0716892eb50a1a84e3d89074aff2214af95f52b879e4276dc51d8b7d387191562d70'
       break
     case 'linux-amd64':
-      sha512IPFS = '1fef20ec24d9c0915a2878298e9468275ad286593b3c4b43356566416724a169275a8732e16764f0f56b8747302aadfe2126e34c8021713b7b4b6142ba99ac02'
+      sha512IPFS = '86e99a4aed0eb410833b6084c1c2d8486e6406b6ae2d8c992a72592a5534f1b58d7e73e3d51777df358de20ebe51a691258a6851c1ddb385f5cafdd2fc7caaea'
       break
     case 'linux-arm64':
-      sha512IPFS = '9d225a73656590dcdb4af445a6a782c0b07e43be71e1ae1f8107174ea88d08fa725acabc7662efd892b9152e11be334aeb7469d304262c01deacb3674a1d801c'
+      sha512IPFS = '946129ac49b5aca0b950d898f128c20cefadaffc3a3e0f09fdde0fbd18642747eb0282a12227a49ef365aa39292dddd89db6cb9d2408050a61120a709609a4a5'
       break
     case 'windows-amd64':
-      sha512IPFS = 'cdde0eb28d0d13d52e85eb973899c26b38f6d3f38731ba61f2beec19a40cc2e6646fc536505afe2798e1973e29b2d7ca9c5c8b312bb710d07dae4a5e5eab4bf0'
+      sha512IPFS = 'bcd5f024dc8ab2c3f400d42a282b675f81da26b3457d396e1fc15775715ce69d47514bd6180ab5fa692dd06754b24c5d5efc37a4100c4ab80cf0dbdf15f6dd42'
       break
     case 'windows-arm64':
-      sha512IPFS = '5f06aca8afa8a77adff5355105010e65effe78035c05761cac07c5e2757841bed27e6736259135842d513fb4381860c462b42b7c2557f27dac7a3c5548b1d348'
+      sha512IPFS = 'a94eb0ff17a1f9561f7dbe9c735aa0be662294541dd1ea62f347ab20c266674df98084bb9d525c71aad2985d1efe1bc7a010e1e1c51fa483fd8daa48568ff888'
       break
     default:
       throw new Error('Ipfs Daemon download failed; unrecognized platform: ' + platform)

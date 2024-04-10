@@ -9,7 +9,7 @@ import commander from 'commander'
 import fs from 'fs'
 import path from 'path'
 import util from '../lib/util.js'
-const ipfsVersion = '0.26.0'
+const ipfsVersion = '0.27.0'
 
 const getIpfsDaemonPath = (os, arch) => {
   const ipfsPath = path.join('build', 'ipfs-daemon-updater', 'downloads')
