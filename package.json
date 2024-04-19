@@ -10,7 +10,7 @@
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
-    "@sentry/node": "7.110.0",
+    "@sentry/node": "7.110.1",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
