@@ -31,7 +31,7 @@ const generateManifestFile = (publicKey) => {
 }
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-  publisherProofKey) => {
+  publisherProofKey, publisherProofKeyAlt) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-background-images')
   const stagingDir = path.join(rootBuildDir, 'staging')
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -41,7 +41,7 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
     const crxFile = path.join(crxOutputDir, 'ntp-background-images.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
+      publisherProofKeyAlt, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -64,5 +64,5 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey)
+    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
 })

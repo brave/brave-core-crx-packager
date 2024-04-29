@@ -21,7 +21,7 @@ async function stageFiles (version, outputDir) {
 }
 
 const postNextVersionWork = (componentSubdir, key, publisherProofKey,
-  binary, localRun, version, contentHash) => {
+  publisherProofKeyAlt, binary, localRun, version, contentHash) => {
   const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
   const crxOutputDir = path.join('build', 'ad-block-updater')
   const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
@@ -34,7 +34,7 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
     if (!localRun) {
       const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-        stagingDir)
+        publisherProofKeyAlt, stagingDir)
     }
     if (contentHash !== undefined) {
       fs.writeFileSync(contentHashFile, contentHash)
@@ -49,7 +49,7 @@ const getOriginalManifest = (componentSubdir) => {
 }
 
 const processComponent = (binary, endpoint, region, keyDir,
-  publisherProofKey, localRun, componentSubdir) => {
+  publisherProofKey, publisherProofKeyAlt, localRun, componentSubdir) => {
   const originalManifest = getOriginalManifest(componentSubdir)
 
   // TODO - previous download failures should prevent the attempt to package the component.
@@ -80,14 +80,14 @@ const processComponent = (binary, endpoint, region, keyDir,
     util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
       if (version !== undefined) {
         postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
-          binary, localRun, version, contentHash)
+          publisherProofKeyAlt, binary, localRun, version, contentHash)
       } else {
         console.log('content for ' + id + ' was not updated, skipping!')
       }
     })
   } else {
     postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      binary, localRun, '1.0.0', contentHash)
+      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash)
   }
 }
 
@@ -108,6 +108,7 @@ const processJob = async (commander, keyDir) => {
     .forEach(processComponent.bind(null, commander.binary, commander.endpoint,
       commander.region, keyDir,
       commander.publisherProofKey,
+      commander.publisherProofKeyAlt,
       commander.localRun))
 }
 

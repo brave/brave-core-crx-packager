@@ -34,7 +34,7 @@ const getOriginalManifest = (superReferrerName) => {
 }
 
 const generateCRXFile = (binary, endpoint, region, superReferrerName,
-  componentID, privateKeyFile, publisherProofKey) => {
+  componentID, privateKeyFile, publisherProofKey, publisherProofKeyAlt) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-super-referrer')
   const stagingDir = path.join(rootBuildDir, 'staging', superReferrerName)
   const crxOutputDir = path.join(rootBuildDir, 'output')
@@ -44,7 +44,7 @@ const generateCRXFile = (binary, endpoint, region, superReferrerName,
     const crxFile = path.join(crxOutputDir, `ntp-super-referrer-${superReferrerName}.crx`)
     stageFiles(superReferrerName, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
+      publisherProofKeyAlt, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -69,5 +69,5 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   generateManifestFile(commander.superReferrerName, publicKey)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
     commander.superReferrerName, componentID, privateKeyFile,
-    commander.publisherProofKey)
+    commander.publisherProofKey, commander.publisherProofKeyAlt)
 })

@@ -42,7 +42,7 @@ const stageFiles = (version, outputDir) => {
   util.stageFiles(files, version, outputDir)
 }
 
-const postNextVersionWork = (key, publisherProofKey, binary, localRun, version) => {
+const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binary, localRun, version) => {
   const componentType = 'local-data-files-updater'
   const datFileName = 'default'
   const stagingDir = path.join('build', componentType, datFileName)
@@ -55,30 +55,30 @@ const postNextVersionWork = (key, publisherProofKey, binary, localRun, version) 
   stageFiles(version, stagingDir)
   if (!localRun) {
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
+      publisherProofKeyAlt, stagingDir)
   }
   console.log(`Generated ${crxFile} with version number ${version}`)
 }
 
-const processDATFile = (binary, endpoint, region, key, publisherProofKey, localRun) => {
+const processDATFile = (binary, endpoint, region, key, publisherProofKey, publisherProofKeyAlt, localRun) => {
   const originalManifest = getOriginalManifest()
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   if (!localRun) {
     util.getNextVersion(endpoint, region, id).then((version) => {
-      postNextVersionWork(key, publisherProofKey,
+      postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
         binary, localRun, version)
     })
   } else {
-    postNextVersionWork(key, publisherProofKey,
+    postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
       binary, localRun, '1.0.0')
   }
 }
 
 const processJob = (commander, keyParam) => {
   processDATFile(commander.binary, commander.endpoint, commander.region,
-    keyParam, commander.publisherProofKey, commander.localRun)
+    keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt, commander.localRun)
 }
 
 util.installErrorHandlers()

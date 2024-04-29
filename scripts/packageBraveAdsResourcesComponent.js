@@ -268,7 +268,7 @@ const getOriginalManifest = (locale) => {
 }
 
 const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
-  componentData) => {
+  publisherProofKeyAlt, componentData) => {
   const locale = componentData.locale
   const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
   const stagingDir = path.join(rootBuildDir, 'staging', locale)
@@ -280,7 +280,7 @@ const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
     const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
     stageFiles(locale, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
+      publisherProofKeyAlt, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -304,5 +304,5 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   getComponentDataList().forEach(
     generateCRXFile.bind(null, commander.binary, commander.endpoint,
       commander.region, keyDir,
-      commander.publisherProofKey))
+      commander.publisherProofKey, commander.publisherProofKeyAlt))
 })
