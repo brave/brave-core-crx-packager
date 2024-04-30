@@ -45,7 +45,7 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`)
 }
 
-const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey) => {
+const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey, publisherProofKeyAlt) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
@@ -59,7 +59,7 @@ const packageTorPluggableTransports = (binary, endpoint, region, platform, key, 
     const crxFile = path.join(crxOutputDir, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
     stageFiles(platform, snowflake, obfs4, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey, stagingDir)
+    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey, publisherProofKeyAlt, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -92,10 +92,8 @@ if (fs.existsSync(commander.keyFile)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'darwin', keyParam, commander.publisherProofKey)
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'linux', keyParam, commander.publisherProofKey)
-  packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-    'win32', keyParam, commander.publisherProofKey)
+  for (const platform of ['darwin', 'linux', 'win32']) {
+    packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
+      platform, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt)
+  }
 })

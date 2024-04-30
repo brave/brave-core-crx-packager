@@ -23,7 +23,7 @@ const getOriginalManifest = (platform) => {
 }
 
 const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
-  publisherProofKey) => {
+  publisherProofKey, publisherProofKeyAlt) => {
   const platform = `${os}-${arch}`
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
@@ -37,7 +37,7 @@ const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
     const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `ipfs-daemon-updater-${platform}.pem`)
     stageFiles(platform, ipfsDaemon, version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      stagingDir)
+      publisherProofKeyAlt, stagingDir)
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -69,16 +69,10 @@ if (fs.existsSync(commander.keyFile)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'darwin', 'amd64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'darwin', 'arm64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'linux', 'amd64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'linux', 'arm64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'win32', 'amd64', keyParam, commander.publisherProofKey)
-  packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-    'win32', 'arm64', keyParam, commander.publisherProofKey)
+  for (const os of ['darwin', 'linux', 'win32']) {
+    for (const arch of ['amd64', 'arm64']) {
+      packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
+        os, arch, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt)
+    }
+  }
 })
