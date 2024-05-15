@@ -19,7 +19,7 @@
     "level": "8.0.1",
     "mkdirp": "3.0.1",
     "replace-in-file": "7.1.0",
-    "rimraf": "5.0.5",
+    "rimraf": "5.0.6",
     "standard": "17.1.0"
   },
   "scripts": {
