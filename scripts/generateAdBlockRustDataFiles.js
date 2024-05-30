@@ -88,9 +88,9 @@ const generateDataFilesForCatalogEntry = (entry) => {
     console.log(`${entry.langs} ${l.url}...`)
     promises.push(util.fetchTextFromURL(l.url)
       .then(data => ({ title: l.title || entry.title, format: l.format, data }))
-      .then(listBuffer => {
+      .then(async listBuffer => {
         const compat = removeIncompatibleRules(preprocess(listBuffer))
-        sanityCheckList(compat)
+        await sanityCheckList(compat)
         return compat
       })
     )
