@@ -5,8 +5,8 @@
   "type": "module",
   "dependencies": {
     "adblock-rs": "0.8.10",
-    "@aws-sdk/client-dynamodb": "3.584.0",
-    "@aws-sdk/client-s3": "3.583.0",
+    "@aws-sdk/client-dynamodb": "3.588.0",
+    "@aws-sdk/client-s3": "3.588.0",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
