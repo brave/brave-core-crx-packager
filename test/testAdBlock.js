@@ -5,8 +5,7 @@ import { tmpdir } from 'os'
 import path from 'path'
 import { spawnSync } from 'child_process'
 
-import { generateResourcesFile, sanityCheckList } from '../lib/adBlockRustUtils.js'
-import { preprocess } from '../scripts/generateAdBlockRustDataFiles.js'
+import { generateResourcesFile, preprocess, sanityCheckList } from '../lib/adBlockRustUtils.js'
 
 test('generateResourcesFile', async (t) => {
   const tempUserDataDir = fs.mkdtempSync(path.join(tmpdir(), 'generate-resources-file-'))
