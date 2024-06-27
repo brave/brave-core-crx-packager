@@ -63,7 +63,7 @@ const processComponent = (binary, endpoint, region, keyDir,
 
   let fileToHash
   if (componentSubdir === regionalCatalogComponentId) {
-    fileToHash = 'regional_catalog.json'
+    fileToHash = 'list_catalog.json'
   } else if (componentSubdir === resourcesComponentId) {
     fileToHash = 'resources.json'
   } else {
