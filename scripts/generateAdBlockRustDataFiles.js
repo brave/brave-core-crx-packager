@@ -7,6 +7,7 @@ import {
   getListCatalog,
   getDefaultLists,
   getRegionalLists,
+  preprocess,
   resourcesComponentId,
   regionalCatalogComponentId,
   sanityCheckList
@@ -88,7 +89,7 @@ const generateDataFilesForCatalogEntry = (entry) => {
     promises.push(util.fetchTextFromURL(l.url)
       .then(data => ({ title: l.title || entry.title, format: l.format, data }))
       .then(listBuffer => {
-        const compat = removeIncompatibleRules(listBuffer)
+        const compat = removeIncompatibleRules(preprocess(listBuffer))
         sanityCheckList(compat)
         return compat
       })

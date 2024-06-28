@@ -5,7 +5,7 @@ import { tmpdir } from 'os'
 import path from 'path'
 import { spawnSync } from 'child_process'
 
-import { generateResourcesFile, sanityCheckList } from '../lib/adBlockRustUtils.js'
+import { generateResourcesFile, preprocess, sanityCheckList } from '../lib/adBlockRustUtils.js'
 
 test('generateResourcesFile', async (t) => {
   const tempUserDataDir = fs.mkdtempSync(path.join(tmpdir(), 'generate-resources-file-'))
@@ -37,4 +37,38 @@ test('sanityCheckList', async (t) => {
     failureMessage = error.message
   }
   assert.ok(failureMessage.startsWith('corrupted list failed sanity check for'))
+})
+
+test('preprocess', async (t) => {
+  const list = `
+    x##x:remove()
+    !#if cap_html_filtering
+    a##cap-filtering:remove()
+    !#else
+    b##no-cap-filtering:remove()
+    !#endif
+    c##c:remove()
+    !#if whatever
+    d##whatever:remove()
+    !#if !env_firefox
+    e##not-firefox:remove()
+    !#else
+    !#if !false
+    f##firefox:remove()
+    !#endif
+    !#endif
+    g##whatever:remove()
+    !#endif
+    h##h:remove()
+  `
+  const { data } = preprocess({ data: list })
+  assert.equal(data, `
+    x##x:remove()
+    b##no-cap-filtering:remove()
+    c##c:remove()
+    d##whatever:remove()
+    e##not-firefox:remove()
+    g##whatever:remove()
+    h##h:remove()
+  `)
 })
