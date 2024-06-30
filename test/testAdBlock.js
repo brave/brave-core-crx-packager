@@ -32,7 +32,7 @@ test('sanityCheckList', async (t) => {
   const corruptedList = fs.readFileSync('./test/elc-1.0.3814-corrupted.txt', { encoding: 'utf8' })
   let failureMessage
   try {
-    sanityCheckList({ title: 'corrupted list', data: corruptedList, format: 'Standard' })
+    await sanityCheckList({ title: 'corrupted list', data: corruptedList, format: 'Standard' })
   } catch (error) {
     failureMessage = error.message
   }

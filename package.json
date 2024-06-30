@@ -4,13 +4,14 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "type": "module",
   "dependencies": {
-    "adblock-rs": "0.8.11",
     "@aws-sdk/client-dynamodb": "3.602.0",
     "@aws-sdk/client-s3": "3.600.0",
+    "@mongodb-js/zstd": "^1.2.0",
+    "@sentry/node": "7.118.0",
+    "adblock-rs": "0.8.11",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
-    "@sentry/node": "7.118.0",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
