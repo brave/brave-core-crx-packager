@@ -1,0 +1,7 @@
+{
+  "description": "Leo Local Files Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu7Z5EoKhFYCGVAlmZftoPKYfsv4iO4yzcDcwKvMhiP2DNjjE4mF25u1y9P8jNeQfSlT7ECvV94ukj4ovabUAeFceyOH9NsiHItPQnCXFbr1e46u110qdoyana37pSbSSnn2py8/pLodWUHB9S0K9KZcqVbIP3FeYrqHyMhu2QkxNEZ4DQdIR2IbC2VHfDyPOA41rWp+TVODodgpcbsMRvakJk2FrKyk8OZhu0kkkPGtzeLT8HTIMt6yVHEUaKAwSCvOHqtL3GTpVVNo22qEU63D9MqCMbM9DdaQF4gopUf+AYSZTC1Ze0suZQfw4jhMHImcd1kmi2d893ROd7KD1UQIDAQAB",
+  "manifest_version": 2,
+  "name": "Leo Local Files Updater",
+  "version": "0.0.0"
+}

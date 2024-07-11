@@ -66,5 +66,7 @@ build
 # Lists for data-files-local-data-files
 brave-lists
 
+# Leo local model files
+leo-local-models
 # localstack
 .localstack/
