@@ -7,7 +7,7 @@
     "@aws-sdk/client-dynamodb": "3.632.0",
     "@aws-sdk/client-s3": "3.633.0",
     "@mongodb-js/zstd": "^1.2.0",
-    "@sentry/node": "7.118.0",
+    "@sentry/node": "7.119.0",
     "adblock-rs": "0.8.12",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "playlist-component": "github:brave/playlist-component",
