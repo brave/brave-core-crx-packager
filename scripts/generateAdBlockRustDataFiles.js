@@ -58,10 +58,7 @@ const removeIncompatibleRules = (listBuffer) => {
     if (line.indexOf('+js(') >= 0 && line.endsWith('\\,)')) {
       return false
     }
-    // The rules from this commit don't include valid CSS; at the time of writing,
-    // Brave throws an error from the generic filter injection script if any CSS is invalid.
-    // https://github.com/uBlockOrigin/uAssets/commit/6eaa9dd46371478d76371426cb99f75d99c7402d
-    if (line.startsWith('##') >= 0 && line.indexOf('head\\"') >= 0) {
+    if (line.startsWith('/^dizipal\\d+\\.com$/##')) {
       return false
     }
     return true
