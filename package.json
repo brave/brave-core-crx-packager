@@ -4,8 +4,8 @@
   "description": "Packages component and theme extensions used in the Brave browser",
   "type": "module",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "3.656.0",
-    "@aws-sdk/client-s3": "3.654.0",
+    "@aws-sdk/client-dynamodb": "3.658.1",
+    "@aws-sdk/client-s3": "3.658.1",
     "@mongodb-js/zstd": "^1.2.0",
     "@sentry/node": "7.119.0",
     "adblock-rs": "0.8.12",
