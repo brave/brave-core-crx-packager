@@ -9,6 +9,7 @@
     "@mongodb-js/zstd": "^1.2.0",
     "@sentry/node": "7.119.0",
     "adblock-rs": "0.8.12",
+    "adblock-resources": "github:brave/adblock-resources#master",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",

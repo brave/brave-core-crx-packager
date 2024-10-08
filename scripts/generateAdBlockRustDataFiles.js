@@ -4,7 +4,6 @@
 
 import {
   generateResourcesFile,
-  getListCatalog,
   getDefaultLists,
   getRegionalLists,
   preprocess,
@@ -12,6 +11,7 @@ import {
   regionalCatalogComponentId,
   sanityCheckList
 } from '../lib/adBlockRustUtils.js'
+import { listCatalog } from 'adblock-resources'
 import Sentry from '../lib/sentry.js'
 import util from '../lib/util.js'
 import path from 'path'
@@ -117,27 +117,28 @@ const generateDataFilesForCatalogEntry = (entry) => {
  */
 const generateDataFilesForAllRegions = () => {
   console.log('Processing per region list updates...')
-  return getRegionalLists().then(regions => {
-    return new Promise((resolve, reject) => {
+  const regions = getRegionalLists()
+  return new Promise((resolve, reject) => {
+    {
       const catalogString = JSON.stringify(regions)
       fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
-      getListCatalog().then(listCatalog => {
-        const catalogString = JSON.stringify(listCatalog)
-        fs.writeFileSync(getOutPath('list_catalog.json', regionalCatalogComponentId), catalogString)
-        resolve()
-      })
-    }).then(() => Promise.all(regions.map(region =>
-      generateDataFilesForCatalogEntry(region)
-    )))
-  })
+    }
+    {
+      const catalogString = JSON.stringify(listCatalog)
+      fs.writeFileSync(getOutPath('list_catalog.json', regionalCatalogComponentId), catalogString)
+    }
+    resolve()
+  }).then(() => Promise.all(regions.map(region =>
+    generateDataFilesForCatalogEntry(region)
+  )))
 }
 
 const generateDataFilesForResourcesComponent = () => {
   return generateResourcesFile(getOutPath('resources.json', resourcesComponentId))
 }
 
-const generateDataFilesForDefaultAdblock = () => getDefaultLists()
-  .then(defaultLists => Promise.all(defaultLists.map(list => generateDataFilesForCatalogEntry(list))))
+const generateDataFilesForDefaultAdblock = () =>
+  Promise.all(getDefaultLists().map(list => generateDataFilesForCatalogEntry(list)))
 
 generateDataFilesForDefaultAdblock()
   .then(generateDataFilesForResourcesComponent)
