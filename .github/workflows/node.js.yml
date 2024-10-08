@@ -27,10 +27,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: git submodule update --init --recursive
+    - if: ${{ github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]' }}
+      run: npm audit
     - run: npm ci
     - run: npm run lint
     - run: npm test
     - run: npm run data-files-ad-block-rust
     - run: npm run data-files-local-data-files
     - run: npm run data-files-leo-local-models
-    - run: npm audit
