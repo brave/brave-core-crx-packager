@@ -30,8 +30,12 @@ async function generateNTPSponsoredImages (dataUrl, targetComponents) {
     const targetResourceDir = path.join(rootResourceDir, regionPlatformName)
     mkdirp.sync(targetResourceDir)
     const regionPlatformPath = regionPlatformName.replace('-', '/')
-    const sourceJsonFileUrl = `${dataUrl}${regionPlatformPath}/photo.json`
-    await ntpUtil.prepareAssets(sourceJsonFileUrl, targetResourceDir)
+    const baseJsonFileUrl = `${dataUrl}${regionPlatformPath}`
+
+    await Promise.all([
+      ntpUtil.prepareAssets(`${baseJsonFileUrl}/photo.json`, targetResourceDir),
+      ntpUtil.prepareAssets(`${baseJsonFileUrl}/si-photo.json`, targetResourceDir, 'si-photo.json')
+    ])
   }
 }
 
