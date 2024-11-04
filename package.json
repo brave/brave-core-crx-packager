@@ -11,6 +11,7 @@
     "adblock-rs": "0.9.2",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "playlist-component": "github:brave/playlist-component",
+    "brave-wallet-lists": "1.21.40",
     "recursive-readdir-sync": "1.0.6",
     "unzip-crx-3": "0.2.0"
   },
