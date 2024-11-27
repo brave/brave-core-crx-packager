@@ -21,9 +21,11 @@ async function stageFiles (version, outputDir) {
 }
 
 const generateVerifiedContents = (stagingDir, id, signingKey) => {
-  if (id === resourcesComponentId) {
-    util.generateVerifiedContents(stagingDir, ['resources.json'], signingKey)
-  }
+  util.generateVerifiedContents(
+    stagingDir,
+    ['resources.json', 'list.txt', 'list_catalog.json'],
+    signingKey
+  )
 }
 
 const postNextVersionWork = (componentSubdir, key, publisherProofKey,
