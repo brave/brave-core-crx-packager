@@ -20,7 +20,7 @@ async function stageFiles (version, outputDir) {
   util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
-const generateVerifiedContents = (stagingDir, id, signingKey) => {
+const generateVerifiedContents = (stagingDir, signingKey) => {
   util.generateVerifiedContents(
     stagingDir,
     ['resources.json', 'list.txt', 'list_catalog.json'],
@@ -40,7 +40,7 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
       fs.unlinkSync(contentHashFile)
     }
     if (!localRun) {
-      generateVerifiedContents(stagingDir, componentSubdir, verifiedContentsKey)
+      generateVerifiedContents(stagingDir, verifiedContentsKey)
       const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
         publisherProofKeyAlt, stagingDir)
@@ -104,7 +104,7 @@ const processComponent = (
     })
   } else {
     postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash)
+      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
   }
 }
 
