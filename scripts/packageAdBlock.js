@@ -20,8 +20,16 @@ async function stageFiles (version, outputDir) {
   util.copyManifestWithVersion(originalManifest, outputDir, version)
 }
 
+const generateVerifiedContents = (stagingDir, signingKey) => {
+  util.generateVerifiedContents(
+    stagingDir,
+    ['resources.json', 'list.txt', 'list_catalog.json'],
+    signingKey
+  )
+}
+
 const postNextVersionWork = (componentSubdir, key, publisherProofKey,
-  publisherProofKeyAlt, binary, localRun, version, contentHash) => {
+  publisherProofKeyAlt, binary, localRun, version, contentHash, verifiedContentsKey) => {
   const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
   const crxOutputDir = path.join('build', 'ad-block-updater')
   const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
@@ -32,6 +40,7 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
       fs.unlinkSync(contentHashFile)
     }
     if (!localRun) {
+      generateVerifiedContents(stagingDir, verifiedContentsKey)
       const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
         publisherProofKeyAlt, stagingDir)
@@ -48,8 +57,16 @@ const getOriginalManifest = (componentSubdir) => {
   return path.join(manifestsDir, componentSubdir, 'manifest.json')
 }
 
-const processComponent = (binary, endpoint, region, keyDir,
-  publisherProofKey, publisherProofKeyAlt, localRun, componentSubdir) => {
+const processComponent = (
+  binary,
+  endpoint,
+  region,
+  keyDir,
+  publisherProofKey,
+  publisherProofKeyAlt,
+  localRun,
+  verifiedContentsKey,
+  componentSubdir) => {
   const originalManifest = getOriginalManifest(componentSubdir)
 
   // TODO - previous download failures should prevent the attempt to package the component.
@@ -80,14 +97,14 @@ const processComponent = (binary, endpoint, region, keyDir,
     util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
       if (version !== undefined) {
         postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
-          publisherProofKeyAlt, binary, localRun, version, contentHash)
+          publisherProofKeyAlt, binary, localRun, version, contentHash, verifiedContentsKey)
       } else {
         console.log('content for ' + id + ' was not updated, skipping!')
       }
     })
   } else {
     postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash)
+      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
   }
 }
 
@@ -109,7 +126,8 @@ const processJob = async (commander, keyDir) => {
       commander.region, keyDir,
       commander.publisherProofKey,
       commander.publisherProofKeyAlt,
-      commander.localRun))
+      commander.localRun,
+      commander.verifiedContentsKey))
 }
 
 util.installErrorHandlers()
