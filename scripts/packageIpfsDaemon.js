@@ -23,13 +23,13 @@ const getOriginalManifest = (platform) => {
 }
 
 const packageIpfsDaemon = (binary, endpoint, region, os, arch, key,
-  publisherProofKey, publisherProofKeyAlt) => {
+  publisherProofKey, publisherProofKeyAlt, forceNextVersion) => {
   const platform = `${os}-${arch}`
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
+  util.getNextVersion(endpoint, region, id, forceNextVersion).then((version) => {
     const stagingDir = path.join('build', 'ipfs-daemon-updater', platform)
     const ipfsDaemon = getIpfsDaemonPath(os, arch)
     const crxOutputDir = path.join('build', 'ipfs-daemon-updater')
@@ -72,7 +72,8 @@ util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const os of ['darwin', 'linux', 'win32']) {
     for (const arch of ['amd64', 'arm64']) {
       packageIpfsDaemon(commander.binary, commander.endpoint, commander.region,
-        os, arch, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt)
+        os, arch, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt,
+        commander.forceNextVersion)
     }
   }
 })
