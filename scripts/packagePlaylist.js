@@ -19,13 +19,13 @@ const stageFiles = util.stageDir.bind(
   getOriginalManifest())
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-  publisherProofKey, publisherProofKeyAlt) => {
+  publisherProofKey, publisherProofKeyAlt, forceNextVersion) => {
   const rootBuildDir = path.join(path.resolve(), 'build', 'playlist')
   const stagingDir = path.join(rootBuildDir, 'staging')
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
+  util.getNextVersion(endpoint, region, componentID, forceNextVersion).then((version) => {
     const crxFile = path.join(crxOutputDir, 'playlist.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
@@ -51,5 +51,6 @@ if (fs.existsSync(commander.keyFile)) {
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
+    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt,
+    commander.forceNextVersion)
 })

@@ -45,12 +45,12 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`)
 }
 
-const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey, publisherProofKeyAlt) => {
+const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey, publisherProofKeyAlt, forceNextVersion) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
+  util.getNextVersion(endpoint, region, id, forceNextVersion).then((version) => {
     const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
     const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
 
@@ -94,6 +94,7 @@ if (fs.existsSync(commander.keyFile)) {
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const platform of ['darwin', 'linux', 'win32']) {
     packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-      platform, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt)
+      platform, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt,
+      commander.forceNextVersion)
   }
 })

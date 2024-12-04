@@ -66,6 +66,7 @@ const processComponent = (
   publisherProofKeyAlt,
   localRun,
   verifiedContentsKey,
+  forceNextVersion,
   componentSubdir) => {
   const originalManifest = getOriginalManifest(componentSubdir)
 
@@ -94,7 +95,7 @@ const processComponent = (
   }
 
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
+    util.getNextVersion(endpoint, region, id, contentHash, forceNextVersion).then((version) => {
       if (version !== undefined) {
         postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
           publisherProofKeyAlt, binary, localRun, version, contentHash, verifiedContentsKey)
@@ -127,7 +128,8 @@ const processJob = async (commander, keyDir) => {
       commander.publisherProofKey,
       commander.publisherProofKeyAlt,
       commander.localRun,
-      commander.verifiedContentsKey))
+      commander.verifiedContentsKey,
+      commander.forceNextVersion))
 }
 
 util.installErrorHandlers()
