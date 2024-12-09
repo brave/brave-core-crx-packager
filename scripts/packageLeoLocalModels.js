@@ -36,13 +36,13 @@ const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binar
   console.log(`Generated ${crxFile} with version number ${version}`)
 }
 
-const processDATFile = (binary, endpoint, region, key, publisherProofKey, publisherProofKeyAlt, localRun) => {
+const processDATFile = (binary, endpoint, region, key, publisherProofKey, publisherProofKeyAlt, localRun, forceNextVersion) => {
   const originalManifest = getOriginalManifest()
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
+    util.getNextVersion(endpoint, region, id, forceNextVersion).then((version) => {
       postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
         binary, localRun, version)
     })
@@ -54,7 +54,7 @@ const processDATFile = (binary, endpoint, region, key, publisherProofKey, publis
 
 const processJob = (commander, keyParam) => {
   processDATFile(commander.binary, commander.endpoint, commander.region,
-    keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt, commander.localRun)
+    keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt, commander.localRun, commander.forceNextVersion)
 }
 
 util.installErrorHandlers()

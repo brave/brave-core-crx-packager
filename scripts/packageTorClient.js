@@ -68,12 +68,12 @@ const getOriginalManifest = (platform) => {
 }
 
 const packageTorClient = (binary, endpoint, region, platform, key,
-  publisherProofKey, publisherProofKeyAlt) => {
+  publisherProofKey, publisherProofKeyAlt, forceNextVersion) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
+  util.getNextVersion(endpoint, region, id, forceNextVersion).then((version) => {
     const stagingDir = path.join('build', 'tor-client-updater', platform)
     const torClient = downloadTorClient(platform)
     const crxOutputDir = path.join('build', 'tor-client-updater')
@@ -124,6 +124,7 @@ if (fs.existsSync(commander.keyFile)) {
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const platform of ['darwin', 'linux', 'linux-arm64', 'win32']) {
     packageTorClient(commander.binary, commander.endpoint, commander.region,
-      platform, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt)
+      platform, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt,
+      commander.forceNextVersion)
   }
 })
