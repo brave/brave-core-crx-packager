@@ -5,7 +5,7 @@
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.699.0",
-    "@aws-sdk/client-s3": "3.699.0",
+    "@aws-sdk/client-s3": "3.701.0",
     "@mongodb-js/zstd": "^1.2.0",
     "@sentry/node": "7.120.0",
     "adblock-rs": "0.9.2",
