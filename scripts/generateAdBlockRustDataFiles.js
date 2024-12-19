@@ -16,6 +16,7 @@ import Sentry from '../lib/sentry.js'
 import util from '../lib/util.js'
 import path from 'path'
 import fs from 'fs'
+import crypto from 'node:crypto'
 
 /**
  * Obtains the output path to store a file given the specied name and subdir
@@ -89,7 +90,9 @@ const generateDataFilesForCatalogEntry = (entry) => {
   const promises = []
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
-    promises.push(util.fetchTextFromURL(l.url)
+    const sourceUrlHash = crypto.createHash('md5').update(l.url).digest('hex')
+    const mirroredListUrl = 'https://raw.githubusercontent.com/brave/adblock-lists-mirror/refs/heads/lists/lists/' + sourceUrlHash + '.txt'
+    promises.push(util.fetchTextFromURL(mirroredListUrl)
       .then(data => ({ title: l.title || entry.title, format: l.format, data }))
       .then(async listBuffer => {
         const compat = removeIncompatibleRules(preprocess(listBuffer))
