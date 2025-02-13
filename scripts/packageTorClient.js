@@ -18,7 +18,7 @@ const downloadTorClient = (platform) => {
   const torPath = path.join('build', 'tor-client-updater', 'downloads')
   const torS3Prefix = process.env.S3_DEMO_TOR_PREFIX
 
-  const torVersion = '0.4.8.13'
+  const torVersion = '0.4.8.14'
   const braveVersion = '0'
   const exeSuffix = platform === 'win32' ? '.exe' : ''
   const torFilename = `tor-${torVersion}-${platform}-brave-${braveVersion}`
@@ -28,16 +28,16 @@ const downloadTorClient = (platform) => {
 
   switch (platform) {
     case 'darwin':
-      sha512Tor = '8b9c66d61437ebf65d1747ecc9bc3abb85528c4e532d13b1ca18c49b40ecb063ed028569951793e5306b3e2f7e853dcb806dac6ff1363d9fb105f5c9da32e004'
+      sha512Tor = 'ba9d2321ff9004d064cfa8f01789761bca4e92068fa50ed3125dccd5ba13ebd6dd385e83254f50879a4217b98a2e6b16dfc98a8432d146d62c71a312b5a5f6a7'
       break
     case 'linux':
-      sha512Tor = 'ba22129e952f84843c1e8e1621c65ecbfb3316884714726cc99c7786dc16d1e0d74cef5a5c6e8afde61cc256cb049db9105fc2ece86315e8a5e9f0a7ebc28a91'
+      sha512Tor = '6968d8f8211aa643539e9cecadbb4d6f2ba53beda7814b984a76785babbc66987813a4e8d2dd9953422051972c8cdc34ae07ce405570149b927876200f9cfb95'
       break
     case 'linux-arm64':
-      sha512Tor = '1d6582d95598e3b7273797e6ecf618bada95df8343151d23f97ff58eec22f7e64b94d1c6769025cb4ecee71c1d2ee924544e2fa7c8e31f2ed08d8a6df6be9a01'
+      sha512Tor = '63aab8871d82114788701b3771172dddeebff6f36011a5d22040dbadd7e66c0f93f0a11905987dd7166156303610824bad01fe9ea8dba3021e7a86ad13ea7939'
       break
     case 'win32':
-      sha512Tor = '18943a4550d48815642df9281c8ce7bc5a574fb7320b435f541ac50255e263070828ae93febd0ba9511a6f04e1f2b652fe36228d352e48ec350225fd08026bf2'
+      sha512Tor = '97dac1de3bcf2f99ba618df997e8d2f0a33b3bd50e70321acb409a59345ffd9826907bceaf1e2c0ae23b0e3c0b35d2dc9d34e3eff1c20089c9087bb61d441833'
       break
     default:
       throw new Error('Tor client download failed; unrecognized platform: ' + platform)
