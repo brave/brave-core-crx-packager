@@ -89,8 +89,11 @@ const processComponent = (
 
   let contentHash
   if (fileToHash !== undefined) {
+    // Increase this number if you want to recreate adblock components,
+    // even if the hash of the content file has not changed.
+    const contentHashVersion = 1
     const contentFile = path.join('build', 'ad-block-updater', componentSubdir, fileToHash)
-    contentHash = util.generateSHA256HashOfFile(contentFile)
+    contentHash = util.generateVersionedSHA256HashOfFile(contentFile, contentHashVersion)
   }
 
   if (!localRun) {
