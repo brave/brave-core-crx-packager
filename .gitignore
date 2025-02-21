@@ -70,3 +70,4 @@ brave-lists
 leo-local-models
 # localstack
 .localstack/
+.vscode/
