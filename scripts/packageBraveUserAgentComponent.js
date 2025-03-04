@@ -38,13 +38,10 @@ const generateManifestFile = (publicKey) => {
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey, publisherProofKeyAlt) => {
-  const rootBuildDir = path.join(path.resolve(), 'build', 'brave-user-agent')
-  const stagingDir = path.join(rootBuildDir, 'staging')
-  const crxOutputDir = path.join(rootBuildDir, 'output')
+  const stagingDir = path.join('build', 'brave-user-agent')
+  const crxFile = path.join(stagingDir, 'brave-user-agent.crx')
   mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
-    const crxFile = path.join(crxOutputDir, 'brave-user-agent.crx')
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       publisherProofKeyAlt, stagingDir)
