@@ -29,6 +29,7 @@
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-local-data-files": "npm install --prefix ./node_modules/brave-site-specific-scripts && npm run --prefix ./node_modules/brave-site-specific-scripts build && mkdir -p brave-lists && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls.json -O brave-lists/clean-urls.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls-permissions.json -O brave-lists/clean-urls-permissions.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/debounce.json -O brave-lists/debounce.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/request-otr.json -O brave-lists/request-otr.json && wget https://https-upgrade-exceptions.s3.us-west-1.amazonaws.com/https-upgrade-exceptions-list.txt -O brave-lists/https-upgrade-exceptions-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/localhost-permission-allow-list.txt -O brave-lists/localhost-permission-allow-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/webcompat-exceptions.json -O brave-lists/webcompat-exceptions.json",
     "data-files-leo-local-models": "mkdir -p leo-local-models && wget https://raw.githubusercontent.com/brave/leo-local-models/main/tflite_models/universal_sentence_encoder_qa_with_metadata_v1.tflite -O leo-local-models/universal_sentence_encoder_qa_with_metadata.tflite",
+    "data-files-brave-user-agent": "mkdir -p brave-user-agent && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/brave-checks.txt -O brave-user-agent/brave-checks.txt",
     "generate-ad-block-manifests": "node scripts/generateManifestForRustAdblock.js",
     "generate-ntp-background-images": "node scripts/generateNTPBackgroundImages.js",
     "generate-ntp-sponsored-images": "node scripts/ntp-sponsored-images/generate",
@@ -48,6 +49,7 @@
     "package-ntp-super-referrer": "node scripts/packageNTPSuperReferrerComponent.js",
     "package-ntp-super-referrer-mapping-table": "node scripts/packageNTPSuperReferrerMappingTableComponent.js",
     "package-playlist": "node ./scripts/packagePlaylist.js",
+    "package-brave-user-agent": "node ./scripts/packageBraveUserAgentComponent.js",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
     "generate-puffpatches": "node ./scripts/generatePuffpatches",
     "upload-component": "node ./scripts/uploadComponent"
