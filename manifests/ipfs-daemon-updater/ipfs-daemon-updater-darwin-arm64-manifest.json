@@ -1,7 +1,0 @@
-{
-  "description": "Brave IPFS local node component",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2qqbXvEZP1dlJW7FhKLB+8ZTRF4mZjxRwU9VMyPrymWhAyhurtp2eIaAY2YiFMAfg4v3Eragxlt4+fL0QETclkmRUTvZ4wm93HODXPfL8LvKoFDBsjv9vnsT+PDonnpQBKdgRGpVYxxDY3vYu4AIKuLLY1tOGnC7XNiQWPSnagSycdQfTxdmPaiEwDde1jYcBVyIbZPkiE2F+np9jQahSKJJOKGmBaL/YO9xmjIBfPopwVVyVJPAIH6SPxI+XQMpYA1zagih5ULm+wXBNYcqXn9W/KQPkB4HKZ0eVgcKKS6T8lwDhB2oYAaTtxRno5Fu6wlEQBGmdFxqJw8KNPu2JQIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave IPFS local node (macOS)",
-  "version": "0.0.0"
-}
