@@ -1,7 +1,0 @@
-{
-  "description": "Brave IPFS local node component",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuG1akBG8ka37Pdx0F21rJ2efimrZnN8PrBlUBHYZ3sOBFLjzdw7gxpqznbOzNzx4hAAUXdLWPxBZXgOGV+rwMmCdskXr6dK5yLtJNjWqDHNVxyikQlIKRK3VKO9f6HZBC3SwF/GqLenuFuVxbg1qmvKkBgTUiaDb1pgqJ78/1L21gsT4RE/PO4bvU2XEg9Xr4FFLfQDemhIhXqszqmKRJ9HIuxTzVft5v5Ys0S0Kqorn2xo+lFpVzZT7sV2orDHaLiVB5uqCMWhXehVixfRpBuPGdwSuzJsNkV5aGOObKfoLr1zUgstJYMLB0uWNXTfuKM4EibWUMLMqlCYVzs2RewIDAQAB",
-  "manifest_version": 2,
-  "name": "Brave IPFS local node (Linux)",
-  "version": "0.0.0"
-}
