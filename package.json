@@ -44,6 +44,7 @@
     "package-ntp-background-images": "node ./scripts/packageNTPBackgroundImagesComponent",
     "package-ntp-sponsored-images": "node ./scripts/ntp-sponsored-images/package",
     "package-playlist": "node ./scripts/packagePlaylist.js",
+    "package-youtube-script-injector": "node ./scripts/packageYouTubeScriptInjector.js",
     "package-brave-user-agent": "node ./scripts/packageBraveUserAgentComponent.js",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
     "generate-puffpatches": "node ./scripts/generatePuffpatches",
