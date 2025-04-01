@@ -1,0 +1,7 @@
+{
+  "description": "P3A Configuration component",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnoxEP5x4hknFEzRmhqVqQga/VB+2JoI48/fWMm0QOxmKmy/eswSTsAnW+uIPoIwIQ8zdt8rkuZo+K35gCnrhWhCgLLPFrpBdk5KHDnXyr4o8VBAsL/nd68r+F6ye5RW2UPzpfgTgWGy6KEBH23YkAJ9l0ZPU2HkL05A+rrpHtlEgi/uC8f2TfbT/BPREd+zo2rEPj/CgZhEMvAMagmVYaINSUgIZYPwItG+UCB9U0rpd1cfmsURsesWNoAz8llyMIU55TS+Bqk9S+xLrhwe6fv/AzusVOpkmv6gIToQrieDM9lJL7xNQ1rWyVvFgtT2zy+a0pRPMcaI/Qg2nwHwRCQIDAQAB",
+  "manifest_version": 2,
+  "name": "P3A Configuration",
+  "version": "0.0.0"
+}
