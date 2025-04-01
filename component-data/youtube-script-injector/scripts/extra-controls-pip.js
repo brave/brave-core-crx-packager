@@ -10,10 +10,10 @@
   script.remove();
 }());
 
-const observer = new MutationObserver((_mutationsList) => {
+const pipObserver = new MutationObserver((_mutationsList) => {
   addPipButton();
 });
-  
+
 function addPipButton() {
   const fullscreenButton = document.querySelector("button.fullscreen-icon");
   if (!fullscreenButton) {
@@ -49,5 +49,57 @@ function addPipButton() {
 
 window.addEventListener("load", () => {
   addPipButton();
-  observer.observe(document.body, { childList: true, subtree: true });
+  pipObserver.observe(document.body, { childList: true, subtree: true });
 });
+
+(function() {
+  const script = document.createElement('script');
+  script.textContent = `
+    // Function to modify the flags if the target object exists
+    function modifyYtcfgFlags() {
+
+      if (!window.ytcfg) {
+          return;
+      }
+      const config = window.ytcfg.get("WEB_PLAYER_CONTEXT_CONFIGS")?.WEB_PLAYER_CONTEXT_CONFIG_ID_MWEB_WATCH
+
+      if (config && config.serializedExperimentFlags) {
+          let flags = config.serializedExperimentFlags;
+
+          // Replace target flags
+          flags = flags
+              .replace("html5_picture_in_picture_blocking_ontimeupdate=true", "html5_picture_in_picture_blocking_ontimeupdate=false")
+              .replace("html5_picture_in_picture_blocking_onresize=true", "html5_picture_in_picture_blocking_onresize=false")
+              .replace("html5_picture_in_picture_blocking_document_fullscreen=true", "html5_picture_in_picture_blocking_document_fullscreen=false")
+              .replace("html5_picture_in_picture_blocking_standard_api=true", "html5_picture_in_picture_blocking_standard_api=false")
+              .replace("html5_picture_in_picture_logging_onresize=true", "html5_picture_in_picture_logging_onresize=false");
+
+          // Assign updated flags back to the config
+          config.serializedExperimentFlags = flags;
+
+          if (observer) {
+              observer.disconnect();
+          }
+      }
+  }
+
+  // MutationObserver to watch for new <script> elements
+  const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+          if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+              mutation.addedNodes.forEach((node) => {
+                  if (node.tagName === "SCRIPT") {
+                      // Check and modify flags when a new script is added
+                      modifyYtcfgFlags();
+                  }
+              });
+          }
+      }
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  `;
+
+  document.head.appendChild(script);
+  script.remove();
+}());
