@@ -21,7 +21,7 @@ async function stageFiles (version, outputDir) {
 }
 
 const generateVerifiedContents = (stagingDir, signingKey) => {
-  util.generateVerifiedContents(
+  util.generateAndWriteVerifiedContents(
     stagingDir,
     ['resources.json', 'list.txt', 'list_catalog.json'],
     signingKey

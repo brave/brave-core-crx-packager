@@ -11,6 +11,7 @@
     "adblock-rs": "0.9.5",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
     "p3a-config": "github:brave-experiments/p3a-config",
+    "pbf": "^4.0.1",
     "playlist-component": "github:brave/playlist-component",
     "recursive-readdir-sync": "1.0.6",
     "unzip-crx-3": "0.2.0"
@@ -50,6 +51,7 @@
     "package-youtube-script-injector": "node ./scripts/packageYouTubeScriptInjector.js",
     "package-brave-user-agent": "node ./scripts/packageBraveUserAgentComponent.js",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
+    "package-manifest-v2-extensions": "node ./scripts/packageManifestV2Extensions",
     "generate-puffpatches": "node ./scripts/generatePuffpatches",
     "upload-component": "node ./scripts/uploadComponent"
   },
