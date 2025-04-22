@@ -10,18 +10,18 @@ const verifyChecksum = (data, sha512) => {
   return sha512 === crypto.createHash('sha512').update(data).digest('hex')
 }
 
-const downloadExtension = async (manifest) => {
-  const buildPath = path.join('build', manifest.name)
+const downloadExtension = async (config) => {
+  const buildPath = path.join('build', config.name)
   const download = path.join(buildPath, 'download')
   const unpacked = path.join(buildPath, 'unpacked')
 
   fs.mkdirSync(download, { recursive: true })
   fs.mkdirSync(unpacked, { recursive: true })
 
-  const response = await fetch(manifest.url)
+  const response = await fetch(config.url)
   const data = Buffer.from(await response.arrayBuffer())
-  if (!verifyChecksum(data, manifest.sha512)) {
-    throw new Error(`${manifest.name} checksum verification failed`))
+  if (!verifyChecksum(data, config.sha512)) {
+    throw new Error(`${config.name} checksum verification failed`)
   }
   const sources = path.join(download, 'sources.zip')
   fs.writeFileSync(sources, Buffer.from(data))
@@ -30,8 +30,8 @@ const downloadExtension = async (manifest) => {
   return unpacked
 }
 
-const getOriginalManifest = (extensionName) => {
-  return path.join('manifests', extensionName, 'default-manifest.json')
+const getExtensionConfig = (extensionName) => {
+  return path.join('manifests', extensionName, 'config.json')
 }
 
 const packageV2Extension = (
@@ -44,11 +44,11 @@ const packageV2Extension = (
   verifiedContentsKey,
   localRun
 ) => {
-  const manifest = util.parseManifest(getOriginalManifest(extensionName))
-  const id = util.getIDFromBase64PublicKey(manifest.key)
+  const config = util.parseManifest(getExtensionConfig(extensionName))
+  const id = util.getIDFromBase64PublicKey(config.key)
 
   const processExtension = async () => {
-    const stagingDir = await downloadExtension(manifest)
+    const stagingDir = await downloadExtension(config)
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
     crx
       .generateCrx(
@@ -79,13 +79,13 @@ const packageV2Extension = (
         endpoint,
         region,
         id,
-        util.generateSHA256HashOfFile(getOriginalManifest())
+        util.generateSHA256HashOfFile(getExtensionConfig())
       )
       .then((version) => {
         if (version !== undefined) {
           processExtension()
         } else {
-          console.log(`${manifest.name} extension: no updates detected!`)
+          console.log(`${config.name} extension: no updates detected!`)
         }
       })
   } else {
