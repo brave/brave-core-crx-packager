@@ -21,8 +21,7 @@ const downloadExtension = async (manifest) => {
   const response = await fetch(manifest.url)
   const data = Buffer.from(await response.arrayBuffer())
   if (!verifyChecksum(data, manifest.sha512)) {
-    console.error(`${manifest.name} checksum verification failed`)
-    process.exit(1)
+    throw new Error(`${manifest.name} checksum verification failed`))
   }
   const sources = path.join(download, 'sources.zip')
   fs.writeFileSync(sources, Buffer.from(data))
@@ -60,8 +59,7 @@ const packageV2Extension = (
       )
       .then((crx) => {
         if (id !== util.getIDFromBase64PublicKey(crx.manifest.key)) {
-          console.log(`${extensionName} invalid extension key used.`)
-          process.exit(1)
+          throw new Error(`${extensionName} invalid extension key used.`)
         }
         fs.mkdirSync(path.join('build', 'extensions-v2'), { recursive: true })
         fs.writeFileSync(
