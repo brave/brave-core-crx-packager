@@ -1,7 +1,6 @@
 {
   "name": "AdGuard",
-  "version": "5.1.64",
   "url": "https://static.adtidy.org/extensions/adguardadblocker/release/chrome.zip",
-  "sha512": "efe763ec7dc4144d7fd181c9bb824baef3af6882ae7cb51b58f039aba282a9920643acf26518fb2af7c6a21bd36edd42ccf7c1a374a01e9bd01fc3537a43f8cf",
+  "sha512": "aa8fe271b056bb9149d3acd06a62d57fad9f23c559ede95bf7ad0cf6f70016fb4d893fa204f7653ab7f2d6a7519feb179dac32055ec4ab10964c6e14751e1b7d",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAicmrWIGFjv/D9t+yEL1NgyfVyts8/6cSx//DjeSWkoQb9sfZYq+fvF91M2OVLEFsEL7QF9aNwYDoWteaRyIsqEKaD1UHwMTVSI0+1P+fOpd2uPbIeKurcqbbq4xcWSA2lW8HEz4x1m39FwTdj27305X/aNCS+3cVoN9S44oQX9p8FU9twE9WFtT7cXH/EePi1b39ey9brLb99dl9jsJi80+4ZB1gMUQ6U8CmFMZUncwhGE9geOVHeoEf4RKrzqlHrb5BNZbugmdpuSWjOZFbUT3Szy9HvbpPT9C5uNttcef16RvCUfyXNvSdDx+xCZWY1OstDsSlPwxopwVXmwE/LwIDAQAB"
 }

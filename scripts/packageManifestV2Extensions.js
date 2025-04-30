@@ -3,11 +3,17 @@ import unzip from 'unzip-crx-3'
 import path from 'path'
 import crypto from 'crypto'
 import commander from 'commander'
+import glob from 'glob'
 import util from '../lib/util.js'
 import crx from '../lib/crx.js'
 
-const verifyChecksum = (data, sha512) => {
-  return sha512 === crypto.createHash('sha512').update(data).digest('hex')
+const verifyChecksum = (data, config) => {
+  const checksum = crypto.createHash('sha512').update(data).digest('hex')
+  if (config.sha512 !== checksum) {
+    throw new Error(
+      `${config.name} checksum verification failed: computed ${checksum}`
+    )
+  }
 }
 
 const downloadExtension = async (config) => {
@@ -20,14 +26,26 @@ const downloadExtension = async (config) => {
 
   const response = await fetch(config.url)
   const data = Buffer.from(await response.arrayBuffer())
-  if (!verifyChecksum(data, config.sha512)) {
-    throw new Error(`${config.name} checksum verification failed`)
-  }
+  verifyChecksum(data, config)
   const sources = path.join(download, 'sources.zip')
   fs.writeFileSync(sources, Buffer.from(data))
 
   await unzip(sources, unpacked)
-  return unpacked
+
+  const findRoot = (root, file) => {
+    const manifestFile = glob.sync(`**/manifest.json`, {
+      cwd: root,
+      absolute: true,
+      nodir: true
+    })
+    if (!manifestFile) {
+      throw new Error(`${config.name} can not find manifest`)
+    }
+
+    return path.dirname(manifestFile[0])
+  }
+
+  return findRoot(unpacked)
 }
 
 const getExtensionConfig = (extensionName) => {
@@ -39,8 +57,6 @@ const packageV2Extension = (
   endpoint,
   region,
   keysDir,
-  publisherProofKey,
-  publisherProofKeyAlt,
   verifiedContentsKey,
   localRun
 ) => {
@@ -51,12 +67,7 @@ const packageV2Extension = (
     const stagingDir = await downloadExtension(config)
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
     crx
-      .generateCrx(
-        stagingDir,
-        extensionKeyFile,
-        [publisherProofKey, publisherProofKeyAlt],
-        verifiedContentsKey
-      )
+      .generateCrx(stagingDir, extensionKeyFile, [], verifiedContentsKey)
       .then((crx) => {
         if (id !== util.getIDFromBase64PublicKey(crx.manifest.key)) {
           throw new Error(`${extensionName} invalid extension key used.`)
@@ -116,7 +127,7 @@ if (fs.existsSync(commander.keysDirectory)) {
   throw new Error('Missing or invalid private key file/directory')
 }
 
-const ExtensionsV2 = ['no-script-v2', 'adguard-v2']
+const ExtensionsV2 = ['no-script-v2', 'adguard-v2', 'umatrix-v2', 'ublock-v2']
 
 if (!commander.localRun) {
   util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
@@ -126,8 +137,6 @@ if (!commander.localRun) {
         commander.endpoint,
         commander.region,
         keysDir,
-        commander.publisherProofKey,
-        commander.publisherProofKeyAlt,
         commander.verifiedContentsKey
       )
     })
@@ -139,8 +148,6 @@ if (!commander.localRun) {
       commander.endpoint,
       commander.region,
       keysDir,
-      commander.publisherProofKey,
-      commander.publisherProofKeyAlt,
       commander.verifiedContentsKey,
       commander.localRun
     )
