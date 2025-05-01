@@ -33,7 +33,7 @@ const downloadExtension = async (config) => {
   await unzip(sources, unpacked)
 
   const findRoot = (root, file) => {
-    const manifestFile = glob.sync(`**/manifest.json`, {
+    const manifestFile = glob.sync('**/manifest.json', {
       cwd: root,
       absolute: true,
       nodir: true
