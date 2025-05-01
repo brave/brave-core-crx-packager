@@ -42,6 +42,11 @@ const downloadExtension = async (config) => {
       throw new Error(`${config.name} can not find manifest`)
     }
 
+    const manifest = util.parseManifest(manifestFile[0])
+    if (!manifest || manifest.manifest_version !== 2) {
+      throw new Error(`${config.name} manifest is invalid`)
+    }
+
     return path.dirname(manifestFile[0])
   }
 
