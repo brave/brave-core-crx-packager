@@ -89,26 +89,22 @@ const packageV2Extension = (
           path.join('build', 'extensions-v2', `${id}.zip`),
           crx.zip
         )
+
+        return util.generateSHA256HashOfFile(
+          path.join('build', 'extensions-v2', `${id}.crx`)
+        )
       })
   }
 
+  const sha256 = processExtension()
+
   if (!localRun) {
-    util
-      .getNextVersion(
-        endpoint,
-        region,
-        id,
-        util.generateSHA256HashOfFile(getExtensionConfig())
-      )
-      .then((version) => {
-        if (version !== undefined) {
-          processExtension()
-        } else {
-          console.log(`${config.name} extension: no updates detected!`)
-        }
-      })
-  } else {
-    processExtension()
+    util.getNextVersion(endpoint, region, id, sha256).then((version) => {
+      if (version !== undefined) {
+      } else {
+        console.log(`${config.name} extension: no updates detected!`)
+      }
+    })
   }
 }
 
