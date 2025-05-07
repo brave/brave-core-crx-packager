@@ -6,7 +6,6 @@
 import fs from 'fs'
 import unzip from 'unzip-crx-3'
 import path from 'path'
-import crypto from 'crypto'
 import commander from 'commander'
 import glob from 'glob'
 import util from '../lib/util.js'
