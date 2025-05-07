@@ -1,3 +1,8 @@
+/* Copyright (c) 2025 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at https://mozilla.org/MPL/2.0/. */
+
 import fs from 'fs'
 import unzip from 'unzip-crx-3'
 import path from 'path'
@@ -7,15 +12,6 @@ import glob from 'glob'
 import util from '../lib/util.js'
 import crx from '../lib/crx.js'
 
-const verifyChecksum = (data, config) => {
-  const checksum = crypto.createHash('sha512').update(data).digest('hex')
-  if (config.sha512 !== checksum) {
-    throw new Error(
-      `${config.name} checksum verification failed: computed ${checksum}`
-    )
-  }
-}
-
 const downloadExtension = async (config) => {
   const buildPath = path.join('build', config.name)
   const download = path.join(buildPath, 'download')
@@ -24,9 +20,16 @@ const downloadExtension = async (config) => {
   fs.mkdirSync(download, { recursive: true })
   fs.mkdirSync(unpacked, { recursive: true })
 
-  const response = await fetch(config.url)
+  let downloadUrl = config.url
+  if (config.url_version_template) {
+    // Firstly obtain the version
+    const latest = await fetch(downloadUrl)
+    const version = latest.url.split('/').pop()
+    downloadUrl = config.url_version_template.replaceAll('{version}', version)
+  }
+
+  const response = await fetch(downloadUrl)
   const data = Buffer.from(await response.arrayBuffer())
-  verifyChecksum(data, config)
   const sources = path.join(download, 'sources.zip')
   fs.writeFileSync(sources, Buffer.from(data))
 
