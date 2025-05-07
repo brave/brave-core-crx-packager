@@ -70,42 +70,48 @@ const packageV2Extension = (
 ) => {
   const config = util.parseManifest(getExtensionConfig(extensionName))
   const id = util.getIDFromBase64PublicKey(config.key)
+  const extensionCrxFile = path.join('build', 'extensions-v2', `${id}.crx`)
+  const extensionZipFile = path.join('build', 'extensions-v2', `${id}.zip`)
+
+  const writeOutputFiles = (extension) => {
+    fs.mkdirSync(path.join('build', 'extensions-v2'), { recursive: true })
+    fs.writeFileSync(extensionCrxFile, extension.crx)
+    fs.writeFileSync(extensionZipFile, extension.zip)
+  }
 
   const processExtension = async () => {
     const stagingDir = await downloadExtension(config)
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
+
     crx
       .generateCrx(stagingDir, extensionKeyFile, [], verifiedContentsKey)
-      .then((crx) => {
-        if (id !== util.getIDFromBase64PublicKey(crx.manifest.key)) {
+      .then((extension) => {
+        if (id !== util.getIDFromBase64PublicKey(extension.manifest.key)) {
           throw new Error(`${extensionName} invalid extension key used.`)
         }
-        fs.mkdirSync(path.join('build', 'extensions-v2'), { recursive: true })
-        fs.writeFileSync(
-          path.join('build', 'extensions-v2', `${id}.crx`),
-          crx.crx
-        )
-        fs.writeFileSync(
-          path.join('build', 'extensions-v2', `${id}.zip`),
-          crx.zip
-        )
 
-        return util.generateSHA256HashOfFile(
-          path.join('build', 'extensions-v2', `${id}.crx`)
-        )
+        if (!localRun) {
+          util
+            .getNextVersion(
+              endpoint,
+              region,
+              id,
+              util.generateSHA256Hash(extension.crx)
+            )
+            .then((version) => {
+              if (version !== undefined) {
+                writeOutputFiles(extension)
+              } else {
+                console.log(`${config.name} extension: no updates detected!`)
+              }
+            })
+        } else {
+          writeOutputFiles(extension)
+        }
       })
   }
 
-  const sha256 = processExtension()
-
-  if (!localRun) {
-    util.getNextVersion(endpoint, region, id, sha256).then((version) => {
-      if (version !== undefined) {
-      } else {
-        console.log(`${config.name} extension: no updates detected!`)
-      }
-    })
-  }
+  processExtension()
 }
 
 util.installErrorHandlers()
