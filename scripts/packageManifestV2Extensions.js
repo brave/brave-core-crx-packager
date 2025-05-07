@@ -29,6 +29,7 @@ const downloadExtension = async (config) => {
 
   const response = await fetch(downloadUrl)
   const data = Buffer.from(await response.arrayBuffer())
+  const sourceHash = util.generateSHA256Hash(data)
   const sources = path.join(download, 'sources.zip')
   fs.writeFileSync(sources, Buffer.from(data))
 
@@ -52,7 +53,10 @@ const downloadExtension = async (config) => {
     return path.dirname(manifestFile[0])
   }
 
-  return findRoot(unpacked)
+  return {
+    unpacked: findRoot(unpacked),
+    sha256: sourceHash
+  }
 }
 
 const getExtensionConfig = (extensionName) => {
@@ -79,11 +83,10 @@ const packageV2Extension = (
   }
 
   const processExtension = async () => {
-    const stagingDir = await downloadExtension(config)
+    const sources = await downloadExtension(config)
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
-
     crx
-      .generateCrx(stagingDir, extensionKeyFile, [], verifiedContentsKey)
+      .generateCrx(sources.unpacked, extensionKeyFile, [], verifiedContentsKey)
       .then((extension) => {
         if (id !== util.getIDFromBase64PublicKey(extension.manifest.key)) {
           throw new Error(`${extensionName} invalid extension key used.`)
@@ -91,12 +94,7 @@ const packageV2Extension = (
 
         if (!localRun) {
           util
-            .getNextVersion(
-              endpoint,
-              region,
-              id,
-              util.generateSHA256Hash(extension.crx)
-            )
+            .getNextVersion(endpoint, region, id, sources.sha256)
             .then((version) => {
               if (version !== undefined) {
                 writeOutputFiles(extension)
@@ -105,6 +103,7 @@ const packageV2Extension = (
               }
             })
         } else {
+          console.log(`Sources hash: ${sources.sha256}`)
           writeOutputFiles(extension)
         }
       })
