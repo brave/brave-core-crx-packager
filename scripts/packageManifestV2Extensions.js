@@ -75,11 +75,15 @@ const packageV2Extension = (
   const id = util.getIDFromBase64PublicKey(config.key)
   const extensionCrxFile = path.join('build', 'extensions-v2', `${id}.crx`)
   const extensionZipFile = path.join('build', 'extensions-v2', `${id}.zip`)
+  const verifiedContentsFile = path.join('build', 'extensions-v2', `${id}.json`)
 
   const writeOutputFiles = (extension) => {
     fs.mkdirSync(path.join('build', 'extensions-v2'), { recursive: true })
     fs.writeFileSync(extensionCrxFile, extension.crx)
     fs.writeFileSync(extensionZipFile, extension.zip)
+    if (extension.verifiedContents) {
+      fs.writeFileSync(verifiedContentsFile, extension.verifiedContents)
+    }
   }
 
   const processExtension = async () => {
