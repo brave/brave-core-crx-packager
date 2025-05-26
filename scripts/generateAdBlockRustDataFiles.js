@@ -91,7 +91,7 @@ const generateDataFilesForCatalogEntry = (entry) => {
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
     const sourceUrlHash = crypto.createHash('md5').update(l.url).digest('hex')
-    const mirroredListUrl = 'https://raw.githubusercontent.com/brave/adblock-lists-mirror/refs/heads/lists/lists/' + sourceUrlHash + '.txt'
+    const mirroredListUrl = 'https://raw.githubusercontent.com/brave/adblock-lists-mirror/33a46dd01ecfc326befd4536af9f4f2a31630577/lists/' + sourceUrlHash + '.txt'
     promises.push(util.fetchTextFromURL(mirroredListUrl)
       .then(data => ({ title: l.title || entry.title, format: l.format, data }))
       .then(async listBuffer => {
