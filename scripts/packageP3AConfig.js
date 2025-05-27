@@ -25,9 +25,10 @@ const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binar
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
   }
   const manifestFilename = 'p3a_manifest.json'
+  const configPath = commander.staging ? 'p3a-config-staging' : 'p3a-config'
   util.stageFiles([
     { path: getOriginalManifest(), outputName: 'manifest.json' },
-    { path: path.join('node_modules', 'p3a-config', 'dist', manifestFilename), outputName: manifestFilename }
+    { path: path.join('node_modules', configPath, 'dist', manifestFilename), outputName: manifestFilename }
   ], version, stagingDir)
   if (!localRun) {
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
@@ -63,7 +64,8 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
+    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
+    .option('-s, --staging', 'Use staging P3A config'))
   .parse(process.argv)
 
 let keyParam = ''
