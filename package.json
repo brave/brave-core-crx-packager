@@ -61,7 +61,8 @@
   },
   "standard": {
     "ignore": [
-      "/submodules/"
+      "/submodules/",
+      "/lib/adBlockRust0_8_6/"
     ]
   },
   "tap": {

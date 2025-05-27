@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  checkAdblockRustV086Compat,
   generateResourcesFile,
   getListCatalog,
   getDefaultLists,
@@ -56,7 +57,7 @@ const removeIncompatibleRules = (listBuffer) => {
   listBuffer.data = listBuffer.data.split('\n').filter(line => {
     line = line.trim()
     // Prior to adblock-rust 0.8.7, scriptlet arguments with trailing escaped commas can cause crashes.
-    if (line.indexOf('+js(') >= 0 && line.endsWith('\\,)')) {
+    if (!checkAdblockRustV086Compat(line)) {
       return false
     }
     if (line.startsWith('/^dizipal\\d+\\.com$/##')) {
@@ -91,7 +92,7 @@ const generateDataFilesForCatalogEntry = (entry) => {
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
     const sourceUrlHash = crypto.createHash('md5').update(l.url).digest('hex')
-    const mirroredListUrl = 'https://raw.githubusercontent.com/brave/adblock-lists-mirror/33a46dd01ecfc326befd4536af9f4f2a31630577/lists/' + sourceUrlHash + '.txt'
+    const mirroredListUrl = 'https://raw.githubusercontent.com/brave/adblock-lists-mirror/refs/heads/lists/lists/' + sourceUrlHash + '.txt'
     promises.push(util.fetchTextFromURL(mirroredListUrl)
       .then(data => ({ title: l.title || entry.title, format: l.format, data }))
       .then(async listBuffer => {
