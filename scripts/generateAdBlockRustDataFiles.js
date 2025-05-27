@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  checkAdblockRustV086Compat,
   generateResourcesFile,
   getListCatalog,
   getDefaultLists,
@@ -56,7 +57,7 @@ const removeIncompatibleRules = (listBuffer) => {
   listBuffer.data = listBuffer.data.split('\n').filter(line => {
     line = line.trim()
     // Prior to adblock-rust 0.8.7, scriptlet arguments with trailing escaped commas can cause crashes.
-    if (line.indexOf('+js(') >= 0 && line.endsWith('\\,)')) {
+    if (!checkAdblockRustV086Compat(line)) {
       return false
     }
     if (line.startsWith('/^dizipal\\d+\\.com$/##')) {
