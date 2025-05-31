@@ -1,33 +1,34 @@
-version: '3'
 services:
   app:
     build: .
     environment:
-      - S3_ENDPOINT=http://localstack:4566
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=us-east-1
-      - AWS_REGION=us-east-1
+      - S3_ENDPOINT=${S3_ENDPOINT:-http://localstack:4566}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - AWS_REGION=${S3_REGION:-us-east-1}
     security_opt:
       - no-new-privileges:true
     depends_on:
       localstack:
         condition: service_healthy
-  # nosemgrep: writable-filesystem-service
+
   localstack:
+    ports:
+      - "${PORT_S3:-4566}:4566"
     image: localstack/localstack
     environment:
-      - SERVICES=s3,dynamodb
-      - DEBUG=1
-      - PORT_S3=4566
-      - PORT_DYNAMODB=4567
+      - SERVICES=${LOCALSTACK_SERVICES:-s3,dynamodb}
+      - DEBUG=${LOCALSTACK_DEBUG:-1}
+      - PORT_S3=${PORT_S3:-4566}
+      - PORT_DYNAMODB=${PORT_DYNAMODB:-4567}
     volumes:
       - "./.localstack:/var/lib/localstack"
       - "./localstack-init.sh:/etc/localstack/init/ready.d/init-aws.sh"
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: "curl -s localhost:4566/_localstack/init/ready | fgrep '\"completed\": true'"
+      test: "curl -s localhost:${PORT_S3:-4566}/_localstack/init/ready | fgrep '\"completed\": true'"
       interval: 5s
       retries: 10
       timeout: 10s

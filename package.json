@@ -10,6 +10,7 @@
     "@sentry/node": "7.120.3",
     "adblock-rs": "0.9.5",
     "brave-site-specific-scripts": "github:brave/brave-site-specific-scripts",
+    "dotenv": "^16.5.0",
     "p3a-config": "github:brave/p3a-config",
     "p3a-config-staging": "github:brave/p3a-config#staging",
     "pbf": "4.0.1",
@@ -29,6 +30,7 @@
   "scripts": {
     "clean": "rimraf build/",
     "test": "node --test test/*.js scripts/**/*.test.js lib/*.test.js",
+    "init-db-ad-block-rust": "node scripts/initDBforAdblockUpdater.js",
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-local-data-files": "npm install --prefix ./node_modules/brave-site-specific-scripts && npm run --prefix ./node_modules/brave-site-specific-scripts build && mkdir -p brave-lists && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls.json -O brave-lists/clean-urls.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls-permissions.json -O brave-lists/clean-urls-permissions.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/debounce.json -O brave-lists/debounce.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/request-otr.json -O brave-lists/request-otr.json && wget https://https-upgrade-exceptions.s3.us-west-1.amazonaws.com/https-upgrade-exceptions-list.txt -O brave-lists/https-upgrade-exceptions-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/localhost-permission-allow-list.txt -O brave-lists/localhost-permission-allow-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/webcompat-exceptions.json -O brave-lists/webcompat-exceptions.json",
     "data-files-leo-local-models": "mkdir -p leo-local-models && wget https://raw.githubusercontent.com/brave/leo-local-models/main/tflite_models/universal_sentence_encoder_qa_with_metadata_v1.tflite -O leo-local-models/universal_sentence_encoder_qa_with_metadata.tflite",

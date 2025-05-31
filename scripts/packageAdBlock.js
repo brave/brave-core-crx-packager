@@ -41,7 +41,7 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
     }
     if (!localRun) {
       generateVerifiedContents(stagingDir, verifiedContentsKey)
-      const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
+      const privateKeyFile = path.join('out-all-pem', `${componentSubdir}.pem`)
       util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
         publisherProofKeyAlt, stagingDir)
     }
@@ -141,6 +141,11 @@ util.addCommonScriptOptions(
     .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   .parse(process.argv)
 
+commander.binary = process.env.BINARY
+commander.region = process.env.S3_REGION
+commander.endpoint = process.env.S3_ENDPOINT
+commander.publisherProofKey = process.env.PUBLISHER_PROOF_KEY
+commander.verifiedContentsKey = process.env.VERIFIED_CONTENTS_KEY
 if (!commander.localRun) {
   let keyDir = ''
   if (fs.existsSync(commander.keysDirectory)) {

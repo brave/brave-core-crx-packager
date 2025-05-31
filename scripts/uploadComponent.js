@@ -16,6 +16,8 @@ commander
   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .parse(process.argv)
 
+commander.region = process.env.S3_REGION
+commander.endpoint = process.env.S3_ENDPOINT
 let crxParam = ''
 
 if (fs.existsSync(commander.crxFile)) {

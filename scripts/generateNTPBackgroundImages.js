@@ -79,6 +79,7 @@ async function prepareAssets (jsonFileUrl, targetResourceDir) {
     const targetImageFilePath = path.join(targetResourceDir, imageFileName)
     const targetImageFileUrl = new URL(imageFileName, jsonFileUrl).href
     const response = await util.s3capableFetch(targetImageFileUrl)
+    mkdirp.sync(path.dirname(targetImageFilePath))
     const ws = fs.createWriteStream(targetImageFilePath)
     await finished(Readable.fromWeb(response.body).pipe(ws))
     console.log(`Downloaded ${targetImageFileUrl}`)
@@ -102,14 +103,14 @@ async function generateNTPBackgroundImages (dataUrl) {
 util.installErrorHandlers()
 
 commander
-  .option('-d, --data-url <url>', 'https: or s3: url that refers to data that has ntp background images')
-  .parse(process.argv)
+    .option('-d, --data-url <url>', 'https: or s3: url that refers to data that has ntp background images')
+    .parse(process.argv)
 
 generateNTPBackgroundImages(commander.dataUrl)
-  .catch(e => {
-    console.error('There was a fatal problem:', e.message)
-    if (e.cause) {
-      console.error(e.cause)
-    }
-    process.exit(1)
-  })
+    .catch(e => {
+      console.error('There was a fatal problem:', e.message)
+      if (e.cause) {
+        console.error(e.cause)
+      }
+      process.exit(1)
+    })
