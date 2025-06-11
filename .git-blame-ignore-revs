@@ -1,0 +1,6 @@
+# Use
+#   git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+# to exclude the commits listed below from blame
+
+# Mass format
+079baa16ac5fbc269d43c1fb7c16a92ec4e58063
