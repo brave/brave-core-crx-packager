@@ -17,12 +17,17 @@ import params from './params.js'
  * @param {string} dataUrl
  * @param {import('./region-platform-component-metadata.js').RegionPlatformComponentMetadata} targetComponents
  */
-async function generateNTPSponsoredImages (dataUrl, targetComponents) {
+async function generateNTPSponsoredImages(dataUrl, targetComponents) {
   // Normalize url for joining
   if (!dataUrl.endsWith('/')) {
     dataUrl += '/'
   }
-  const rootResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources')
+  const rootResourceDir = path.join(
+    path.resolve(),
+    'build',
+    'ntp-sponsored-images',
+    'resources'
+  )
   mkdirp.sync(rootResourceDir)
 
   for (const regionPlatformName of Object.keys(targetComponents)) {
@@ -38,12 +43,26 @@ async function generateNTPSponsoredImages (dataUrl, targetComponents) {
 util.installErrorHandlers()
 
 commander
-  .option('-d, --data-url <url>', 'https: or s3: url that refers to data that has ntp sponsored images')
-  .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
-  .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
+  .option(
+    '-d, --data-url <url>',
+    'https: or s3: url that refers to data that has ntp sponsored images'
+  )
+  .option(
+    '-t, --target-regions <regions>',
+    'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"',
+    ''
+  )
+  .option(
+    '-u, --excluded-target-regions <regions>',
+    'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"',
+    ''
+  )
   .parse(process.argv)
 
-const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
+const targetComponents = params.getTargetComponents(
+  commander.targetRegions,
+  commander.excludedTargetRegions
+)
 
 if (!commander.dataUrl) {
   throw new Error('--data-url is required!')

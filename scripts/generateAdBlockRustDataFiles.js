@@ -41,30 +41,41 @@ const getOutPath = (outputFilename, outSubdir) => {
 // Removes Brave-specific scriptlet injections from non-Brave lists
 const enforceBraveDirectives = (title, data) => {
   if (!title || !title.startsWith('Brave ')) {
-    return data.split('\n').filter(line => {
-      const hasBraveScriptlet = line.indexOf('+js(brave-') >= 0
-      if (hasBraveScriptlet) {
-        console.log('List ' + title + ' attempted to include brave-specific directive: ' + line)
-      }
-      return !hasBraveScriptlet
-    }).join('\n')
+    return data
+      .split('\n')
+      .filter((line) => {
+        const hasBraveScriptlet = line.indexOf('+js(brave-') >= 0
+        if (hasBraveScriptlet) {
+          console.log(
+            'List ' +
+              title +
+              ' attempted to include brave-specific directive: ' +
+              line
+          )
+        }
+        return !hasBraveScriptlet
+      })
+      .join('\n')
   } else {
     return data
   }
 }
 
 const removeIncompatibleRules = (listBuffer) => {
-  listBuffer.data = listBuffer.data.split('\n').filter(line => {
-    line = line.trim()
-    // Prior to adblock-rust 0.8.7, scriptlet arguments with trailing escaped commas can cause crashes.
-    if (!checkAdblockRustV086Compat(line)) {
-      return false
-    }
-    if (line.startsWith('/^dizipal\\d+\\.com$/##')) {
-      return false
-    }
-    return true
-  }).join('\n')
+  listBuffer.data = listBuffer.data
+    .split('\n')
+    .filter((line) => {
+      line = line.trim()
+      // Prior to adblock-rust 0.8.7, scriptlet arguments with trailing escaped commas can cause crashes.
+      if (!checkAdblockRustV086Compat(line)) {
+        return false
+      }
+      if (line.startsWith('/^dizipal\\d+\\.com$/##')) {
+        return false
+      }
+      return true
+    })
+    .join('\n')
   return listBuffer
 }
 
@@ -72,7 +83,9 @@ const removeIncompatibleRules = (listBuffer) => {
  * Serializes the provided lists to disk in one file as `list.txt` under the given component subdirectory.
  */
 const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
-  const fullList = listBuffers.map(({ data, title }) => enforceBraveDirectives(title, data)).join('\n')
+  const fullList = listBuffers
+    .map(({ data, title }) => enforceBraveDirectives(title, data))
+    .join('\n')
   fs.writeFileSync(getOutPath('list.txt', outSubdir), fullList)
 }
 
@@ -92,26 +105,40 @@ const generateDataFilesForCatalogEntry = (entry) => {
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
     const sourceUrlHash = crypto.createHash('md5').update(l.url).digest('hex')
-    const mirroredListUrl = 'https://raw.githubusercontent.com/brave/adblock-lists-mirror/refs/heads/lists/lists/' + sourceUrlHash + '.txt'
-    promises.push(util.fetchTextFromURL(mirroredListUrl)
-      .then(data => ({ title: l.title || entry.title, format: l.format, data }))
-      .then(async listBuffer => {
-        const compat = removeIncompatibleRules(preprocess(listBuffer))
-        await sanityCheckList(compat)
-        return compat
-      })
+    const mirroredListUrl =
+      'https://raw.githubusercontent.com/brave/adblock-lists-mirror/refs/heads/lists/lists/' +
+      sourceUrlHash +
+      '.txt'
+    promises.push(
+      util
+        .fetchTextFromURL(mirroredListUrl)
+        .then((data) => ({
+          title: l.title || entry.title,
+          format: l.format,
+          data
+        }))
+        .then(async (listBuffer) => {
+          const compat = removeIncompatibleRules(preprocess(listBuffer))
+          await sanityCheckList(compat)
+          return compat
+        })
     )
   })
-  return Promise.all(promises)
-    .then(
-      listBuffers => generatePlaintextListFromLists(listBuffers, entry.list_text_component.component_id),
-      e => {
-        console.error(`Not publishing a new version of ${entry.title} due to failure downloading a source: ${e.message}`)
-        if (Sentry) {
-          Sentry.captureException(e, { level: 'warning' })
-        }
+  return Promise.all(promises).then(
+    (listBuffers) =>
+      generatePlaintextListFromLists(
+        listBuffers,
+        entry.list_text_component.component_id
+      ),
+    (e) => {
+      console.error(
+        `Not publishing a new version of ${entry.title} due to failure downloading a source: ${e.message}`
+      )
+      if (Sentry) {
+        Sentry.captureException(e, { level: 'warning' })
       }
-    )
+    }
+  )
 }
 
 /**
@@ -121,36 +148,54 @@ const generateDataFilesForCatalogEntry = (entry) => {
  */
 const generateDataFilesForAllRegions = () => {
   console.log('Processing per region list updates...')
-  return getRegionalLists().then(regions => {
+  return getRegionalLists().then((regions) => {
     return new Promise((resolve, reject) => {
       const catalogString = JSON.stringify(regions)
-      fs.writeFileSync(getOutPath('regional_catalog.json', regionalCatalogComponentId), catalogString)
-      getListCatalog().then(listCatalog => {
+      fs.writeFileSync(
+        getOutPath('regional_catalog.json', regionalCatalogComponentId),
+        catalogString
+      )
+      getListCatalog().then((listCatalog) => {
         const catalogString = JSON.stringify(listCatalog)
-        fs.writeFileSync(getOutPath('list_catalog.json', regionalCatalogComponentId), catalogString)
+        fs.writeFileSync(
+          getOutPath('list_catalog.json', regionalCatalogComponentId),
+          catalogString
+        )
         resolve()
       })
-    }).then(() => Promise.all(regions.map(region =>
-      generateDataFilesForCatalogEntry(region)
-    )))
+    }).then(() =>
+      Promise.all(
+        regions.map((region) => generateDataFilesForCatalogEntry(region))
+      )
+    )
   })
 }
 
 const generateDataFilesForResourcesComponent = () => {
-  return generateResourcesFile(getOutPath('resources.json', resourcesComponentId))
+  return generateResourcesFile(
+    getOutPath('resources.json', resourcesComponentId)
+  )
 }
 
-const generateDataFilesForDefaultAdblock = () => getDefaultLists()
-  .then(defaultLists => Promise.all(defaultLists.map(list => generateDataFilesForCatalogEntry(list))))
+const generateDataFilesForDefaultAdblock = () =>
+  getDefaultLists().then((defaultLists) =>
+    Promise.all(
+      defaultLists.map((list) => generateDataFilesForCatalogEntry(list))
+    )
+  )
 
 generateDataFilesForDefaultAdblock()
   .then(generateDataFilesForResourcesComponent)
   .then(generateDataFilesForAllRegions)
   .then(() => {
-    console.log('Thank you for updating the data files, don\'t forget to upload them too!')
+    console.log(
+      "Thank you for updating the data files, don't forget to upload them too!"
+    )
   })
   .catch((e) => {
-    console.error(`Something went wrong, aborting: ${e} ${e.stack} ${e.message}`)
+    console.error(
+      `Something went wrong, aborting: ${e} ${e.stack} ${e.message}`
+    )
     process.exit(1)
   })
 

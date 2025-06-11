@@ -11,12 +11,15 @@ import regionPlatformComponentMetadata from './region-platform-component-metadat
  * @param {string|undefined} incoming
  * @returns string[]
  */
-function parseRegionListParam (incoming) {
+function parseRegionListParam(incoming) {
   if (!incoming || typeof incoming !== 'string') {
     return []
   }
   const incomingClean = incoming.replace(/[^A-Za-z,-]/g, '')
-  return incomingClean.split(',').map(i => i.trim()).filter(i => !!i)
+  return incomingClean
+    .split(',')
+    .map((i) => i.trim())
+    .filter((i) => !!i)
 }
 
 /**
@@ -29,14 +32,16 @@ function parseRegionListParam (incoming) {
  *
  * @returns {typeof regionPlatformComponentMetadata}
  */
-function getTargetComponentsFromArrays (includes, excludes) {
-  const targetComponents = { }
+function getTargetComponentsFromArrays(includes, excludes) {
+  const targetComponents = {}
   for (const platformRegion of Object.keys(regionPlatformComponentMetadata)) {
     // Include the component if it's in includes and not in excludes, or includes is empty
-    if ((!includes.length || includes.includes(platformRegion)) && (
-      !excludes.length || !excludes.includes(platformRegion)
-    )) {
-      targetComponents[platformRegion] = regionPlatformComponentMetadata[platformRegion]
+    if (
+      (!includes.length || includes.includes(platformRegion)) &&
+      (!excludes.length || !excludes.includes(platformRegion))
+    ) {
+      targetComponents[platformRegion] =
+        regionPlatformComponentMetadata[platformRegion]
     }
   }
   return targetComponents
@@ -50,7 +55,7 @@ function getTargetComponentsFromArrays (includes, excludes) {
  *
  * @returns {typeof regionPlatformComponentMetadata}
  */
-function getTargetComponents (includesParamValue, excludesParamValue) {
+function getTargetComponents(includesParamValue, excludesParamValue) {
   const includes = parseRegionListParam(includesParamValue)
   const excludes = parseRegionListParam(excludesParamValue)
 

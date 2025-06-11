@@ -1,0 +1,14 @@
+submodules
+node_modules
+build
+component-data
+manifests
+resources
+
+lib/adBlockRust*/
+
+.*/
+*.json
+*.md
+*.yml
+*.pb.js

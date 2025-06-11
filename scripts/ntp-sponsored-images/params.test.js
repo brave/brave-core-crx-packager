@@ -20,7 +20,10 @@ test('ntp getTargetComponentsFromArrays', (t, done) => {
 
   // multiple, exclude bad
   actual = params.getTargetComponents('US-android,IT,FR-desktop,asd', '')
-  assert.deepStrictEqual(actual, { 'US-android': allComponents['US-android'], 'FR-desktop': allComponents['FR-desktop'] })
+  assert.deepStrictEqual(actual, {
+    'US-android': allComponents['US-android'],
+    'FR-desktop': allComponents['FR-desktop']
+  })
 
   // strip bad chars but still include
   actual = params.getTargetComponents('"US-an;droid",')

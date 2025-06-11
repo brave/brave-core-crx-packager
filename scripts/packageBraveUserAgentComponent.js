@@ -13,13 +13,21 @@ import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
 const getOriginalManifest = () => {
-  return path.join(path.resolve(), 'manifests', 'brave-user-agent', 'default-manifest.json')
+  return path.join(
+    path.resolve(),
+    'manifests',
+    'brave-user-agent',
+    'default-manifest.json'
+  )
 }
 
 const stageFiles = (version, outputDir) => {
   const files = [
     { path: getOriginalManifest(), outputName: 'manifest.json' },
-    { path: path.join('brave-user-agent', 'brave-checks.txt'), outputName: 'brave-checks.txt' }
+    {
+      path: path.join('brave-user-agent', 'brave-checks.txt'),
+      outputName: 'brave-checks.txt'
+    }
   ]
   util.stageFiles(files, version, outputDir)
 }
@@ -36,24 +44,41 @@ const generateManifestFile = (publicKey) => {
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-  publisherProofKey, publisherProofKeyAlt) => {
+const generateCRXFile = (
+  binary,
+  endpoint,
+  region,
+  componentID,
+  privateKeyFile,
+  publisherProofKey,
+  publisherProofKeyAlt
+) => {
   const stagingDir = path.join('build', 'brave-user-agent')
   const crxFile = path.join(stagingDir, 'brave-user-agent.crx')
   mkdirp.sync(stagingDir)
   util.getNextVersion(endpoint, region, componentID).then((version) => {
     stageFiles(version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      publisherProofKeyAlt, stagingDir)
+    util.generateCRXFile(
+      binary,
+      crxFile,
+      privateKeyFile,
+      publisherProofKey,
+      publisherProofKeyAlt,
+      stagingDir
+    )
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
 util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
+util
+  .addCommonScriptOptions(
+    commander.option(
+      '-k, --key-file <file>',
+      'file containing private key for signing crx file'
+    )
+  )
   .parse(process.argv)
 
 let privateKeyFile = ''
@@ -64,8 +89,16 @@ if (fs.existsSync(commander.keyFile)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+  const [publicKey, componentID] =
+    ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateManifestFile(publicKey)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
+  generateCRXFile(
+    commander.binary,
+    commander.endpoint,
+    commander.region,
+    componentID,
+    privateKeyFile,
+    commander.publisherProofKey,
+    commander.publisherProofKeyAlt
+  )
 })

@@ -12,10 +12,18 @@ import params from './params.js'
 
 const stageFiles = (locale, version, outputDir) => {
   util.stageDir(
-    path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'resources', locale, '/'),
+    path.join(
+      path.resolve(),
+      'build',
+      'ntp-sponsored-images',
+      'resources',
+      locale,
+      '/'
+    ),
     getManifestPath(locale),
     version,
-    outputDir)
+    outputDir
+  )
 }
 
 const generateManifestFile = (regionPlatform, componentData) => {
@@ -31,7 +39,12 @@ const generateManifestFile = (regionPlatform, componentData) => {
 }
 
 const getManifestsDir = () => {
-  const targetResourceDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images', 'manifiest-files')
+  const targetResourceDir = path.join(
+    path.resolve(),
+    'build',
+    'ntp-sponsored-images',
+    'manifiest-files'
+  )
   mkdirp.sync(targetResourceDir)
   return targetResourceDir
 }
@@ -42,36 +55,78 @@ const getManifestsDir = () => {
  * @param {string} regionPlatform
  * @returns
  */
-function getManifestPath (regionPlatform) {
+function getManifestPath(regionPlatform) {
   return path.join(getManifestsDir(), `${regionPlatform}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, platformRegion,
-  componentData, publisherProofKey, publisherProofKeyAlt, verifiedContentsKey) => {
-  const rootBuildDir = path.join(path.resolve(), 'build', 'ntp-sponsored-images')
+const generateCRXFile = (
+  binary,
+  endpoint,
+  region,
+  keyDir,
+  platformRegion,
+  componentData,
+  publisherProofKey,
+  publisherProofKeyAlt,
+  verifiedContentsKey
+) => {
+  const rootBuildDir = path.join(
+    path.resolve(),
+    'build',
+    'ntp-sponsored-images'
+  )
   const stagingDir = path.join(rootBuildDir, 'staging', platformRegion)
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    const crxFile = path.join(crxOutputDir, `ntp-sponsored-images-${platformRegion}.crx`)
+    const crxFile = path.join(
+      crxOutputDir,
+      `ntp-sponsored-images-${platformRegion}.crx`
+    )
     // Desktop private key file names do not have the -desktop suffix, but android has -android
-    const privateKeyFile = path.join(keyDir, `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`)
+    const privateKeyFile = path.join(
+      keyDir,
+      `ntp-sponsored-images-${platformRegion.replace('-desktop', '')}.pem`
+    )
     stageFiles(platformRegion, version, stagingDir)
-    util.generateAndWriteVerifiedContents(stagingDir, ['**'], verifiedContentsKey)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      publisherProofKeyAlt, stagingDir)
+    util.generateAndWriteVerifiedContents(
+      stagingDir,
+      ['**'],
+      verifiedContentsKey
+    )
+    util.generateCRXFile(
+      binary,
+      crxFile,
+      privateKeyFile,
+      publisherProofKey,
+      publisherProofKeyAlt,
+      stagingDir
+    )
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
 util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-t, --target-regions <regions>', 'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"', '')
-    .option('-u, --excluded-target-regions <regions>', 'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"', ''))
+util
+  .addCommonScriptOptions(
+    commander
+      .option(
+        '-d, --keys-directory <dir>',
+        'directory containing private keys for signing crx files'
+      )
+      .option(
+        '-t, --target-regions <regions>',
+        'Comma separated list of regions that should generate SI component. For example: "AU-android,US-desktop,GB-ios"',
+        ''
+      )
+      .option(
+        '-u, --excluded-target-regions <regions>',
+        'Comma separated list of regions that should not generate SI component. For example: "AU-android,US-desktop,GB-ios"',
+        ''
+      )
+  )
   .parse(process.argv)
 
 let keyDir = ''
@@ -81,15 +136,25 @@ if (fs.existsSync(commander.keysDirectory)) {
   throw new Error('Missing or invalid private key directory')
 }
 
-const targetComponents = params.getTargetComponents(commander.targetRegions, commander.excludedTargetRegions)
+const targetComponents = params.getTargetComponents(
+  commander.targetRegions,
+  commander.excludedTargetRegions
+)
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const platformRegion of Object.keys(targetComponents)) {
     const componentData = targetComponents[platformRegion]
     generateManifestFile(platformRegion, componentData)
-    generateCRXFile(commander.binary, commander.endpoint, commander.region,
-      keyDir, platformRegion, componentData,
-      commander.publisherProofKey, commander.publisherProofKeyAlt,
-      commander.verifiedContentsKey)
+    generateCRXFile(
+      commander.binary,
+      commander.endpoint,
+      commander.region,
+      keyDir,
+      platformRegion,
+      componentData,
+      commander.publisherProofKey,
+      commander.publisherProofKeyAlt,
+      commander.verifiedContentsKey
+    )
   }
 })

@@ -40,9 +40,15 @@ const validatePhotoData = (photoJsonObj) => {
   let isValid = true
   if (photoJsonObj.images) {
     photoJsonObj.images.forEach((image) => {
-      if (!image.name || !image.source || !image.author ||
-          !image.link || !image.originalUrl || !image.license) {
-        console.log('Doesn\'t have sufficient properties')
+      if (
+        !image.name ||
+        !image.source ||
+        !image.author ||
+        !image.link ||
+        !image.originalUrl ||
+        !image.license
+      ) {
+        console.log("Doesn't have sufficient properties")
         console.log(image)
         isValid = false
       }
@@ -51,7 +57,7 @@ const validatePhotoData = (photoJsonObj) => {
   return isValid
 }
 
-async function prepareAssets (jsonFileUrl, targetResourceDir) {
+async function prepareAssets(jsonFileUrl, targetResourceDir) {
   // Download and parse jsonFileUrl.
   const response = await util.s3capableFetch(jsonFileUrl)
   const body = await response.text()
@@ -70,7 +76,10 @@ async function prepareAssets (jsonFileUrl, targetResourceDir) {
   }
   console.log(`Done - json file ${jsonFileUrl} validation`)
 
-  createPhotoJsonFile(path.join(targetResourceDir, 'photo.json'), JSON.stringify(photoData))
+  createPhotoJsonFile(
+    path.join(targetResourceDir, 'photo.json'),
+    JSON.stringify(photoData)
+  )
 
   // Download image files that specified in jsonFileUrl
   const imageFileNameList = getImageFileNameListFrom(photoData)
@@ -85,13 +94,18 @@ async function prepareAssets (jsonFileUrl, targetResourceDir) {
   })
   await Promise.all(downloadOps)
   if (imageErrors.length) {
-    imageErrors.forEach(e => console.error(e))
+    imageErrors.forEach((e) => console.error(e))
     throw new Error('There were some image download errors. Aborting!')
   }
 }
 
-async function generateNTPBackgroundImages (dataUrl) {
-  const targetResourceDir = path.join(path.resolve(), 'build', 'ntp-background-images', 'resources')
+async function generateNTPBackgroundImages(dataUrl) {
+  const targetResourceDir = path.join(
+    path.resolve(),
+    'build',
+    'ntp-background-images',
+    'resources'
+  )
   mkdirp.sync(targetResourceDir)
 
   console.log(`Downloading background images from ${dataUrl}...`)
@@ -102,14 +116,16 @@ async function generateNTPBackgroundImages (dataUrl) {
 util.installErrorHandlers()
 
 commander
-  .option('-d, --data-url <url>', 'https: or s3: url that refers to data that has ntp background images')
+  .option(
+    '-d, --data-url <url>',
+    'https: or s3: url that refers to data that has ntp background images'
+  )
   .parse(process.argv)
 
-generateNTPBackgroundImages(commander.dataUrl)
-  .catch(e => {
-    console.error('There was a fatal problem:', e.message)
-    if (e.cause) {
-      console.error(e.cause)
-    }
-    process.exit(1)
-  })
+generateNTPBackgroundImages(commander.dataUrl).catch((e) => {
+  console.error('There was a fatal problem:', e.message)
+  if (e.cause) {
+    console.error(e.cause)
+  }
+  process.exit(1)
+})

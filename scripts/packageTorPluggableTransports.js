@@ -25,7 +25,12 @@ const getTransportUrl = (platform, transport) => {
 
 // Downloads one platform-specific tor pluggable transport executable from s3
 const downloadTorPluggableTransport = (platform, transport) => {
-  const transportPath = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, 'dowloads', `${platform}`)
+  const transportPath = path.join(
+    'build',
+    TOR_PLUGGABLE_TRANSPORTS_UPDATER,
+    'dowloads',
+    `${platform}`
+  )
   const transportFilename = `tor-${transport}-brave`
 
   mkdirp.sync(transportPath)
@@ -42,10 +47,22 @@ const downloadTorPluggableTransport = (platform, transport) => {
 }
 
 const getOriginalManifest = (platform) => {
-  return path.join('manifests', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`)
+  return path.join(
+    'manifests',
+    TOR_PLUGGABLE_TRANSPORTS_UPDATER,
+    `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`
+  )
 }
 
-const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey, publisherProofKeyAlt) => {
+const packageTorPluggableTransports = (
+  binary,
+  endpoint,
+  region,
+  platform,
+  key,
+  publisherProofKey,
+  publisherProofKeyAlt
+) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
@@ -54,12 +71,28 @@ const packageTorPluggableTransports = (binary, endpoint, region, platform, key, 
     const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
     const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
 
-    const stagingDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER, platform)
+    const stagingDir = path.join(
+      'build',
+      TOR_PLUGGABLE_TRANSPORTS_UPDATER,
+      platform
+    )
     const crxOutputDir = path.join('build', TOR_PLUGGABLE_TRANSPORTS_UPDATER)
-    const crxFile = path.join(crxOutputDir, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`)
-    const privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
+    const crxFile = path.join(
+      crxOutputDir,
+      `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.crx`
+    )
+    const privateKeyFile = !fs.lstatSync(key).isDirectory()
+      ? key
+      : path.join(key, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}.pem`)
     stageFiles(platform, snowflake, obfs4, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey, publisherProofKeyAlt, stagingDir)
+    util.generateCRXFile(
+      binary,
+      crxFile,
+      privateKeyFile,
+      publisherProofKey,
+      publisherProofKeyAlt,
+      stagingDir
+    )
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
@@ -75,10 +108,20 @@ const stageFiles = (platform, snowflake, obfs4, version, outputDir) => {
 
 util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
+util
+  .addCommonScriptOptions(
+    commander
+      .option(
+        '-d, --keys-directory <dir>',
+        'directory containing private keys for signing crx files',
+        'abc'
+      )
+      .option(
+        '-f, --key-file <file>',
+        'private key file for signing crx',
+        'key.pem'
+      )
+  )
   .parse(process.argv)
 
 let keyParam = ''
@@ -93,7 +136,14 @@ if (fs.existsSync(commander.keyFile)) {
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   for (const platform of ['darwin', 'linux', 'win32']) {
-    packageTorPluggableTransports(commander.binary, commander.endpoint, commander.region,
-      platform, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt)
+    packageTorPluggableTransports(
+      commander.binary,
+      commander.endpoint,
+      commander.region,
+      platform,
+      keyParam,
+      commander.publisherProofKey,
+      commander.publisherProofKeyAlt
+    )
   }
 })
