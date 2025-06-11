@@ -39,7 +39,7 @@
     "generate-ntp-background-images": "node scripts/generateNTPBackgroundImages.js",
     "generate-ntp-sponsored-images": "node scripts/ntp-sponsored-images/generate",
     "generate-user-model-installer-updates": "node scripts/generateBraveAdsResourcesComponentInputFiles.js",
-    "lint": "standard lib scripts test",
+    "lint": "eslint . --ignore-path .prettierignore",
     "package-ad-block": "node ./scripts/packageAdBlock",
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-tor-pluggable-transports": "node ./scripts/packageTorPluggableTransports",
