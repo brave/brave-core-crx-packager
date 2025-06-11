@@ -31,6 +31,7 @@ jobs:
       run: npm audit
     - run: npm ci
     - run: npm run lint
+    - run: npx prettier --check .
     - run: npm test
     - run: npm run data-files-ad-block-rust
     - run: npm run data-files-local-data-files
