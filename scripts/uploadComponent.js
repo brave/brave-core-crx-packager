@@ -10,9 +10,12 @@ import util from '../lib/util.js'
 util.installErrorHandlers()
 
 commander
-  .option('-d, --crx-directory <dir>', 'directory containing multiple crx files to upload')
+  .option(
+    '-d, --crx-directory <dir>',
+    'directory containing multiple crx files to upload'
+  )
   .option('-f, --crx-file <file>', 'crx file to upload', 'extension.crx')
-  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '')// If setup locally, use http://localhost:8000
+  .option('-e, --endpoint <endpoint>', 'DynamoDB endpoint to connect to', '') // If setup locally, use http://localhost:8000
   .option('-r, --region <region>', 'The AWS region to use', 'us-west-2')
   .parse(process.argv)
 
@@ -23,39 +26,66 @@ if (fs.existsSync(commander.crxFile)) {
 } else if (fs.existsSync(commander.crxDirectory)) {
   crxParam = commander.crxDirectory
 } else {
-  throw new Error(`Missing or invalid crx file/directory, file: '${commander.crxFile} directory: '${commander.crxDirectory}'`)
+  throw new Error(
+    `Missing or invalid crx file/directory, file: '${commander.crxFile} directory: '${commander.crxDirectory}'`
+  )
 }
 
 const uploadJobs = []
 if (fs.lstatSync(crxParam).isDirectory()) {
-  fs.readdirSync(crxParam).forEach(file => {
+  fs.readdirSync(crxParam).forEach((file) => {
     if (path.parse(file).ext === '.crx') {
-      uploadJobs.push(util.uploadCRXFile(commander.endpoint, commander.region, path.join(crxParam, file)))
+      uploadJobs.push(
+        util.uploadCRXFile(
+          commander.endpoint,
+          commander.region,
+          path.join(crxParam, file)
+        )
+      )
     }
   })
 } else {
-  uploadJobs.push(util.uploadCRXFile(commander.endpoint, commander.region, crxParam))
+  uploadJobs.push(
+    util.uploadCRXFile(commander.endpoint, commander.region, crxParam)
+  )
 }
 
-Promise.all(uploadJobs).then(() => {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    if (fs.lstatSync(crxParam).isDirectory()) {
-      fs.readdirSync(crxParam).forEach(file => {
-        const filePath = path.parse(path.join(crxParam, file))
-        if (filePath.ext === '.crx') {
-          const contentHashPath = path.resolve(filePath.dir, filePath.name + '.contentHash')
-          let contentHash
-          if (fs.existsSync(contentHashPath)) {
-            contentHash = fs.readFileSync(contentHashPath).toString()
-          }
-          util.updateDBForCRXFile(commander.endpoint, commander.region, path.join(crxParam, file), undefined, contentHash)
+Promise.all(uploadJobs)
+  .then(() => {
+    util
+      .createTableIfNotExists(commander.endpoint, commander.region)
+      .then(() => {
+        if (fs.lstatSync(crxParam).isDirectory()) {
+          fs.readdirSync(crxParam).forEach((file) => {
+            const filePath = path.parse(path.join(crxParam, file))
+            if (filePath.ext === '.crx') {
+              const contentHashPath = path.resolve(
+                filePath.dir,
+                filePath.name + '.contentHash'
+              )
+              let contentHash
+              if (fs.existsSync(contentHashPath)) {
+                contentHash = fs.readFileSync(contentHashPath).toString()
+              }
+              util.updateDBForCRXFile(
+                commander.endpoint,
+                commander.region,
+                path.join(crxParam, file),
+                undefined,
+                contentHash
+              )
+            }
+          })
+        } else {
+          util.updateDBForCRXFile(
+            commander.endpoint,
+            commander.region,
+            crxParam
+          )
         }
       })
-    } else {
-      util.updateDBForCRXFile(commander.endpoint, commander.region, crxParam)
-    }
   })
-}).catch((err) => {
-  console.error('Caught exception:', err)
-  process.exit(1)
-})
+  .catch((err) => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })

@@ -77,51 +77,62 @@ const getComponentList = () => {
   ]
 }
 
-function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
+function downloadComponentInputFiles(manifestFileName, manifestUrl, outDir) {
   return new Promise(function (resolve, reject) {
     let manifestBody = '{}'
-    fetch(manifestUrl).then(async function (response) {
-      if (response.status === 200) {
-        manifestBody = await response.text()
-      }
+    fetch(manifestUrl)
+      .then(async function (response) {
+        if (response.status === 200) {
+          manifestBody = await response.text()
+        }
 
-      const manifestJson = JSON.parse(manifestBody)
-      if (!manifestJson.schemaVersion) {
-        const error = 'Error: Missing schema version'
-        console.error(error)
-        return reject(error)
-      }
+        const manifestJson = JSON.parse(manifestBody)
+        if (!manifestJson.schemaVersion) {
+          const error = 'Error: Missing schema version'
+          console.error(error)
+          return reject(error)
+        }
 
-      fs.writeFileSync(`${outDir}/${manifestFileName}`, JSON.stringify(manifestJson))
+        fs.writeFileSync(
+          `${outDir}/${manifestFileName}`,
+          JSON.stringify(manifestJson)
+        )
 
-      const fileList = []
+        const fileList = []
 
-      if (manifestJson.resources) {
-        manifestJson.resources.forEach((resource) => {
-          fileList.push(resource.filename)
+        if (manifestJson.resources) {
+          manifestJson.resources.forEach((resource) => {
+            fileList.push(resource.filename)
+          })
+        }
+
+        const downloadOps = fileList.map(async (fileName) => {
+          const resourceFileOutPath = path.join(outDir, fileName)
+          const resourceFileUrl = new URL(fileName, manifestUrl).href
+          const response = await fetch(resourceFileUrl)
+          const ws = fs.createWriteStream(resourceFileOutPath)
+          return finished(Readable.fromWeb(response.body).pipe(ws)).then(() =>
+            console.log(resourceFileUrl)
+          )
         })
-      }
 
-      const downloadOps = fileList.map(async (fileName) => {
-        const resourceFileOutPath = path.join(outDir, fileName)
-        const resourceFileUrl = new URL(fileName, manifestUrl).href
-        const response = await fetch(resourceFileUrl)
-        const ws = fs.createWriteStream(resourceFileOutPath)
-        return finished(Readable.fromWeb(response.body).pipe(ws))
-          .then(() => console.log(resourceFileUrl))
+        await Promise.all(downloadOps)
+
+        resolve()
       })
-
-      await Promise.all(downloadOps)
-
-      resolve()
-    }).catch(error => {
-      throw new Error(`Error from ${manifestUrl}: ${error.cause}`)
-    })
+      .catch((error) => {
+        throw new Error(`Error from ${manifestUrl}: ${error.cause}`)
+      })
   })
 }
 
-async function generateComponents (dataUrl) {
-  const rootResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'resources')
+async function generateComponents(dataUrl) {
+  const rootResourceDir = path.join(
+    path.resolve(),
+    'build',
+    'user-model-installer',
+    'resources'
+  )
   mkdirp.sync(rootResourceDir)
 
   for (const component of getComponentList()) {

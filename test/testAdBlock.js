@@ -5,10 +5,16 @@ import { tmpdir } from 'os'
 import path from 'path'
 import { spawnSync } from 'child_process'
 
-import { generateResourcesFile, preprocess, sanityCheckList } from '../lib/adBlockRustUtils.js'
+import {
+  generateResourcesFile,
+  preprocess,
+  sanityCheckList
+} from '../lib/adBlockRustUtils.js'
 
 test('generateResourcesFile', async (t) => {
-  const tempUserDataDir = fs.mkdtempSync(path.join(tmpdir(), 'generate-resources-file-'))
+  const tempUserDataDir = fs.mkdtempSync(
+    path.join(tmpdir(), 'generate-resources-file-')
+  )
   const tmpfile = path.join(tempUserDataDir, 'resourcefile')
   return generateResourcesFile(tmpfile).then(() => {
     const filedata = fs.readFileSync(tmpfile)
@@ -18,10 +24,21 @@ test('generateResourcesFile', async (t) => {
     for (const r of resources) {
       assert.ok(r.kind !== undefined)
       assert.ok(r.kind.mime !== undefined)
-      if (r.kind.mime === 'application/javascript' || r.kind.mime === 'fn/javascript') {
+      if (
+        r.kind.mime === 'application/javascript' ||
+        r.kind.mime === 'fn/javascript'
+      ) {
         const script = atob(r.content)
         const subprocess = spawnSync('node', ['--check'], { input: script })
-        assert.ok(subprocess.status === 0, 'Resource ' + r.name + ' is not valid JS:\n' + subprocess.stderr.toString() + '\n' + script)
+        assert.ok(
+          subprocess.status === 0,
+          'Resource ' +
+            r.name +
+            ' is not valid JS:\n' +
+            subprocess.stderr.toString() +
+            '\n' +
+            script
+        )
       }
     }
   })
@@ -29,10 +46,16 @@ test('generateResourcesFile', async (t) => {
 
 test('sanityCheckList', async (t) => {
   // Verify that https://bravesoftware.slack.com/archives/C2FQMN4AD/p1704501704164999 would have been caught
-  const corruptedList = fs.readFileSync('./test/elc-1.0.3814-corrupted.txt', { encoding: 'utf8' })
+  const corruptedList = fs.readFileSync('./test/elc-1.0.3814-corrupted.txt', {
+    encoding: 'utf8'
+  })
   let failureMessage
   try {
-    await sanityCheckList({ title: 'corrupted list', data: corruptedList, format: 'Standard' })
+    await sanityCheckList({
+      title: 'corrupted list',
+      data: corruptedList,
+      format: 'Standard'
+    })
   } catch (error) {
     failureMessage = error.message
   }
@@ -62,7 +85,9 @@ test('preprocess', async (t) => {
     h##h:remove()
   `
   const { data } = preprocess({ data: list })
-  assert.equal(data, `
+  assert.equal(
+    data,
+    `
     x##x:remove()
     b##no-cap-filtering:remove()
     c##c:remove()
@@ -70,5 +95,6 @@ test('preprocess', async (t) => {
     e##not-firefox:remove()
     g##whatever:remove()
     h##h:remove()
-  `)
+  `
+  )
 })

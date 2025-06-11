@@ -10,9 +10,13 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
-import { getListCatalog, regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
+import {
+  getListCatalog,
+  regionalCatalogComponentId,
+  resourcesComponentId
+} from '../lib/adBlockRustUtils.js'
 
-async function stageFiles (version, outputDir) {
+async function stageFiles(version, outputDir) {
   // ad-block components are already written in the output directory
   // so we don't need to stage anything
   const originalManifest = path.join(outputDir, 'manifest.json')
@@ -28,12 +32,27 @@ const generateVerifiedContents = (stagingDir, signingKey) => {
   )
 }
 
-const postNextVersionWork = (componentSubdir, key, publisherProofKey,
-  publisherProofKeyAlt, binary, localRun, version, contentHash, verifiedContentsKey) => {
+const postNextVersionWork = (
+  componentSubdir,
+  key,
+  publisherProofKey,
+  publisherProofKeyAlt,
+  binary,
+  localRun,
+  version,
+  contentHash,
+  verifiedContentsKey
+) => {
   const stagingDir = path.join('build', 'ad-block-updater', componentSubdir)
   const crxOutputDir = path.join('build', 'ad-block-updater')
-  const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
-  const contentHashFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.contentHash`)
+  const crxFile = path.join(
+    crxOutputDir,
+    `ad-block-updater-${componentSubdir}.crx`
+  )
+  const contentHashFile = path.join(
+    crxOutputDir,
+    `ad-block-updater-${componentSubdir}.contentHash`
+  )
   stageFiles(version, stagingDir).then(() => {
     // Remove any existing `.contentHash` file for determinism
     if (fs.existsSync(contentHashFile)) {
@@ -41,9 +60,18 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
     }
     if (!localRun) {
       generateVerifiedContents(stagingDir, verifiedContentsKey)
-      const privateKeyFile = path.join(key, `ad-block-updater-${componentSubdir}.pem`)
-      util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-        publisherProofKeyAlt, stagingDir)
+      const privateKeyFile = path.join(
+        key,
+        `ad-block-updater-${componentSubdir}.pem`
+      )
+      util.generateCRXFile(
+        binary,
+        crxFile,
+        privateKeyFile,
+        publisherProofKey,
+        publisherProofKeyAlt,
+        stagingDir
+      )
     }
     if (contentHash !== undefined) {
       fs.writeFileSync(contentHashFile, contentHash)
@@ -66,7 +94,8 @@ const processComponent = (
   publisherProofKeyAlt,
   localRun,
   verifiedContentsKey,
-  componentSubdir) => {
+  componentSubdir
+) => {
   const originalManifest = getOriginalManifest(componentSubdir)
 
   // TODO - previous download failures should prevent the attempt to package the component.
@@ -92,53 +121,90 @@ const processComponent = (
     // Increase this number if you want to recreate adblock components,
     // even if the hash of the content file has not changed.
     const contentHashVersion = 1
-    const contentFile = path.join('build', 'ad-block-updater', componentSubdir, fileToHash)
-    contentHash = util.generateVersionedSHA256HashOfFile(contentFile, contentHashVersion)
+    const contentFile = path.join(
+      'build',
+      'ad-block-updater',
+      componentSubdir,
+      fileToHash
+    )
+    contentHash = util.generateVersionedSHA256HashOfFile(
+      contentFile,
+      contentHashVersion
+    )
   }
 
   if (!localRun) {
     util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
       if (version !== undefined) {
-        postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
-          publisherProofKeyAlt, binary, localRun, version, contentHash, verifiedContentsKey)
+        postNextVersionWork(
+          componentSubdir,
+          keyDir,
+          publisherProofKey,
+          publisherProofKeyAlt,
+          binary,
+          localRun,
+          version,
+          contentHash,
+          verifiedContentsKey
+        )
       } else {
         console.log('content for ' + id + ' was not updated, skipping!')
       }
     })
   } else {
-    postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
+    postNextVersionWork(
+      componentSubdir,
+      undefined,
+      publisherProofKey,
+      publisherProofKeyAlt,
+      binary,
+      localRun,
+      '1.0.0',
+      contentHash,
+      verifiedContentsKey
+    )
   }
 }
 
 const getComponentList = async () => {
-  const output = [
-    regionalCatalogComponentId,
-    resourcesComponentId
-  ]
+  const output = [regionalCatalogComponentId, resourcesComponentId]
   const catalog = await getListCatalog()
-  catalog.forEach(entry => {
+  catalog.forEach((entry) => {
     output.push(entry.list_text_component.component_id)
   })
   return output
 }
 
 const processJob = async (commander, keyDir) => {
-  (await getComponentList())
-    .forEach(processComponent.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
+  ;(await getComponentList()).forEach(
+    processComponent.bind(
+      null,
+      commander.binary,
+      commander.endpoint,
+      commander.region,
+      keyDir,
       commander.publisherProofKey,
       commander.publisherProofKeyAlt,
       commander.localRun,
-      commander.verifiedContentsKey))
+      commander.verifiedContentsKey
+    )
+  )
 }
 
 util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
+util
+  .addCommonScriptOptions(
+    commander
+      .option(
+        '-d, --keys-directory <dir>',
+        'directory containing private keys for signing crx files'
+      )
+      .option(
+        '-l, --local-run',
+        'Runs updater job without connecting anywhere remotely'
+      )
+  )
   .parse(process.argv)
 
 if (!commander.localRun) {
@@ -148,9 +214,11 @@ if (!commander.localRun) {
   } else {
     throw new Error('Missing or invalid private key file/directory')
   }
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-    await processJob(commander, keyDir)
-  })
+  util
+    .createTableIfNotExists(commander.endpoint, commander.region)
+    .then(async () => {
+      await processJob(commander, keyDir)
+    })
 } else {
   processJob(commander, undefined)
 }

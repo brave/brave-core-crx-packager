@@ -235,10 +235,18 @@ const getComponentDataList = () => {
 
 const stageFiles = (locale, version, outputDir) => {
   util.stageDir(
-    path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/'),
+    path.join(
+      path.resolve(),
+      'build',
+      'user-model-installer',
+      'resources',
+      locale,
+      '/'
+    ),
     getOriginalManifest(locale),
     version,
-    outputDir)
+    outputDir
+  )
 }
 
 const generateManifestFile = (componentData) => {
@@ -258,7 +266,12 @@ const generateManifestFiles = () => {
 }
 
 const getManifestsDir = () => {
-  const targetResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'manifiest-files')
+  const targetResourceDir = path.join(
+    path.resolve(),
+    'build',
+    'user-model-installer',
+    'manifiest-files'
+  )
   mkdirp.sync(targetResourceDir)
   return targetResourceDir
 }
@@ -267,29 +280,56 @@ const getOriginalManifest = (locale) => {
   return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
-  publisherProofKeyAlt, componentData) => {
+const generateCRXFile = (
+  binary,
+  endpoint,
+  region,
+  keyDir,
+  publisherProofKey,
+  publisherProofKeyAlt,
+  componentData
+) => {
   const locale = componentData.locale
-  const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
+  const rootBuildDir = path.join(
+    path.resolve(),
+    'build',
+    'user-model-installer'
+  )
   const stagingDir = path.join(rootBuildDir, 'staging', locale)
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
   util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
-    const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
+    const crxFile = path.join(
+      crxOutputDir,
+      `user-model-installer-${locale}.crx`
+    )
+    const privateKeyFile = path.join(
+      keyDir,
+      `user-model-installer-${locale}.pem`
+    )
     stageFiles(locale, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      publisherProofKeyAlt, stagingDir)
+    util.generateCRXFile(
+      binary,
+      crxFile,
+      privateKeyFile,
+      publisherProofKey,
+      publisherProofKeyAlt,
+      stagingDir
+    )
     console.log(`Generated ${crxFile} with version number ${version}`)
   })
 }
 
 util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
+util
+  .addCommonScriptOptions(
+    commander.option(
+      '-d, --keys-directory <dir>',
+      'directory containing private keys for signing crx files'
+    )
+  )
   .parse(process.argv)
 
 let keyDir = ''
@@ -302,7 +342,14 @@ if (fs.existsSync(commander.keysDirectory)) {
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
   generateManifestFiles()
   getComponentDataList().forEach(
-    generateCRXFile.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey, commander.publisherProofKeyAlt))
+    generateCRXFile.bind(
+      null,
+      commander.binary,
+      commander.endpoint,
+      commander.region,
+      keyDir,
+      commander.publisherProofKey,
+      commander.publisherProofKeyAlt
+    )
+  )
 })
