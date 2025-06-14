@@ -1,0 +1,95 @@
+name: AdBlock data files
+run-name: Generate AdBlock data files (${{ github.event.inputs.commit_hash }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_hash:
+        description: 'Git commit hash from brave/adblock-lists-mirror repo'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  generate-ad-block-data:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Validate commit hash input
+      id: validate-commit
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        COMMIT_HASH: ${{ github.event.inputs.commit_hash }}
+      with:
+        script: |
+          const commitHash = process.env.COMMIT_HASH;
+
+          // Validate commit hash format (7-40 hexadecimal characters)
+          const hashRegex = /^[0-9a-fA-F]{7,40}$/;
+
+          if (!hashRegex.test(commitHash)) {
+            core.setFailed(`Invalid commit hash format. Must be 7-40 hexadecimal characters.
+            Provided: ${commitHash}`);
+            return;
+          }
+
+          // Check if commit exists in brave/adblock-lists-mirror repository
+          try {
+            const response = await github.rest.repos.getCommit({
+              owner: 'brave',
+              repo: 'adblock-lists-mirror',
+              ref: commitHash
+            });
+
+            console.log(`Found commit: ${response.data.sha}`);
+            console.log(`Commit message: ${response.data.commit.message}`);
+            console.log(`Date: ${response.data.commit.author.date}`);
+
+            // Set the full SHA as output for later use if needed
+            core.setOutput('full_sha', response.data.sha);
+
+          } catch (error) {
+            if (error.status === 404) {
+              core.setFailed(`Commit hash not found in brave/adblock-lists-mirror repository: ${commitHash}`);
+            } else {
+              core.setFailed(`Failed to validate commit: ${error.message}`);
+            }
+          }
+
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version: '20.x'
+
+    # explicitly cache node_modules to avoid rebuilding adblock-rs on each run
+    - name: Cache node_modules
+      id: cache-node-modules
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-adblock-data-files-node-modules-${{ hashFiles('package-lock.json') }}
+
+    - name: Initialize git submodules
+      run: git submodule update --init
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: |
+        npm ci
+
+    - name: Generate AdBlock data files
+      env:
+        COMMIT_HASH: ${{ steps.validate-commit.outputs.full_sha }}
+      run: npm run data-files-ad-block-rust -- --commit-hash "$COMMIT_HASH"
+
+    - name: Upload generated files as artifacts
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ad-block-data-files-${{ steps.validate-commit.outputs.full_sha }}
+        path: build/ad-block-updater/
+        retention-days: 30
