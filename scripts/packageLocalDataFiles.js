@@ -7,9 +7,7 @@
 
 import commander from 'commander'
 import fs from 'fs-extra'
-import { mkdirp } from 'mkdirp'
 import path from 'path'
-import recursive from 'recursive-readdir-sync'
 import util from '../lib/util.js'
 
 const getOriginalManifest = () => {
@@ -27,19 +25,7 @@ const stageFiles = (version, outputDir) => {
     { path: path.join('brave-lists', 'clean-urls-permissions.json'), outputName: path.join(datFileVersion, 'clean-urls-permissions.json') },
     { path: path.join('brave-lists', 'https-upgrade-exceptions-list.txt'), outputName: path.join(datFileVersion, 'https-upgrade-exceptions-list.txt') },
     { path: path.join('brave-lists', 'localhost-permission-allow-list.txt'), outputName: path.join(datFileVersion, 'localhost-permission-allow-list.txt') }
-  ].concat(
-    recursive(path.join('node_modules', 'brave-site-specific-scripts', 'dist')).map(f => {
-      let outputDatDir = datFileVersion
-      const index = f.indexOf('/dist/')
-      let baseDir = f.substring(index + '/dist/'.length)
-      baseDir = baseDir.substring(0, baseDir.lastIndexOf('/'))
-      outputDatDir = path.join(outputDatDir, baseDir)
-      mkdirp.sync(path.join(outputDir, outputDatDir))
-      return {
-        path: f,
-        outputName: path.join(outputDatDir, path.parse(f).base)
-      }
-    }))
+  ]
   util.stageFiles(files, version, outputDir)
 }
 
