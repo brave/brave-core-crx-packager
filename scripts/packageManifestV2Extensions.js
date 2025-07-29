@@ -11,7 +11,7 @@ import glob from 'glob'
 import util from '../lib/util.js'
 import crx from '../lib/crx.js'
 
-const downloadExtension = async (config) => {
+const downloadExtensionInternal = async (config) => {
   const buildPath = path.join('build', config.name)
   const download = path.join(buildPath, 'download')
   const unpacked = path.join(buildPath, 'unpacked')
@@ -56,6 +56,21 @@ const downloadExtension = async (config) => {
   return {
     unpacked: findRoot(unpacked),
     sha256: sourceHash
+  }
+}
+
+const downloadExtension = async (config) => {
+  const maxAttempts = 3
+  for (let attempt = 1; attempt <= maxAttempts; ++attempt) {
+    try {
+      return await downloadExtensionInternal(config)
+    } catch (error) {
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 5000 * attempt))
+      } else {
+        throw error
+      }
+    }
   }
 }
 
