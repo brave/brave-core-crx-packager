@@ -33,7 +33,12 @@ const downloadExtension = async (config) => {
   const sources = path.join(download, 'sources.zip')
   fs.writeFileSync(sources, Buffer.from(data))
 
-  await unzip(sources, unpacked)
+  try {
+    await unzip(sources, unpacked)
+  } catch (e) {
+    console.log(`Failed to get a CRX for ${config.name} ${downloadUrl}: ${e}`)
+    return undefined
+  }
 
   const findRoot = (root, file) => {
     const manifestFile = glob.sync('**/manifest.json', {
@@ -88,6 +93,9 @@ const packageV2Extension = (
 
   const processExtension = async () => {
     const sources = await downloadExtension(config)
+    if (!sources) {
+      return
+    }
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
     crx
       .generateCrx(sources.unpacked, extensionKeyFile, [], verifiedContentsKey)
