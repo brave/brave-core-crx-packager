@@ -73,6 +73,8 @@ const packageV2Extension = (
   endpoint,
   region,
   keysDir,
+  publisherKey,
+  publisherAltKey,
   verifiedContentsKey,
   localRun
 ) => {
@@ -98,7 +100,12 @@ const packageV2Extension = (
     }
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
     crx
-      .generateCrx(sources.unpacked, extensionKeyFile, [], verifiedContentsKey)
+      .generateCrx(
+        sources.unpacked,
+        extensionKeyFile,
+        [publisherKey, publisherAltKey],
+        verifiedContentsKey
+      )
       .then((extension) => {
         if (id !== util.getIDFromBase64PublicKey(extension.manifest.key)) {
           throw new Error(`${extensionName} invalid extension key used.`)
@@ -157,6 +164,8 @@ if (!commander.localRun) {
         commander.endpoint,
         commander.region,
         keysDir,
+        commander.publisherProofKey,
+        commander.publisherProofKeyAlt,
         commander.verifiedContentsKey
       )
     })
@@ -168,6 +177,8 @@ if (!commander.localRun) {
       commander.endpoint,
       commander.region,
       keysDir,
+      commander.publisherProofKey,
+      commander.publisherProofKeyAlt,
       commander.verifiedContentsKey,
       commander.localRun
     )
