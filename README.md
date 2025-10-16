@@ -28,7 +28,7 @@ CXXFLAGS="--std=c++17" npm install
 ```
 
 Currently
-* Node 20.x is required.
+* Node 22.x is required.
 * Python is required.
 * Rust is required. (for ad-block)
 
@@ -88,22 +88,6 @@ Then, package assets to crx files per region. It will generate component crx fil
 npm run package-ntp-sponsored-images -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --keys-directory keys/
 ```
 
-### NTP Super Referrer(SR) component
-
-Generate private key file as ntp-super-referrer-{super-referrer-code}.pem and add it as secret file to Builder. See above instruction how to generate private key file.
-
-To pacakge NTP SR components, download assets from passed url at first. It will download assets to `./build/ntp-super-referrer/resources/{super-referrer-code}`
-
-```bash
-npm run generate-ntp-super-referrer -- --data-url <s3 buckets url> --super-referrer-name <super-referrer-code>
-```
-
-Then, package assets to crx file for specific super referrer. It will generate component crx file at `./build/ntp-super-referrer/output`.
-
-```bash
-npm run package-ntp-super-referrer -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --key-file ntp-super-referrer-{super-referrer-code}.pem --super-referrer-name <super-referrer-code>
-```
-
 ## Generating differential updates
 
 To generate differential updates using [puffin](https://chromium.googlesource.com/chromium/src/+/main/third_party/puffin/) use the following command to fetch the last 10 versions and generate the patch files:
@@ -135,12 +119,6 @@ where:
 To upload NTP SI components, pass crx directory that has all generated crx files and endpoint as arguments.
 ```bash
 aws-vault exec extensions-dev-role -- npm run upload-ntp-sponsored-images-components -- --crx-directory ./build/ntp-sponsored-images/output
-```
-
-### NTP SR component
-To upload NTP SR components, pass crx directory that has generated crx file and endpoint as arguments.
-```bash
-aws-vault exec extensions-dev-role -- npm run upload-ntp-super-referrer-component -- --crx-directory ./build/ntp-super-referrer/output
 ```
 
 ### User Model Installer component

@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  checkAdblockRustV086Compat,
   generateResourcesFile,
   getListCatalog,
   getDefaultLists,
@@ -12,6 +13,7 @@ import {
   regionalCatalogComponentId,
   sanityCheckList
 } from '../lib/adBlockRustUtils.js'
+import commander from 'commander'
 import Sentry from '../lib/sentry.js'
 import util from '../lib/util.js'
 import path from 'path'
@@ -56,7 +58,7 @@ const removeIncompatibleRules = (listBuffer) => {
   listBuffer.data = listBuffer.data.split('\n').filter(line => {
     line = line.trim()
     // Prior to adblock-rust 0.8.7, scriptlet arguments with trailing escaped commas can cause crashes.
-    if (line.indexOf('+js(') >= 0 && line.endsWith('\\,)')) {
+    if (!checkAdblockRustV086Compat(line)) {
       return false
     }
     if (line.startsWith('/^dizipal\\d+\\.com$/##')) {
@@ -84,14 +86,15 @@ const generatePlaintextListFromLists = (listBuffers, outSubdir) => {
  * @param doIos boolean, whether or not filters for iOS should be created (currently only used by default list)
  * @return a Promise which resolves upon completion
  */
-const generateDataFilesForCatalogEntry = (entry) => {
+const generateDataFilesForCatalogEntry = (entry, mirrorCommitHash) => {
   const lists = entry.sources
 
   const promises = []
   lists.forEach((l) => {
     console.log(`${entry.langs} ${l.url}...`)
     const sourceUrlHash = crypto.createHash('md5').update(l.url).digest('hex')
-    const mirroredListUrl = 'https://raw.githubusercontent.com/brave/adblock-lists-mirror/refs/heads/lists/lists/' + sourceUrlHash + '.txt'
+    const commitRef = mirrorCommitHash === undefined ? 'refs/heads/lists' : `${mirrorCommitHash}`
+    const mirroredListUrl = `https://raw.githubusercontent.com/brave/adblock-lists-mirror/${commitRef}/lists/${sourceUrlHash}.txt`
     promises.push(util.fetchTextFromURL(mirroredListUrl)
       .then(data => ({ title: l.title || entry.title, format: l.format, data }))
       .then(async listBuffer => {
@@ -118,7 +121,7 @@ const generateDataFilesForCatalogEntry = (entry) => {
  * the catalog of available regional lists to the default list directory and
  * regional catalog component directory.
  */
-const generateDataFilesForAllRegions = () => {
+const generateDataFilesForAllRegions = (mirrorCommitHash) => {
   console.log('Processing per region list updates...')
   return getRegionalLists().then(regions => {
     return new Promise((resolve, reject) => {
@@ -130,7 +133,7 @@ const generateDataFilesForAllRegions = () => {
         resolve()
       })
     }).then(() => Promise.all(regions.map(region =>
-      generateDataFilesForCatalogEntry(region)
+      generateDataFilesForCatalogEntry(region, mirrorCommitHash)
     )))
   })
 }
@@ -139,12 +142,18 @@ const generateDataFilesForResourcesComponent = () => {
   return generateResourcesFile(getOutPath('resources.json', resourcesComponentId))
 }
 
-const generateDataFilesForDefaultAdblock = () => getDefaultLists()
-  .then(defaultLists => Promise.all(defaultLists.map(list => generateDataFilesForCatalogEntry(list))))
+const generateDataFilesForDefaultAdblock = (mirrorCommitHash) => getDefaultLists()
+  .then(defaultLists => Promise.all(defaultLists.map(list => generateDataFilesForCatalogEntry(list, mirrorCommitHash))))
 
-generateDataFilesForDefaultAdblock()
+commander
+  .option('-c, --commit-hash <hash>', 'Use lists from a specified commit of the brave/adblock-lists-mirror repo. Defaults to the latest commit.')
+  .parse(process.argv)
+
+const mirrorCommitHash = commander.commitHash
+
+generateDataFilesForDefaultAdblock(mirrorCommitHash)
   .then(generateDataFilesForResourcesComponent)
-  .then(generateDataFilesForAllRegions)
+  .then(generateDataFilesForAllRegions.bind(null, mirrorCommitHash))
   .then(() => {
     console.log('Thank you for updating the data files, don\'t forget to upload them too!')
   })

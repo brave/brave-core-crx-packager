@@ -1,0 +1,6 @@
+{
+  "name": "uBlock",
+  "url": "https://github.com/gorhill/uBlock/releases/latest",
+  "url_version_template": "https://github.com/gorhill/uBlock/releases/download/{version}/uBlock0_{version}.chromium.zip",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAihKgLKeIxHhUdf2F5W1zBmowMgRClgG1s+TStJSEQwNEup+4P2mpekNi6j38o84poO5RMikwTsQ+u5zijI7tjX8QHvNBRQcO2N9fgDuMO123KeweZfHS/10E4DqGNJ63QujJRNqcgpF+kddjA5h4Vj+6ZrGP+HdJGWDsFd7e/c0eVfe33wGNlkrlFmTNDJUo4T7RNmIHe/IPYIFILyjWEnLVwZUxLvOoYq/r48QytktJIhtBYvh2aP9q1HyJYltj0RRQ51PY0DUcqXo5wPGhBdrx8x3g66nXoVrXufDmactcPEhreSCi8NmPrJefxOlkoYIO3ojQr5uTl1I21ooriwIDAQAB"
+}

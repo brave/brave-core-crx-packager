@@ -2,13 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This component is for the Brave Player feature, which supports playback of third-party videos in a controlled environment.
-//
-// The component ships a test script that can be injected into supported webpages.
-// The test script notifies the browser of optimal times to suggest enabling the Brave Player feature.
-
 // Example usage:
-//  npm run package-brave-player -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/brave-player.pem
+//  npm run package-p3a-config -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/p3a-config.pem
 
 import commander from 'commander'
 import fs from 'fs-extra'
@@ -16,22 +11,25 @@ import path from 'path'
 import util from '../lib/util.js'
 
 const getOriginalManifest = () => {
-  return path.join('component-data', 'brave-player', 'manifest.json')
-}
-
-const stageFiles = (version, outputDir) => {
-  util.stageDir(path.join('component-data', 'brave-player'), getOriginalManifest(), version, outputDir)
+  return path.join('manifests', 'p3a-config', 'default-manifest.json')
 }
 
 const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binary, localRun, version) => {
-  const stagingDir = path.join('build', 'brave-player')
-  const crxOutputDir = path.join('build')
-  const crxFile = path.join(crxOutputDir, 'brave-player.crx')
+  const componentType = 'p3a-config'
+  const datFileName = 'default'
+  const stagingDir = path.join('build', componentType, datFileName)
+  const crxOutputDir = path.join('build', componentType)
+  const crxFile = path.join(crxOutputDir, `${componentType}-${datFileName}.crx`)
   let privateKeyFile = ''
   if (!localRun) {
-    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, 'brave-player.pem')
+    privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
   }
-  stageFiles(version, stagingDir)
+  const manifestFilename = 'p3a_manifest.json'
+  const configPath = commander.staging ? 'p3a-config-staging' : 'p3a-config'
+  util.stageFiles([
+    { path: getOriginalManifest(), outputName: 'manifest.json' },
+    { path: path.join('node_modules', configPath, 'dist', manifestFilename), outputName: manifestFilename }
+  ], version, stagingDir)
   if (!localRun) {
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       publisherProofKeyAlt, stagingDir)
@@ -66,7 +64,8 @@ util.addCommonScriptOptions(
   commander
     .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
     .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
+    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
+    .option('-s, --staging', 'Use staging P3A config'))
   .parse(process.argv)
 
 let keyParam = ''

@@ -52,13 +52,9 @@ const validatePhotoData = (photoJsonObj) => {
 }
 
 async function prepareAssets (jsonFileUrl, targetResourceDir) {
-  let body = '{}'
   // Download and parse jsonFileUrl.
-  const response = await fetch(jsonFileUrl)
-  if (!response.ok) {
-    throw new Error(`Error from ${jsonFileUrl}: ${response.status} ${response.statusText}`)
-  }
-  body = await response.text()
+  const response = await util.s3capableFetch(jsonFileUrl)
+  const body = await response.text()
   let photoData = {}
   try {
     console.log(`Start - json file ${jsonFileUrl} parsing`)
@@ -82,11 +78,7 @@ async function prepareAssets (jsonFileUrl, targetResourceDir) {
   const downloadOps = imageFileNameList.map(async (imageFileName) => {
     const targetImageFilePath = path.join(targetResourceDir, imageFileName)
     const targetImageFileUrl = new URL(imageFileName, jsonFileUrl).href
-    const response = await fetch(targetImageFileUrl)
-    if (!response.ok) {
-      imageErrors.push(`Bad http response (status code ${response.status}) downloading image file at ${targetImageFileUrl}`)
-      return
-    }
+    const response = await util.s3capableFetch(targetImageFileUrl)
     const ws = fs.createWriteStream(targetImageFilePath)
     await finished(Readable.fromWeb(response.body).pipe(ws))
     console.log(`Downloaded ${targetImageFileUrl}`)
@@ -102,7 +94,7 @@ async function generateNTPBackgroundImages (dataUrl) {
   const targetResourceDir = path.join(path.resolve(), 'build', 'ntp-background-images', 'resources')
   mkdirp.sync(targetResourceDir)
 
-  console.log(`Downloading background iamges from ${dataUrl}...`)
+  console.log(`Downloading background images from ${dataUrl}...`)
   const sourceJsonFileUrl = `${dataUrl}/photo.json`
   await prepareAssets(sourceJsonFileUrl, targetResourceDir)
 }
@@ -110,7 +102,7 @@ async function generateNTPBackgroundImages (dataUrl) {
 util.installErrorHandlers()
 
 commander
-  .option('-d, --data-url <url>', 'url that refers to data that has ntp background images')
+  .option('-d, --data-url <url>', 'https: or s3: url that refers to data that has ntp background images')
   .parse(process.argv)
 
 generateNTPBackgroundImages(commander.dataUrl)
