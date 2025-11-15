@@ -28,7 +28,7 @@ CXXFLAGS="--std=c++17" npm install
 ```
 
 Currently
-* Node 22.x is required.
+* Node 24.x is required.
 * Python is required.
 * Rust is required. (for ad-block)
 
