@@ -93,8 +93,10 @@ npm run package-ntp-sponsored-images -- --binary "/Applications/Google\\ Chrome.
 To generate differential updates using [puffin](https://chromium.googlesource.com/chromium/src/+/main/third_party/puffin/) use the following command to fetch the last 10 versions and generate the patch files:
 
 ```bash
-aws-vault exec extensions-dev-role --  npm run generate-puffpatches -- --crx-directory ./build/ntp-sponsored-images/output -p 10
+aws-vault exec extensions-dev-role --  npm run generate-puffpatches -- --crx-directory ./build/ntp-sponsored-images/output -p 10 --concurrency 4
 ```
+
+The `--concurrency` flag controls the number of concurrent patch generation processes (defaults to CPU core count if not specified).
 
 *Note: `puffin` binary is required*
 
