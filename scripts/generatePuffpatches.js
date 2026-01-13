@@ -28,8 +28,10 @@ if (fs.existsSync(commander.crxFile)) {
   throw new Error(`Missing or invalid crx file/directory, file: '${commander.crxFile} directory: '${commander.crxDirectory}'`)
 }
 
+const isDirectory = fs.lstatSync(crxParam).isDirectory()
+
 const downloadJobs = []
-if (fs.lstatSync(crxParam).isDirectory()) {
+if (isDirectory) {
   fs.readdirSync(crxParam).forEach(file => {
     if (path.parse(file).ext === '.crx') {
       downloadJobs.push(util.fetchPreviousVersions(path.join(crxParam, file), null, commander.patches))
@@ -40,7 +42,7 @@ if (fs.lstatSync(crxParam).isDirectory()) {
 }
 
 Promise.all(downloadJobs).then(async () => {
-  console.log('All files have been downloaded successfully.')
+  console.log('All downloads for all CRX files completed. Starting patch generation...')
 
   let concurrency = commander.concurrency
 
@@ -49,6 +51,7 @@ Promise.all(downloadJobs).then(async () => {
     concurrency = os.cpus().length
   } else if (!Number.isInteger(concurrency) || concurrency < 1) {
     // If invalid (negative, NaN, etc), default to 1
+    console.warn(`Invalid concurrency value '${commander.concurrency}'. Falling back to 1.`)
     concurrency = 1
   }
 
@@ -57,7 +60,7 @@ Promise.all(downloadJobs).then(async () => {
   // Collect all patch jobs from all CRX files first,
   // then execute with a global concurrency limit
   const patchJobs = []
-  if (fs.lstatSync(crxParam).isDirectory()) {
+  if (isDirectory) {
     fs.readdirSync(crxParam).forEach(file => {
       const filePath = path.join(crxParam, file)
       if (path.parse(filePath).ext === '.crx') {
