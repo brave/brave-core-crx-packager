@@ -7,7 +7,7 @@
     "@aws-sdk/client-dynamodb": "3.971.0",
     "@aws-sdk/client-s3": "3.971.0",
     "@mongodb-js/zstd": "^1.2.0",
-    "@sentry/node": "7.120.3",
+    "@sentry/node": "7.120.4",
     "adblock-rs": "0.9.8",
     "p3a-config": "github:brave/p3a-config",
     "p3a-config-staging": "github:brave/p3a-config#staging",
