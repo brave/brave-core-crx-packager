@@ -16,7 +16,7 @@
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
-    "commander": "2.20.3",
+    "commander": "14.0.2",
     "fs-extra": "11.3.0",
     "level": "8.0.1",
     "mkdirp": "3.0.1",
