@@ -22,7 +22,7 @@
     "mkdirp": "3.0.1",
     "p-all": "5.0.1",
     "replace-in-file": "6.3.5",
-    "rimraf": "6.1.0",
+    "rimraf": "6.1.2",
     "standard": "17.1.2"
   },
   "scripts": {
