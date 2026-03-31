@@ -12,7 +12,6 @@
     "p3a-config": "github:brave/p3a-config",
     "p3a-config-staging": "github:brave/p3a-config#staging",
     "pbf": "4.0.1",
-    "playlist-component": "github:brave/playlist-component",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
@@ -49,7 +48,6 @@
     "package-ntp-sponsored-images": "node ./scripts/ntp-sponsored-images/package",
     "package-p3a-config": "node ./scripts/packageP3AConfig.js",
     "package-p3a-config-staging": "node ./scripts/packageP3AConfig.js -- --staging",
-    "package-playlist": "node ./scripts/packagePlaylist.js",
     "package-youtube-script-injector": "node ./scripts/packageYouTubeScriptInjector.js",
     "package-brave-user-agent": "node ./scripts/packageBraveUserAgentComponent.js",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
