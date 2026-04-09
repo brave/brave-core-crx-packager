@@ -33,6 +33,7 @@
     "data-files-p3a-config": "npm update p3a-config && npm install --prefix ./node_modules/p3a-config && npm run --prefix ./node_modules/p3a-config build",
     "data-files-p3a-config-staging": "npm update p3a-config-staging && npm install --prefix ./node_modules/p3a-config-staging && npm run --prefix ./node_modules/p3a-config-staging build",
     "data-files-brave-user-agent": "mkdir -p brave-user-agent && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/brave-checks.txt -O brave-user-agent/brave-checks.txt",
+    "data-files-query-filter": "mkdir -p query-filter && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/query-filter.json -O query-filter/query-filter.json",
     "generate-ad-block-manifests": "node scripts/generateManifestForRustAdblock.js",
     "generate-ntp-background-images": "node scripts/generateNTPBackgroundImages.js",
     "generate-ntp-sponsored-images": "node scripts/ntp-sponsored-images/generate",

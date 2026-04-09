@@ -1,0 +1,7 @@
+{
+  "description": "Query filter component",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw0g6wGTClhdNu5EnYKTK10sAZH4l9QIEOX3A866gVfa3hFrXkSdVEtoqW+jY/vZQDuZbzMK03AlAy7WPoriyLndSCaLQ9xpepPAzY3mmAR8Knm4Lfm/cgyoI3X01HFTOWKfZk/xIQhOyu7IGSWm7LpctEWRfRouvXS7JY4GfIH9M6RsMK/8BvDQzoEP1Y9OaSfNH0c0/yZ4A0LZei6I3wx00CykGXlgQeVwxbQkS0UKU8tKGUhQdg68EOp2W5ymmMFz1Gf3imoDiinfqVxkYF1z7+Bulu0IVKFrmoW+1CyaxdjgjiHRvw9mfIoPJgw+aRg2FgAsSaXF1E1sCIqZSHQIDAQAB",
+  "manifest_version": 2,
+  "name": "Query Filter",
+  "version": "0.0.0"
+}
