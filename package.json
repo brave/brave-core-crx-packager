@@ -53,6 +53,7 @@
     "package-brave-user-agent": "node ./scripts/packageBraveUserAgentComponent.js",
     "package-user-model-installer-updates": "node ./scripts/packageBraveAdsResourcesComponent",
     "package-manifest-v2-extensions": "node ./scripts/packageManifestV2Extensions",
+    "package-query-filter": "node ./scripts/packageQueryFilterComponent.js",
     "generate-puffpatches": "node ./scripts/generatePuffpatches",
     "upload-component": "node ./scripts/uploadComponent"
   },
