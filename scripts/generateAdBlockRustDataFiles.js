@@ -41,7 +41,7 @@ const getOutPath = (outputFilename, outSubdir) => {
 
 // Removes Brave-specific scriptlet injections from non-Brave lists
 const enforceBraveDirectives = (title, data) => {
-  if (!title || !title.startsWith('Brave ')) {
+  if (!title || !(title.startsWith('Brave ') || title === 'Experimental ad blocker')) { // TODO use github org name
     return data.split('\n').filter(line => {
       const hasBraveScriptlet = line.indexOf('+js(brave-') >= 0
       if (hasBraveScriptlet) {
