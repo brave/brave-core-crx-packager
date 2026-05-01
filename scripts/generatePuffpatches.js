@@ -34,14 +34,17 @@ const downloadJobs = []
 if (isDirectory) {
   fs.readdirSync(crxParam).forEach(file => {
     if (path.parse(file).ext === '.crx') {
-      downloadJobs.push(util.fetchPreviousVersions(path.join(crxParam, file), null, commander.patches))
+      downloadJobs.push(() => util.fetchPreviousVersions(path.join(crxParam, file), null, commander.patches))
     }
   })
 } else {
-  downloadJobs.push(util.fetchPreviousVersions(crxParam, null, commander.patches))
+  downloadJobs.push(() => util.fetchPreviousVersions(crxParam, null, commander.patches))
 }
 
-Promise.all(downloadJobs).then(async () => {
+// limit fetch parallelisation to avoid overloading the s3 client
+//  note each download job may fetch multiple versions (as controlled by `-p`), so
+//  the concurrency here is deliberately conservative
+pAll(downloadJobs, { concurrency: 5 }).then(async () => {
   console.log('All downloads for all CRX files completed. Starting patch generation...')
 
   let concurrency = commander.concurrency
