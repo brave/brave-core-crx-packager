@@ -6,6 +6,7 @@ import commander from 'commander'
 import fs from 'fs'
 import path from 'path'
 import util from '../lib/util.js'
+import pAll from 'p-all'
 
 util.installErrorHandlers()
 
@@ -30,14 +31,14 @@ const uploadJobs = []
 if (fs.lstatSync(crxParam).isDirectory()) {
   fs.readdirSync(crxParam).forEach(file => {
     if (path.parse(file).ext === '.crx') {
-      uploadJobs.push(util.uploadCRXFile(commander.endpoint, commander.region, path.join(crxParam, file)))
+      uploadJobs.push(() => util.uploadCRXFile(commander.endpoint, commander.region, path.join(crxParam, file)))
     }
   })
 } else {
-  uploadJobs.push(util.uploadCRXFile(commander.endpoint, commander.region, crxParam))
+  uploadJobs.push(() => util.uploadCRXFile(commander.endpoint, commander.region, crxParam))
 }
 
-Promise.all(uploadJobs).then(() => {
+pAll(uploadJobs, { concurrency: 5 }).then(() => {
   util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
     if (fs.lstatSync(crxParam).isDirectory()) {
       fs.readdirSync(crxParam).forEach(file => {
