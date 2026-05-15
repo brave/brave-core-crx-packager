@@ -17,7 +17,7 @@ const stageFiles = (version, outputDir) => {
 }
 
 const getPackageDir = () => {
-  return path.join('node_modules', 'brave-wallet-lists')
+  return path.join('node_modules', '@brave', 'wallet-lists')
 }
 
 const getOriginalManifest = () => {
