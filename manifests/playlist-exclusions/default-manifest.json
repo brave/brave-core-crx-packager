@@ -1,0 +1,7 @@
+{
+  "description": "Playlist page source exclusions component",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo8LI68Wr+biADGgrd+83Fjrdj1WxU+WtE5wquQzCfYC4zqF16i5XYvs9KBJGampNxcxkrU0JsvhFCmGrWhduEcc9TQ76SWimCYZyjfH+dubxbr7CjFIMuJpR4DnXRc+oG5eZDVi7eSyPLS9s2rhm5Wj6TBMjsFeORVtysTzSNj3L+nnrH6Pu8XXYb/lTU1g0SGH1+m060A2K+S6QZsYFnxKgr+PAME022g1W6V6cIzwAGOqDoGLSA+7LTtjTN0oGESvHgHq/lgMBjGUFXEkgg0Svjai+oidUtK/GYDW05I9+NFvnBEh7XWX86lMbgVcxLzobXS+IZF5O1LA0CO6LvwIDAQAB",
+  "manifest_version": 2,
+  "name": "Playlist Page Source Exclusions",
+  "version": "0.0.0"
+}
