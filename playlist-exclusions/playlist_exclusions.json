@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "registrable_domain": "youtube.com",
+      "deny_root_path": true,
+      "path_prefixes": ["/results", "/feed", "/@"]
+    }
+  ]
+}
