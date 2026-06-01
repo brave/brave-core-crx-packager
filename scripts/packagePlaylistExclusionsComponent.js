@@ -16,25 +16,10 @@ const getOriginalManifest = () => {
   return path.join(path.resolve(), 'manifests', 'playlist-exclusions', 'default-manifest.json')
 }
 
-const stageFiles = (version, outputDir) => {
-  const files = [
-    { path: getOriginalManifest(), outputName: 'manifest.json' },
-    { path: path.join('playlist-exclusions', 'playlist_exclusions.json'), outputName: 'playlist_exclusions.json' }
-  ]
-  util.stageFiles(files, version, outputDir)
-}
-
-const generateManifestFile = (publicKey) => {
-  const manifestFile = getOriginalManifest()
-  const manifestContent = {
-    description: 'Playlist page source exclusions component',
-    key: publicKey,
-    manifest_version: 2,
-    name: 'Playlist Page Source Exclusions',
-    version: '0.0.0'
-  }
-  fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
-}
+const stageFiles = util.stageDir.bind(
+  undefined,
+  path.join(path.resolve(), 'playlist-exclusions'),
+  getOriginalManifest())
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey, publisherProofKeyAlt) => {
@@ -64,8 +49,7 @@ if (fs.existsSync(commander.keyFile)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateManifestFile(publicKey)
+  const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
     componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
 })
