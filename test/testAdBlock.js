@@ -5,7 +5,9 @@ import { tmpdir } from 'os'
 import path from 'path'
 import { spawnSync } from 'child_process'
 
-import { generateResourcesFile, preprocess, sanityCheckList } from '../lib/adBlockRustUtils.js'
+import { generateResourcesFile, preprocess, processBraveResourcesMetadata, sanityCheckList } from '../lib/adBlockRustUtils.js'
+
+const testDataDir = './test/data/adblock-resources'
 
 test('generateResourcesFile', async (t) => {
   const tempUserDataDir = fs.mkdtempSync(path.join(tmpdir(), 'generate-resources-file-'))
@@ -25,6 +27,19 @@ test('generateResourcesFile', async (t) => {
       }
     }
   })
+})
+
+test('processBraveResourcesMetadata', async (t) => {
+  const metadata = JSON.parse(fs.readFileSync(path.join(testDataDir, 'metadata.json'), 'utf8'))
+  const expectedOutput = JSON.parse(fs.readFileSync(path.join(testDataDir, 'expected-output.json'), 'utf8'))
+
+  const fetchResource = (resourcePath) => {
+    return fs.readFileSync(path.join(testDataDir, 'resources', resourcePath), 'utf8')
+  }
+
+  const result = await processBraveResourcesMetadata(metadata, fetchResource)
+
+  assert.deepEqual(result, expectedOutput)
 })
 
 test('sanityCheckList', async (t) => {
