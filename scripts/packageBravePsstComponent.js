@@ -6,7 +6,6 @@
 //  npm run package-brave-psst -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/brave-psst.pem
 
 import commander from 'commander'
-import { execSync } from 'child_process'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
@@ -20,20 +19,7 @@ const getOriginalManifest = () => {
   return path.join(path.resolve(), 'manifests', 'psst', 'default-manifest.json')
 }
 
-// Build the PSST submodule. `npm run bundle:dev` first generates out/psst.json
-// (the prebundle step) and then bundles each website's scripts to
-// out/scripts/<website>/{user.js,policy.js} via webpack.
-const buildPsstSubmodule = () => {
-  console.log('Building PSST submodule...')
-  execSync('npm run bundle:dev', {
-    cwd: psstSubmoduleDir,
-    stdio: 'inherit'
-  })
-}
-
 const stageFiles = (version, outputDir) => {
-  buildPsstSubmodule()
-
   // psst.json lists every supported website along with the relative names of
   // its generated user/policy scripts; stage each one alongside the config.
   const psstConfigPath = path.join(psstOutputDir, 'psst.json')
