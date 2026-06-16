@@ -1,3 +1,6 @@
 [submodule "submodules/uBlock"]
 	path = submodules/uBlock
 	url = https://github.com/brave/uBlock
+[submodule "submodules/psst"]
+	path = submodules/psst
+	url = https://github.com/brave-experiments/psst-component
