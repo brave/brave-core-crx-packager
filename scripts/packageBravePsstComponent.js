@@ -78,7 +78,7 @@ util.addCommonScriptOptions(
   .parse(process.argv)
 
 let privateKeyFile = ''
-if (fs.existsSync(commander.keyFile)) {
+if (commander.keyFile && fs.existsSync(commander.keyFile)) {
   privateKeyFile = commander.keyFile
 } else {
   throw new Error('Missing or invalid private key')
