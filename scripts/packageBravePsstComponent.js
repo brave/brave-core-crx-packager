@@ -19,43 +19,10 @@ const getOriginalManifest = () => {
   return path.join(path.resolve(), 'manifests', 'psst', 'default-manifest.json')
 }
 
-const stageFiles = (version, outputDir) => {
-  // psst.json lists every supported website along with the relative names of
-  // its generated user/policy scripts; stage each one alongside the config.
-  const psstConfigPath = path.join(psstOutputDir, 'psst.json')
-  const psstConfig = JSON.parse(fs.readFileSync(psstConfigPath, 'utf8'))
-
-  const files = [
-    { path: getOriginalManifest(), outputName: 'manifest.json' },
-    { path: psstConfigPath, outputName: 'psst.json' }
-  ]
-
-  for (const entry of psstConfig) {
-    const scriptDir = path.join('scripts', entry.name)
-    files.push({
-      path: path.join(psstOutputDir, scriptDir, entry.user_script),
-      outputName: path.join(scriptDir, entry.user_script)
-    })
-    files.push({
-      path: path.join(psstOutputDir, scriptDir, entry.policy_script),
-      outputName: path.join(scriptDir, entry.policy_script)
-    })
-  }
-
-  util.stageFiles(files, version, outputDir)
-}
-
-const generateManifestFile = (publicKey) => {
-  const manifestFile = getOriginalManifest()
-  const manifestContent = {
-    description: 'Brave Privacy Settings Selection for Sites Tool (PSSST) component',
-    key: publicKey,
-    manifest_version: 2,
-    name: 'Brave Privacy Settings Selection for Sites Tool (PSSST)',
-    version: '0.0.0'
-  }
-  fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
-}
+const stageFiles = util.stageDir.bind(
+  undefined,
+  path.join(psstOutputDir),
+  getOriginalManifest())
 
 const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   publisherProofKey, publisherProofKeyAlt) => {
@@ -85,8 +52,7 @@ if (commander.keyFile && fs.existsSync(commander.keyFile)) {
 }
 
 util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateManifestFile(publicKey)
+  const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
   generateCRXFile(commander.binary, commander.endpoint, commander.region,
     componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
 })
