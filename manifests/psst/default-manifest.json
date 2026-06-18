@@ -1,7 +1,7 @@
 {
-  "description": "Brave Privacy Settings Selection for Sites Tool (PSSST) Files",
+  "description": "Brave Privacy Settings Selection for Sites Tool (PSST) Files",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz7OnL/yxxX0a/IKLJc2LCQ5k12S6uQFuSCkruf7mGLuDhepKo8lA5orJQI8dqUMivTmxXC7SWYVS9uj05b9LTcLtmlcNiUjdYFoCzmdtRh6rBTCzTZ7wkyyhacUpY7N3BRIR5dRk1OLfx2ovm8BLQqak3YJ7dsPxD29714xPlbaMXDCsXEgibaGlXSNpDuCKFtzhVuRhSD6hRRQ7OgLQ7vm0b5BECO/jRuMHra4G4S9Z0rRN8KA9dC38t55O+FeOGZMhjJzBEJPk5AlQzlbPGq/MVPUu+4XFNEUoaeu65PjoAc05apRFCQQ/lcNy5gQfzwVExTNyrdP62eoRf+ANhQIDAQAB",
   "manifest_version": 2,
-  "name": "Brave Privacy Settings Selection for Sites Tool (PSSST) Files",
+  "name": "Brave Privacy Settings Selection for Sites Tool (PSST) Files",
   "version": "0.0.0"
 }
