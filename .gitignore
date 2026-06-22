@@ -68,6 +68,9 @@ brave-lists
 
 # Leo local model files
 leo-local-models
+
+# ASR local model files
+asr-local-models
 # localstack
 .localstack/
 .vscode/

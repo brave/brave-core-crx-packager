@@ -3,11 +3,11 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-//  npm run package-leo-local-models -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/leo-local-models-component.pem
+//  npm run package-asr-local-models -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/asr-local-models-component.pem
 
 import { packageLocalModelsComponent } from '../lib/localModelsPackager.js'
 
 packageLocalModelsComponent({
-  componentType: 'leo-local-models-updater',
-  resourceDir: 'leo-local-models'
+  componentType: 'asr-local-models-updater',
+  resourceDir: 'asr-local-models'
 })
