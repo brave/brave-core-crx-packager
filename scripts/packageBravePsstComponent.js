@@ -12,8 +12,7 @@ import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 
-const psstSubmoduleDir = path.join(path.resolve(), 'submodules', 'psst')
-const psstOutputDir = path.join(psstSubmoduleDir, 'out')
+const psstOutputDir = path.join(path.resolve(), 'psst-component', 'out')
 
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'manifests', 'psst', 'default-manifest.json')
