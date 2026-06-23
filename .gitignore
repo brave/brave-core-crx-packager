@@ -71,3 +71,6 @@ leo-local-models
 # localstack
 .localstack/
 .vscode/
+
+# Psst scripts folder for data-files-brave-psst
+psst-component
