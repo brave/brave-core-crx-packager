@@ -1,0 +1,7 @@
+{
+  "description": "ASR Local Files Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoLdOXv4RZUPEci+FH7jeiMpVpK06+ElMtUwGXqUzlQJqHUNKvYhUkwYFK2JMCWATmf8FQ7IXupBT8VhkBmZtzSD1uw55hbMqzUaH84fK4b06LBp4QcZ84SSJMJj+HWIEZlKl1HdfnBAk9TW4p3euxRnnVu0cC2qUHbM36/Yu8o6Ugw9FWDuORWUefn1gm0Dn8JIdmTx3EEhPGj1Rgo8XAYt3MdD9lRniT3J5edQslc19DeEEdoQb4XU+yKpGjp+XOYyI/hVz46Ym5rFwIqXen++7enZidGovNu/Yvggg1oYwXehrNFQHubj3M8qL6TUK7maW2pvMMRJwp0EsL4vdLQIDAQAB",
+  "manifest_version": 2,
+  "name": "ASR Local Files Updater",
+  "version": "0.0.0"
+}
