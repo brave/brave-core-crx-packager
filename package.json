@@ -36,6 +36,7 @@
     "data-files-brave-user-agent": "mkdir -p brave-user-agent && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/brave-checks.txt -O brave-user-agent/brave-checks.txt",
     "data-files-query-filter": "mkdir -p query-filter && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/query-filter.json -O query-filter/query-filter.json",
     "data-files-playlist-exclusions": "mkdir -p playlist-exclusions && wget https://raw.githubusercontent.com/brave/playlist-component/refs/heads/main/playlist_exclusions.json -O playlist-exclusions/playlist_exclusions.json",
+    "data-files-brave-psst": "node scripts/dataFilesBravePsst.js",
     "generate-ad-block-manifests": "node scripts/generateManifestForRustAdblock.js",
     "generate-ntp-background-images": "node scripts/generateNTPBackgroundImages.js",
     "generate-ntp-sponsored-images": "node scripts/ntp-sponsored-images/generate",
@@ -58,6 +59,7 @@
     "package-manifest-v2-extensions": "node ./scripts/packageManifestV2Extensions",
     "package-query-filter": "node ./scripts/packageQueryFilterComponent.js",
     "package-playlist-exclusions": "node ./scripts/packagePlaylistExclusionsComponent.js",
+    "package-brave-psst": "node ./scripts/packageBravePsstComponent.js",
     "generate-puffpatches": "node ./scripts/generatePuffpatches",
     "upload-component": "node ./scripts/uploadComponent"
   },
