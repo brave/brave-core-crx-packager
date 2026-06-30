@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "commander": "2.20.3",
-    "fs-extra": "11.3.4",
+    "fs-extra": "11.3.5",
     "level": "8.0.1",
     "mkdirp": "3.0.1",
     "p-all": "5.0.1",
