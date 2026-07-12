@@ -6,6 +6,7 @@ import path from 'path'
 import { mkdirp } from 'mkdirp'
 import fs from 'fs-extra'
 import commander from 'commander'
+import ntpUtil from '../lib/ntpUtil.js'
 import { Readable } from 'stream'
 import { finished } from 'stream/promises'
 
@@ -77,55 +78,45 @@ const getComponentList = () => {
   ]
 }
 
-function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
-  return new Promise(function (resolve, reject) {
-    let manifestBody = '{}'
-    fetch(manifestUrl).then(async function (response) {
-      if (response.status === 200) {
-        manifestBody = await response.text()
-      }
+async function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
+  let manifestBody = '{}'
+  try {
+    const response = await fetch(manifestUrl)
+    if (response.status === 200) {
+      manifestBody = await response.text()
+    }
 
-      const manifestJson = JSON.parse(manifestBody)
-      if (!manifestJson.schemaVersion) {
-        const error = 'Error: Missing schema version'
-        console.error(error)
-        return reject(error)
-      }
+    const manifestJson = JSON.parse(manifestBody)
+    if (!manifestJson.schemaVersion) {
+      throw new Error('Missing schema version')
+    }
 
-      fs.writeFileSync(`${outDir}/${manifestFileName}`, JSON.stringify(manifestJson))
+    fs.writeFileSync(`${outDir}/${manifestFileName}`, JSON.stringify(manifestJson))
 
-      const fileList = []
+    const fileList = []
 
-      if (manifestJson.resources) {
-        manifestJson.resources.forEach((resource) => {
-          fileList.push(resource.filename)
-        })
-      }
-
-      const resolvedOutDir = path.resolve(outDir)
-      const downloadOps = fileList.map(async (fileName) => {
-        const resourceFileOutPath = path.join(outDir, fileName)
-        // Reject filenames that escape the output dir (path traversal),
-        // since fileName comes verbatim from the remote manifest.
-        const resolvedOutPath = path.resolve(resourceFileOutPath)
-        if (resolvedOutPath !== resolvedOutDir &&
-            !resolvedOutPath.startsWith(resolvedOutDir + path.sep)) {
-          throw new Error(`Refusing to write file outside output dir: ${fileName}`)
-        }
-        const resourceFileUrl = new URL(fileName, manifestUrl).href
-        const response = await fetch(resourceFileUrl)
-        const ws = fs.createWriteStream(resourceFileOutPath)
-        return finished(Readable.fromWeb(response.body).pipe(ws))
-          .then(() => console.log(resourceFileUrl))
+    if (manifestJson.resources) {
+      manifestJson.resources.forEach((resource) => {
+        fileList.push(resource.filename)
       })
+    }
 
-      await Promise.all(downloadOps)
-
-      resolve()
-    }).catch(error => {
-      throw new Error(`Error from ${manifestUrl}: ${error.cause}`)
+    const downloadOps = fileList.map(async (fileName) => {
+      const resourceFileOutPath = path.join(outDir, fileName)
+      // Reject filenames that escape the output dir (path traversal),
+      // since fileName comes verbatim from the remote manifest.
+      ntpUtil.validateTargetPath(outDir, resourceFileOutPath)
+      const resourceFileUrl = new URL(fileName, manifestUrl).href
+      const response = await fetch(resourceFileUrl)
+      const ws = fs.createWriteStream(resourceFileOutPath)
+      return finished(Readable.fromWeb(response.body).pipe(ws))
+        .then(() => console.log(resourceFileUrl))
     })
-  })
+
+    await Promise.all(downloadOps)
+  } catch (error) {
+    throw new Error(`Error from ${manifestUrl}`, { cause: error })
+  }
 }
 
 async function generateComponents (dataUrl) {
