@@ -91,7 +91,7 @@ async function downloadComponentInputFiles (manifestFileName, manifestUrl, outDi
       throw new Error('Missing schema version')
     }
 
-    fs.writeFileSync(`${outDir}/${manifestFileName}`, JSON.stringify(manifestJson))
+    fs.writeFileSync(path.join(outDir, manifestFileName), JSON.stringify(manifestJson))
 
     const fileList = []
 
