@@ -102,8 +102,16 @@ function downloadComponentInputFiles (manifestFileName, manifestUrl, outDir) {
         })
       }
 
+      const resolvedOutDir = path.resolve(outDir)
       const downloadOps = fileList.map(async (fileName) => {
         const resourceFileOutPath = path.join(outDir, fileName)
+        // Reject filenames that escape the output dir (path traversal),
+        // since fileName comes verbatim from the remote manifest.
+        const resolvedOutPath = path.resolve(resourceFileOutPath)
+        if (resolvedOutPath !== resolvedOutDir &&
+            !resolvedOutPath.startsWith(resolvedOutDir + path.sep)) {
+          throw new Error(`Refusing to write file outside output dir: ${fileName}`)
+        }
         const resourceFileUrl = new URL(fileName, manifestUrl).href
         const response = await fetch(resourceFileUrl)
         const ws = fs.createWriteStream(resourceFileOutPath)

@@ -75,8 +75,16 @@ async function prepareAssets (jsonFileUrl, targetResourceDir) {
   // Download image files that specified in jsonFileUrl
   const imageFileNameList = getImageFileNameListFrom(photoData)
   const imageErrors = []
+  const resolvedResourceDir = path.resolve(targetResourceDir)
   const downloadOps = imageFileNameList.map(async (imageFileName) => {
     const targetImageFilePath = path.join(targetResourceDir, imageFileName)
+    // Reject sources that escape the staging directory (path traversal),
+    // since imageFileName comes verbatim from the remote photo.json.
+    const resolvedImagePath = path.resolve(targetImageFilePath)
+    if (resolvedImagePath !== resolvedResourceDir &&
+        !resolvedImagePath.startsWith(resolvedResourceDir + path.sep)) {
+      throw new Error(`Refusing to write image outside resource dir: ${imageFileName}`)
+    }
     const targetImageFileUrl = new URL(imageFileName, jsonFileUrl).href
     const response = await util.s3capableFetch(targetImageFileUrl)
     const ws = fs.createWriteStream(targetImageFilePath)
