@@ -1,0 +1,7 @@
+{
+  "description": "Brave WebMCP Tool Scripts",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1cs/q1SFnqEgbPFni1hTXJNDqzsfJJIzNoUNCD/vPwpgUH0nXvLAgagAyBcxFi3Y7rU3vidnXiFL7iPaikZN40nEfsfE/3FNaIaHPQa3xtmL76CqsAT21iYuEu+I3MZIqTNewC7XUqBh5rw1V0joVkQvHMpeKqUgIUhnxeqjQpoyL3GLR9d3P+f5g8V206dJUvXqUKc2Cc5tVYpSHIiIhh081fchkYwJ9Yszg3EIhCgnbaoONAHsjzfGsJTQ6IlgD2uyOdtQi4/wdlsWNvvlpqLNIVLTIyAy8QlCOTujvyey95CJPF2e/6LuIzkyKUaje/tFmyDD9xTTcpRSKMVY8QIDAQAB",
+  "manifest_version": 2,
+  "name": "Brave WebMCP Tool Scripts",
+  "version": "0.0.0"
+}
