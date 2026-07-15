@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Checks out the latest revision of the brave-webmcp repository (main branch)
+// Checks out the latest revision of the brave-webmcp repository (master branch)
 // and assembles the component resource directory that packageWebMcpComponent.js
 // stages into the CRX. The scripts are plain JS with no build step, so this
 // only clones and copies the shipped files.
@@ -20,12 +20,12 @@ const sourceRepo = 'git@github.com:brave/brave-webmcp.git'
 const resourceDir = './web-mcp'
 
 if (existsSync(sourcePrefix)) {
-  // Repo already cloned — fetch and reset to latest main
-  execSync(`git -C ${sourcePrefix} fetch origin main`, { stdio: 'inherit' })
-  execSync(`git -C ${sourcePrefix} reset --hard origin/main`, { stdio: 'inherit' })
+  // Repo already cloned — fetch and reset to latest master
+  execSync(`git -C ${sourcePrefix} fetch origin master`, { stdio: 'inherit' })
+  execSync(`git -C ${sourcePrefix} reset --hard origin/master`, { stdio: 'inherit' })
 } else {
   // Fresh clone
-  execSync(`git clone --branch main --depth 1 ${sourceRepo} ${sourcePrefix}`, { stdio: 'inherit' })
+  execSync(`git clone --branch master --depth 1 ${sourceRepo} ${sourcePrefix}`, { stdio: 'inherit' })
 }
 
 // Assemble a clean resource directory containing only what the component ships.
