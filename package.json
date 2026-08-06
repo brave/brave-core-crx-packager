@@ -16,13 +16,15 @@
   },
   "devDependencies": {
     "commander": "2.20.3",
+    "eslint": "9.39.5",
+    "eslint-plugin-import": "2.32.0",
     "fs-extra": "11.3.4",
     "level": "8.0.1",
     "mkdirp": "3.0.1",
+    "neostandard": "0.13.0",
     "p-all": "5.0.1",
     "replace-in-file": "6.3.5",
-    "rimraf": "6.1.3",
-    "standard": "17.1.2"
+    "rimraf": "6.1.3"
   },
   "scripts": {
     "clean": "rimraf build/",
@@ -42,7 +44,7 @@
     "generate-ntp-background-images": "node scripts/generateNTPBackgroundImages.js",
     "generate-ntp-sponsored-images": "node scripts/ntp-sponsored-images/generate",
     "generate-user-model-installer-updates": "node scripts/generateBraveAdsResourcesComponentInputFiles.js",
-    "lint": "standard lib scripts test",
+    "lint": "eslint lib scripts test",
     "package-ad-block": "node ./scripts/packageAdBlock",
     "package-tor-client": "node ./scripts/packageTorClient",
     "package-tor-pluggable-transports": "node ./scripts/packageTorPluggableTransports",
@@ -68,12 +70,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/brave/brave-core-crx-packager.git"
-  },
-  "standard": {
-    "ignore": [
-      "/submodules/",
-      "/lib/adBlockRust0_8_6/"
-    ]
   },
   "tap": {
     "check-coverage": true,
