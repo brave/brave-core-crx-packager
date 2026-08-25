@@ -21,7 +21,6 @@
     "eslint": "9.39.5",
     "eslint-plugin-import": "2.32.0",
     "fs-extra": "11.3.4",
-    "level": "8.0.1",
     "mkdirp": "3.0.1",
     "neostandard": "0.13.0",
     "p-all": "5.0.1",
