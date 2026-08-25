@@ -27,7 +27,7 @@ jobs:
     - name: Setup pnpm and Node.js ${{ matrix.node-version }}
       uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2.0.2
       with:
-        runtime: node@24
+        runtime: node@${{ matrix.node-version }}
         cache: true
     - run: git submodule update --init --recursive
     - if: ${{ github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]' }}
