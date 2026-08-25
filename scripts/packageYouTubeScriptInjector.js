@@ -3,7 +3,7 @@
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-//  npm run package-youtube-script-injector -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/key.pem
+//  pnpm package-youtube-script-injector -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/key.pem
 
 import commander from 'commander'
 import fs from 'fs-extra'
