@@ -6,7 +6,6 @@
 //  pnpm package-wallet-data-files -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/wallet-data-files-updater.pem
 
 import { createRequire } from 'module'
-import { dirname } from 'path'
 import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
@@ -22,7 +21,7 @@ const stageFiles = (version, outputDir) => {
 
 const getPackageDir = () => {
   try {
-    return dirname(require.resolve('@brave/wallet-lists/package.json'))
+    return path.dirname(require.resolve('@brave/wallet-lists/package.json'))
   } catch (err) {
     const fallback = path.join('node_modules', '@brave', 'wallet-lists')
     if (fs.existsSync(path.join(fallback, 'manifest.json'))) {
