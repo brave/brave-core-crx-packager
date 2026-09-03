@@ -6,9 +6,9 @@
 // installs its dependencies, and bundles it.
 //
 // Example usage:
-//  npm run data-files-brave-psst          (defaults to dev)
-//  npm run data-files-brave-psst dev
-//  npm run data-files-brave-psst prod
+//  pnpm data-files-brave-psst          (defaults to dev)
+//  pnpm data-files-brave-psst dev
+//  pnpm data-files-brave-psst prod
 
 import { execSync } from 'child_process'
 import { existsSync } from 'fs'

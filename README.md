@@ -24,11 +24,13 @@ git submodule init
 git submodule update
 # If you use NVM to switch between Node versions
 nvm use
-CXXFLAGS="--std=c++17" npm install
+corepack enable
+CXXFLAGS="--std=c++17" pnpm install
 ```
 
 Currently
 * Node 24.x is required.
+* pnpm 11.x is required (enabled via Corepack).
 * Python is required.
 * Rust is required. (for ad-block)
 
@@ -39,13 +41,13 @@ Currently
 To package a component extension, first generate the appropriate DAT file(s) if any. For example, to generate all of the DAT files used by the Ad Block component extension use the following command:
 
 ```bash
-npm run data-files-ad-block-rust
+pnpm run data-files-ad-block-rust
 ```
 
 Then package the component extension(s) into one or more CRX files. For example, to package all of the Ad Block component extensions use the following command:
 
 ```bash
-npm run package-ad-block -- --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
+pnpm run package-ad-block -- --keys-directory <keys-dir> --binary <binary> --endpoint <endpoint>
 ```
 
 where:
@@ -63,12 +65,12 @@ The currently supported component extension types are:
 #### Testing locally without signing
 
 ```bash
-npm run <target-name> -- --local-run
+pnpm run <target-name> -- --local-run
 ```
 
 For example, if you added a new list to `local-data-files` and want to make sure it will show up correctly:
 ```bash
-npm run package-local-data-files -- --local-run
+pnpm run package-local-data-files -- --local-run
 ```
 This will create the lists in `build/local-data-files-updater/default/1`.
 
@@ -79,13 +81,13 @@ Note: not all targets might be supported with `--local-run`.
 To pacakge NTP SI components, download assets from passed url at first. It will download assets to `./build/ntp-sponsored-images/resources/`
 
 ```bash
-npm run generate-ntp-sponsored-images -- --data-url <s3 buckets url>
+pnpm run generate-ntp-sponsored-images -- --data-url <s3 buckets url>
 ```
 
 Then, package assets to crx files per region. It will generate component crx files for each region at `./build/ntp-sponsored-images/output`. Passed args to `--keys-directory` should include all PEM files that has private key for supported regions.
 
 ```bash
-npm run package-ntp-sponsored-images -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --keys-directory keys/
+pnpm run package-ntp-sponsored-images -- --binary "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome" --keys-directory keys/
 ```
 
 ## Generating differential updates
@@ -93,7 +95,7 @@ npm run package-ntp-sponsored-images -- --binary "/Applications/Google\\ Chrome.
 To generate differential updates using [puffin](https://chromium.googlesource.com/chromium/src/+/main/third_party/puffin/) use the following command to fetch the last 10 versions and generate the patch files:
 
 ```bash
-aws-vault exec extensions-dev-role --  npm run generate-puffpatches -- --crx-directory ./build/ntp-sponsored-images/output -p 10 --concurrency 4
+aws-vault exec extensions-dev-role --  pnpm run generate-puffpatches -- --crx-directory ./build/ntp-sponsored-images/output -p 10 --concurrency 4
 ```
 
 The `--concurrency` flag controls the number of concurrent patch generation processes (defaults to CPU core count if not specified).
@@ -109,7 +111,7 @@ After packaging a CRX file, you can upload it to Brave's S3 extensions bucket (`
 To upload a component extension, use the appropriate upload command. For example, to upload all of the Ad Block component extensions use the following command:
 
 ```bash
-aws-vault exec extensions-dev-role -- npm run upload-ad-block -- --crx-directory <crx-dir> --endpoint <endpoint>
+aws-vault exec extensions-dev-role -- pnpm run upload-ad-block -- --crx-directory <crx-dir> --endpoint <endpoint>
 ```
 
 where:
@@ -120,7 +122,7 @@ where:
 ### NTP SI component
 To upload NTP SI components, pass crx directory that has all generated crx files and endpoint as arguments.
 ```bash
-aws-vault exec extensions-dev-role -- npm run upload-ntp-sponsored-images-components -- --crx-directory ./build/ntp-sponsored-images/output
+aws-vault exec extensions-dev-role -- pnpm run upload-ntp-sponsored-images-components -- --crx-directory ./build/ntp-sponsored-images/output
 ```
 
 ### User Model Installer component
@@ -155,7 +157,7 @@ aws s3 cp --recursive iso_3166_1_gb s3://brave-user-model-installer-input-dev/is
 
 To upload the component, pass crx directory that has generated crx file and endpoint as arguments.
 ```bash
-aws exec extensions-dev-role -- npm run upload-user-model-installer-updates -- --crx-directory ./build/user-model-installer/output
+aws exec extensions-dev-role -- pnpm run upload-user-model-installer-updates -- --crx-directory ./build/user-model-installer/output
 ```
 
 ## Versioning

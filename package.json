@@ -7,7 +7,10 @@
     "@aws-sdk/client-dynamodb": "3.1036.0",
     "@aws-sdk/client-s3": "3.1036.0",
     "@sentry/node": "7.120.4",
+    "@smithy/node-http-handler": "4.6.1",
     "adblock-rs": "0.13.2",
+    "glob": "7.2.0",
+    "jszip": "3.10.1",
     "p3a-config": "github:brave/p3a-config",
     "p3a-config-staging": "github:brave/p3a-config#staging",
     "pbf": "4.0.1",
@@ -18,7 +21,6 @@
     "eslint": "9.39.5",
     "eslint-plugin-import": "2.32.0",
     "fs-extra": "11.3.4",
-    "level": "8.0.1",
     "mkdirp": "3.0.1",
     "neostandard": "0.13.0",
     "p-all": "5.0.1",
@@ -32,8 +34,8 @@
     "data-files-local-data-files": "mkdir -p brave-lists && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls.json -O brave-lists/clean-urls.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls-permissions.json -O brave-lists/clean-urls-permissions.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/debounce.json -O brave-lists/debounce.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/request-otr.json -O brave-lists/request-otr.json && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/https-upgrade-exceptions-list.txt -O brave-lists/https-upgrade-exceptions-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/localhost-permission-allow-list.txt -O brave-lists/localhost-permission-allow-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/webcompat-exceptions.json -O brave-lists/webcompat-exceptions.json",
     "data-files-leo-local-models": "node scripts/generateLeoLocalModelsDataFiles.js",
     "data-files-asr-local-models": "node scripts/generateAsrLocalModelsDataFiles.js",
-    "data-files-p3a-config": "npm update p3a-config && npm install --prefix ./node_modules/p3a-config && npm run --prefix ./node_modules/p3a-config build",
-    "data-files-p3a-config-staging": "npm update p3a-config-staging && npm install --prefix ./node_modules/p3a-config-staging && npm run --prefix ./node_modules/p3a-config-staging build",
+    "data-files-p3a-config": "pnpm update p3a-config && pnpm --dir ./node_modules/p3a-config install && pnpm --dir ./node_modules/p3a-config run build",
+    "data-files-p3a-config-staging": "pnpm update p3a-config-staging && pnpm --dir ./node_modules/p3a-config-staging install && pnpm --dir ./node_modules/p3a-config-staging run build",
     "data-files-brave-user-agent": "mkdir -p brave-user-agent && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/brave-checks.txt -O brave-user-agent/brave-checks.txt",
     "data-files-query-filter": "mkdir -p query-filter && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/query-filter.json -O query-filter/query-filter.json",
     "data-files-playlist-exclusions": "mkdir -p playlist-exclusions && wget https://raw.githubusercontent.com/brave/playlist-component/refs/heads/main/playlist_exclusions.json -O playlist-exclusions/playlist_exclusions.json",
@@ -76,6 +78,10 @@
     "lines": 72,
     "functions": 50,
     "statements": 71
+  },
+  "packageManager": "pnpm@11.23.0",
+  "engines": {
+    "node": ">=24.0.0"
   },
   "license": "MPL-2.0",
   "bugs": {
