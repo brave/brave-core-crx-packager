@@ -14,7 +14,7 @@
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
-    "commander": "2.20.3",
+    "commander": "15.0.0",
     "eslint": "9.39.5",
     "eslint-plugin-import": "2.32.0",
     "fs-extra": "11.3.4",
