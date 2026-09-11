@@ -1,0 +1,6 @@
+engineStrict: true
+minimumReleaseAge: 10080   # minutes; 7 days = 10080
+allowBuilds:
+  adblock-rs: true
+overrides:
+  brace-expansion@^1: 1.1.18
