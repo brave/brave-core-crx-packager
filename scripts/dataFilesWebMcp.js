@@ -8,7 +8,7 @@
 // only clones and copies the shipped files.
 //
 // Example usage:
-//  npm run data-files-web-mcp
+//  pnpm data-files-web-mcp
 
 import { execSync } from 'child_process'
 import { existsSync } from 'fs'

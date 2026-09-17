@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
-//  npm run package-asr-local-models -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/asr-local-models-component.pem
+//  pnpm package-asr-local-models -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/asr-local-models-component.pem
 
 import { packageLocalModelsComponent } from '../lib/localModelsPackager.js'
 
