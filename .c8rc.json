@@ -3,6 +3,7 @@
   "include": [
     "lib/crx.js",
     "lib/crx3.pb.js",
+    "lib/util.js",
     "scripts/ntp-sponsored-images/params.js"
   ],
   "exclude": [

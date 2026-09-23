@@ -14,9 +14,10 @@ export async function hermeticFetch (url, opts) {
   for (const route of state.fetchRoutes) {
     if (routeMatches(route, String(url))) {
       if (route.error) throw route.error
-      const status = route.status ?? 200
-      const headers = route.headers ?? {}
-      const body = route.body ?? ''
+      const scripted = typeof route.response === 'function' ? route.response(url, opts) : route
+      const status = scripted.status ?? 200
+      const headers = scripted.headers ?? {}
+      const body = scripted.body ?? ''
       return new Response(body, { status, headers })
     }
   }
