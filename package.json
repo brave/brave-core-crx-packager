@@ -6,7 +6,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.1036.0",
     "@aws-sdk/client-s3": "3.1036.0",
-    "@sentry/node": "7.120.4",
+    "@sentry/node": "10.75.0",
     "@smithy/node-http-handler": "4.6.1",
     "adblock-rs": "0.13.2",
     "glob": "7.2.0",
