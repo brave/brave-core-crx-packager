@@ -25,12 +25,12 @@ directly (no Brave fork). Hourly `submodule-update.yml` bumps the submodule pin 
    the LLM review scope declared in `.github/pull-merge.json` (`filterdiff_args`).
    The gate files are always checked out from `master`, so a PR cannot alter
    them while being gated.
-2. **Scoped upstream diff** — puLL-Merge cannot review a gitlink-only diff, so
-   the workflow attaches `.github/uBlock-sync-review.diff` (the upstream diff
-   restricted to the watched paths) to the PR branch; `pull-merge.json` includes
-   it and the gitlink in the review scope.
-3. **puLL-Merge** — `brave/pull-merge@main` posts an LLM security review on the
-   PR, scoped via `filterdiff_args`.
+2. **puLL-Merge with the real upstream diff** — puLL-Merge cannot see behind a
+   gitlink hunk, so the workflow passes `extra_diff_repository`
+   (https://github.com/gorhill/uBlock) plus the old/new submodule pins; the
+   action fetches the upstream repository itself and appends the upstream diff
+   (restricted to the watched paths by `filterdiff_args`) to the PR patch before
+   the LLM review. All arguments are plain values — no command execution.
 
 Secrets required by `uBlock-review.yml`:
 `ANTHROPIC_API_KEY`, `SLACK_WEBHOOK_URL`, `UBLOCK_SYNC_REVIEWERS_SLACK_GROUP_ID`.

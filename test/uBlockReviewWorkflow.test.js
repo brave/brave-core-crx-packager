@@ -19,7 +19,16 @@ const pullMergeConfig = JSON.parse(
   fs.readFileSync(path.join(root, '.github/pull-merge.json'), 'utf8')
 )
 
-const CARRIER = '.github/uBlock-sync-review.diff'
+const UBLOCK_URL = 'https://github.com/gorhill/uBlock'
+const WATCH_GLOBS = [
+  '**/assets/assets.json',
+  '**/src/web_accessible_resources/*',
+  '**/src/js/resources/*',
+  '**/src/js/redirect-resources.js',
+  '**/src/js/jsonpath.js',
+  '**/src/js/arglist-parser.js',
+  '**/src/js/urlskip.js'
+]
 
 test('uBlock review workflow triggers on submodule PRs', () => {
   const on = workflow[true] ?? workflow.on // YAML 1.1 parsers coerce bare `on`
@@ -47,36 +56,52 @@ test('check-imports job keeps the fork gate semantics', () => {
   assert.ok(job.permissions.contents === 'read')
 })
 
-test('sync-diff attaches a scoped upstream diff to the PR branch', () => {
-  const job = workflow.jobs['sync-diff']
-  assert.ok(job, 'sync-diff job missing')
-  const runs = job.steps.map((s) => s.run ?? '').join('\n')
-  assert.match(runs, /filterdiff/)
-  assert.equal(job.env.CARRIER, CARRIER)
-  assert.match(runs, /\$CARRIER/)
-  // no self-trigger loop: skip the commit when the carrier is unchanged
-  assert.match(runs, /git diff --exit-code --quiet/)
-  assert.match(runs, /git push/)
-  // fork-only old pin must not wedge the diff (empty-tree fallback)
-  assert.match(runs, /git cat-file -e/)
-  assert.equal(job.permissions.contents, 'write')
-  // scoped to exactly the watch globs declared in pull-merge.json
-  const envGlobs = job.env.WATCH_GLOBS.split(/\s+/).filter(Boolean)
-    .map((a) => a.replace(/^--include=/, ''))
-  const configGlobs = pullMergeConfig.filterdiff_args.split(/\s+/)
-    .map((a) => a.replace(/^--include=/, ''))
-  for (const glob of envGlobs) {
-    assert.ok(configGlobs.includes(glob), `sync-diff glob not in pull-merge.json scope: ${glob}`)
-  }
-})
-
-test('pull-merge runs the LLM review on the gated PR', () => {
+test('pull-merge job feeds pull-merge the submodule repo and pins', () => {
   const job = workflow.jobs['pull-merge']
+  assert.ok(job, 'pull-merge job missing')
+  const runs = job.steps.map((s) => s.run ?? '').join('\n')
+  // pins are resolved from the checked-out merge ref: the submodule gitlink
+  // at the PR head and at origin/master
+  assert.match(runs, /git rev-parse HEAD:submodules\/uBlock/)
+  assert.match(runs, /git rev-parse "origin\/master:submodules\/uBlock"/)
   const step = job.steps.find((s) => String(s.uses || '').startsWith('brave/pull-merge'))
   assert.ok(step, 'brave/pull-merge step missing')
+  assert.equal(step.uses, 'brave/pull-merge@extra-diff-repository')
+  assert.equal(step.with.extra_diff_repository, UBLOCK_URL)
+  assert.equal(step.with.extra_diff_head, '${{ steps.pins.outputs.head }}')
+  assert.equal(step.with.extra_diff_prev, '${{ steps.pins.outputs.prev }}')
   assert.equal(step.with.github_token, '${{ secrets.GITHUB_TOKEN }}')
   assert.equal(step.with.anthropic_api_key, '${{ secrets.ANTHROPIC_API_KEY }}')
-  assert.deepEqual(job.needs, ['check-imports', 'sync-diff'])
+  assert.equal(step.with.owner, '${{ github.repository_owner }}')
+  assert.equal(step.with.repo, '${{ github.event.repository.name }}')
+  assert.equal(step.with.prnum, '${{ github.event.number }}')
+  assert.equal(step.with.debug, 'true')
+  // the fetched upstream diff is scoped by filterdiff_args (no local filterdiff)
+  assert.doesNotMatch(runs, /filterdiff/)
+  assert.deepEqual(job.needs, ['check-imports'])
+})
+
+test('pull-merge.json review scope covers the gitlink and every watched path', () => {
+  const scope = pullMergeConfig.filterdiff_args.split(/\s+/)
+    .map((a) => a.replace(/^--include=/, ''))
+  // the gitlink hunk must stay in scope so puLL-Merge reviews the bump
+  assert.ok(scope.includes('**/submodules/uBlock'))
+  // the import checker (braveCheckImports.js) asserts every module the
+  // scriptlets import graph loads lands in this same scope — keep the
+  // upstream-relative watch list intact
+  for (const glob of WATCH_GLOBS) {
+    assert.ok(scope.includes(glob), `watched path missing from pull-merge.json scope: ${glob}`)
+  }
+  // review-scope data lives in the repo, never in workflow-generated state
+  assert.doesNotMatch(pullMergeConfig.filterdiff_args, /uBlock-sync-review/)
+  // puLL-Merge must see the full PR diff plus the appended upstream diff
+  assert.equal(pullMergeConfig.include_diff, 'true')
+})
+
+test('system prompt explains the appended upstream diff', () => {
+  assert.match(pullMergeConfig.system_prompt, /upstream diff between the old and new submodule pins/)
+  assert.match(pullMergeConfig.system_prompt, /UNTRUSTED DATA/)
+  assert.match(pullMergeConfig.system_prompt, /### Verdict/)
 })
 
 test('failures page the reviewers on Slack', () => {
@@ -87,6 +112,7 @@ test('failures page the reviewers on Slack', () => {
   assert.match(step.uses, /@([0-9a-f]{40})/)
   assert.equal(step.env.SLACK_WEBHOOK_URL, '${{ secrets.SLACK_WEBHOOK_URL }}')
   assert.match(step.with.text, /UBLOCK_SYNC_REVIEWERS_SLACK_GROUP_ID/)
+  assert.deepEqual(job.needs, ['check-imports', 'pull-merge'])
 })
 
 test('every third-party action is pinned to a commit SHA', () => {
@@ -94,7 +120,7 @@ test('every third-party action is pinned to a commit SHA', () => {
     for (const step of job.steps) {
       const uses = step.uses
       if (!uses || uses.startsWith('./')) continue
-      if (uses.startsWith('brave/pull-merge@')) continue // first-party, tracks main like the fork
+      if (uses.startsWith('brave/pull-merge@')) continue // first-party, tracks its feature branch like the fork tracked main
       assert.match(uses, /@([0-9a-f]{40})(\s|#|$)/, `${jobName}: unpinned action ${uses}`)
     }
   }

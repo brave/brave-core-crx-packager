@@ -40,83 +40,41 @@ jobs:
       - name: Run import checker (no network, no secrets)
         run: sudo unshare -n node .github/braveCheckImports.js
 
-  # puLL-Merge cannot review a gitlink-only diff, so attach the scoped upstream
-  # diff (.github/uBlock-sync-review.diff) to the PR branch; pull-merge.json
-  # includes it in the review scope.
-  sync-diff:
-    permissions:
-      contents: write
+  # puLL-Merge cannot see behind a gitlink hunk, so hand it the submodule
+  # repository plus the old/new pins; the action fetches the real upstream
+  # diff itself and appends it to the PR patch before filterdiff.
+  pull-merge:
+    needs: [check-imports]
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
-    env:
-      CARRIER: .github/uBlock-sync-review.diff
-      WATCH_GLOBS: >-
-        --include=**/assets/assets.json
-        --include=**/src/web_accessible_resources/*
-        --include=**/src/js/resources/*
-        --include=**/src/js/redirect-resources.js
-        --include=**/src/js/jsonpath.js
-        --include=**/src/js/arglist-parser.js
-        --include=**/src/js/urlskip.js
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Install patchutils
-        run: sudo apt-get update && sudo apt-get install -y patchutils
-      - name: Check out submodule at the PR pin
-        run: git submodule update --init
-      - name: Generate scoped upstream diff and attach it to the PR branch
+      - name: Resolve submodule pins
+        id: pins
         run: |
-          set -euo pipefail
-          old=$(git rev-parse "origin/master:submodules/uBlock")
-          new=$(git rev-parse "HEAD:submodules/uBlock")
-          cd submodules/uBlock
-          # The old pin predates the gorhill repoint right after the repoint
-          # lands (it is a fork-only commit); fall back to the empty tree so
-          # the whole watched content gets reviewed once.
-          git fetch -q origin "$old" || true
-          if git cat-file -e "${old}^{commit}" 2>/dev/null; then
-            range="$old..$new"
-          else
-            range="$(git hash-object -t tree /dev/null)..$new"
-            echo "Old pin $old is not in upstream history; diffing the full watched tree."
-          fi
-          git diff $range | filterdiff $WATCH_GLOBS > "$GITHUB_WORKSPACE/$CARRIER"
-          cd "$GITHUB_WORKSPACE"
-          if git diff --exit-code --quiet -- "$CARRIER"; then
-            echo "Review diff unchanged; nothing to commit."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$CARRIER"
-            git commit -m "chore(review): attach uBlock sync diff for puLL-Merge review"
-            git push origin HEAD:"$GITHUB_HEAD_REF"
-          fi
-
-  pull-merge:
-    needs: [check-imports, sync-diff]
-    if: ${{ github.event_name == 'pull_request' }}
-    runs-on: ubuntu-latest
-    steps:
+          echo "head=$(git rev-parse HEAD:submodules/uBlock)" >> "$GITHUB_OUTPUT"
+          echo "prev=$(git rev-parse "origin/master:submodules/uBlock")" >> "$GITHUB_OUTPUT"
       - name: Run puLL-Merge
-        uses: brave/pull-merge@main
+        uses: brave/pull-merge@extra-diff-repository
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           prnum: ${{ github.event.number }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          extra_diff_repository: https://github.com/gorhill/uBlock
+          extra_diff_head: ${{ steps.pins.outputs.head }}
+          extra_diff_prev: ${{ steps.pins.outputs.prev }}
           debug: 'true'
 
   on-failure:
     permissions: {}
     runs-on: ubuntu-latest
-    if: ${{ always() && github.event_name == 'pull_request' && (needs.check-imports.result == 'failure' || needs.sync-diff.result == 'failure' || needs.pull-merge.result == 'failure') }}
+    if: ${{ always() && github.event_name == 'pull_request' && (needs.check-imports.result == 'failure' || needs.pull-merge.result == 'failure') }}
     needs:
       - check-imports
-      - sync-diff
       - pull-merge
     steps:
       - name: Notify Slack
