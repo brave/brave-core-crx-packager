@@ -13,6 +13,31 @@ When developing a new component extension, you must generate a new unique extens
 5. Updating https://github.com/brave/adblock-resources/blob/master/filter_lists/regional.json with the right component_id and base64_public_key (if this is for AdBlock)
 5. Updating the CRX packager to use the new PEM
 
+## uBlock review gates
+
+The `submodules/uBlock` submodule watches [gorhill/uBlock](https://github.com/gorhill/uBlock)
+directly (no Brave fork). Hourly `submodule-update.yml` bumps the submodule pin and opens a
+`automated-submodule-update` PR; `uBlock-review.yml` gates every such PR:
+
+1. **Import-scope checker** — `.github/braveCheckImports.js` runs sandboxed
+   (`sudo unshare -n`, no network) and asserts that every module the uBlock
+   scriptlets import graph loads is a `file://` path inside this repo and inside
+   the LLM review scope declared in `.github/pull-merge.json` (`filterdiff_args`).
+   The gate files are always checked out from `master`, so a PR cannot alter
+   them while being gated.
+2. **puLL-Merge with the real upstream diff** — puLL-Merge cannot see behind a
+   gitlink hunk, so the workflow passes `extra_diff_repository`
+   (https://github.com/gorhill/uBlock) plus the old/new submodule pins; the
+   action fetches the upstream repository itself and appends the upstream diff
+   (restricted to the watched paths by `filterdiff_args`) to the PR patch before
+   the LLM review. All arguments are plain values — no command execution.
+
+Secrets required by `uBlock-review.yml`:
+`ANTHROPIC_API_KEY`, `SLACK_WEBHOOK_URL`, `UBLOCK_SYNC_REVIEWERS_SLACK_GROUP_ID`.
+
+Fork decommission runbook (brave/uBlock): flip off its `sync-from-fork.yml`
+cron, let in-flight sync PRs land or close them by hand, archive the repo.
+
 ## Cloning and Installation
 
 Clone the repository and install Node dependencies:
