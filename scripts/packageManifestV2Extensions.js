@@ -10,6 +10,7 @@ import commander from 'commander'
 import glob from 'glob'
 import util from '../lib/util.js'
 import crx from '../lib/crx.js'
+import { pathToFileURL } from 'url'
 
 const downloadExtension = async (config) => {
   const buildPath = path.join('build', config.name)
@@ -131,10 +132,10 @@ const packageV2Extension = (
   processExtension()
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util
-  .addCommonScriptOptions(
+  const command = util.addCommonScriptOptions(
     commander
       .option(
         '-d, --keys-directory <dir>',
@@ -145,42 +146,47 @@ util
         'Runs updater job without connecting anywhere remotely'
       )
   )
-  .parse(process.argv)
+  command.parse(argv)
 
-let keysDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keysDir = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
-}
+  let keysDir = ''
+  if (fs.existsSync(command.keysDirectory)) {
+    keysDir = command.keysDirectory
+  } else {
+    throw new Error('Missing or invalid private key file/directory')
+  }
 
-const ExtensionsV2 = ['no-script-v2', 'adguard-v2', 'umatrix-v2', 'ublock-v2']
+  const ExtensionsV2 = ['no-script-v2', 'adguard-v2', 'umatrix-v2', 'ublock-v2']
 
-if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
+  if (!command.localRun) {
+    await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+      ExtensionsV2.forEach((extensionName) => {
+        packageV2Extension(
+          extensionName,
+          command.endpoint,
+          command.region,
+          keysDir,
+          command.publisherProofKey,
+          command.publisherProofKeyAlt,
+          command.verifiedContentsKey
+        )
+      })
+    })
+  } else {
     ExtensionsV2.forEach((extensionName) => {
       packageV2Extension(
         extensionName,
-        commander.endpoint,
-        commander.region,
+        command.endpoint,
+        command.region,
         keysDir,
-        commander.publisherProofKey,
-        commander.publisherProofKeyAlt,
-        commander.verifiedContentsKey
+        command.publisherProofKey,
+        command.publisherProofKeyAlt,
+        command.verifiedContentsKey,
+        command.localRun
       )
     })
-  })
-} else {
-  ExtensionsV2.forEach((extensionName) => {
-    packageV2Extension(
-      extensionName,
-      commander.endpoint,
-      commander.region,
-      keysDir,
-      commander.publisherProofKey,
-      commander.publisherProofKeyAlt,
-      commander.verifiedContentsKey,
-      commander.localRun
-    )
-  })
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
 }

@@ -27,6 +27,8 @@ export class DynamoDBClient {
     state.sendCalls.push({ command: command.constructor.name, input: command.input })
     const reply = state.replies[command.constructor.name]
     if (reply && reply.error) throw reply.error
-    return (reply && reply.value) || {}
+    const value = reply ? reply.value : undefined
+    // value may be a factory so fresh bodies/replies are served per send
+    return (typeof value === 'function') ? value() : (value || {})
   }
 }

@@ -11,6 +11,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
 import { getListCatalog, regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
+import { pathToFileURL } from 'url'
 
 async function stageFiles (version, outputDir) {
   // ad-block components are already written in the output directory
@@ -123,34 +124,40 @@ const getComponentList = async () => {
   return output
 }
 
-const processJob = async (commander, keyDir) => {
+const processJob = async (command, keyDir) => {
   (await getComponentList())
-    .forEach(processComponent.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey,
-      commander.publisherProofKeyAlt,
-      commander.localRun,
-      commander.verifiedContentsKey))
+    .forEach(processComponent.bind(null, command.binary, command.endpoint,
+      command.region, keyDir,
+      command.publisherProofKey,
+      command.publisherProofKeyAlt,
+      command.localRun,
+      command.verifiedContentsKey))
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
-  .parse(process.argv)
+  const command = util.addCommonScriptOptions(
+    commander
+      .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+      .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
+  command.parse(argv)
 
-if (!commander.localRun) {
-  let keyDir = ''
-  if (fs.existsSync(commander.keysDirectory)) {
-    keyDir = commander.keysDirectory
+  if (!command.localRun) {
+    let keyDir = ''
+    if (fs.existsSync(command.keysDirectory)) {
+      keyDir = command.keysDirectory
+    } else {
+      throw new Error('Missing or invalid private key file/directory')
+    }
+    await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
+      await processJob(command, keyDir)
+    })
   } else {
-    throw new Error('Missing or invalid private key file/directory')
+    await processJob(command, undefined)
   }
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-    await processJob(commander, keyDir)
-  })
-} else {
-  processJob(commander, undefined)
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
 }
