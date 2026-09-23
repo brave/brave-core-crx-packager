@@ -11,6 +11,7 @@ import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
+import { pathToFileURL } from 'url'
 
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'manifests', 'brave-user-agent', 'default-manifest.json')
@@ -49,23 +50,29 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   })
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
-  .parse(process.argv)
+  const command = util.addCommonScriptOptions(
+    commander
+      .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
+  command.parse(argv)
 
-let privateKeyFile = ''
-if (fs.existsSync(commander.keyFile)) {
-  privateKeyFile = commander.keyFile
-} else {
-  throw new Error('Missing or invalid private key')
+  let privateKeyFile = ''
+  if (fs.existsSync(command.keyFile)) {
+    privateKeyFile = command.keyFile
+  } else {
+    throw new Error('Missing or invalid private key')
+  }
+
+  await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+    const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+    generateManifestFile(publicKey)
+    return generateCRXFile(command.binary, command.endpoint, command.region,
+      componentID, privateKeyFile, command.publisherProofKey, command.publisherProofKeyAlt)
+  })
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [publicKey, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateManifestFile(publicKey)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
-})
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}

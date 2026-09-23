@@ -9,12 +9,13 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
+import { pathToFileURL } from 'url'
 
 const getOriginalManifest = () => {
   return path.join('manifests', 'p3a-config', 'default-manifest.json')
 }
 
-const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binary, localRun, version) => {
+const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binary, localRun, version, staging) => {
   const componentType = 'p3a-config'
   const datFileName = 'default'
   const stagingDir = path.join('build', componentType, datFileName)
@@ -25,7 +26,7 @@ const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binar
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}-${datFileName}.pem`)
   }
   const manifestFilename = 'p3a_manifest.json'
-  const configPath = commander.staging ? 'p3a-config-staging' : 'p3a-config'
+  const configPath = staging ? 'p3a-config-staging' : 'p3a-config'
   util.stageFiles([
     { path: getOriginalManifest(), outputName: 'manifest.json' },
     { path: path.join('node_modules', configPath, 'dist', manifestFilename), outputName: manifestFilename }
@@ -37,7 +38,7 @@ const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binar
   console.log(`Generated ${crxFile} with version number ${version}`)
 }
 
-const processDATFile = (binary, endpoint, region, key, publisherProofKey, publisherProofKeyAlt, localRun) => {
+const processDATFile = (binary, endpoint, region, key, publisherProofKey, publisherProofKeyAlt, localRun, staging) => {
   const originalManifest = getOriginalManifest()
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
@@ -45,45 +46,51 @@ const processDATFile = (binary, endpoint, region, key, publisherProofKey, publis
   if (!localRun) {
     util.getNextVersion(endpoint, region, id).then((version) => {
       postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
-        binary, localRun, version)
+        binary, localRun, version, staging)
     })
   } else {
     postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
-      binary, localRun, '1.0.0')
+      binary, localRun, '1.0.0', staging)
   }
 }
 
-const processJob = (commander, keyParam) => {
-  processDATFile(commander.binary, commander.endpoint, commander.region,
-    keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt, commander.localRun)
-}
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.installErrorHandlers()
+  const command = util.addCommonScriptOptions(
+    commander
+      .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+      .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
+      .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
+      .option('-s, --staging', 'Use staging P3A config'))
+  command.parse(argv)
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely')
-    .option('-s, --staging', 'Use staging P3A config'))
-  .parse(process.argv)
+  let keyParam = ''
 
-let keyParam = ''
+  if (!command.localRun) {
+    if (fs.existsSync(command.keyFile)) {
+      keyParam = command.keyFile
+    } else if (fs.existsSync(command.keysDirectory)) {
+      keyParam = command.keysDirectory
+    } else {
+      throw new Error('Missing or invalid private key file/directory')
+    }
+  }
 
-if (!commander.localRun) {
-  if (fs.existsSync(commander.keyFile)) {
-    keyParam = commander.keyFile
-  } else if (fs.existsSync(commander.keysDirectory)) {
-    keyParam = commander.keysDirectory
+  const processJob = (key, staging) => {
+    processDATFile(command.binary, command.endpoint, command.region,
+      key, command.publisherProofKey, command.publisherProofKeyAlt, command.localRun, staging)
+  }
+
+  if (!command.localRun) {
+    await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+      processJob(keyParam, command.staging)
+    })
   } else {
-    throw new Error('Missing or invalid private key file/directory')
+    processJob(keyParam, command.staging)
   }
 }
 
-if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyParam)
-  })
-} else {
-  processJob(commander, keyParam)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
 }

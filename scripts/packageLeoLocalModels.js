@@ -6,8 +6,15 @@
 //  pnpm package-leo-local-models -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/leo-local-models-component.pem
 
 import { packageLocalModelsComponent } from '../lib/localModelsPackager.js'
+import { pathToFileURL } from 'url'
 
-packageLocalModelsComponent({
-  componentType: 'leo-local-models-updater',
-  resourceDir: 'leo-local-models'
-})
+export function main () {
+  packageLocalModelsComponent({
+    componentType: 'leo-local-models-updater',
+    resourceDir: 'leo-local-models'
+  })
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}

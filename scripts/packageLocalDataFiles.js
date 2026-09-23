@@ -9,6 +9,7 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
+import { pathToFileURL } from 'url'
 
 const getOriginalManifest = () => {
   return path.join('manifests', 'local-data-files-updater', 'default-manifest.json')
@@ -63,36 +64,42 @@ const processDATFile = (binary, endpoint, region, key, publisherProofKey, publis
   }
 }
 
-const processJob = (commander, keyParam) => {
-  processDATFile(commander.binary, commander.endpoint, commander.region,
-    keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt, commander.localRun)
-}
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.installErrorHandlers()
+  const command = util.addCommonScriptOptions(
+    commander
+      .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+      .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
+      .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
+  command.parse(argv)
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
-  .parse(process.argv)
+  let keyParam = ''
 
-let keyParam = ''
+  if (!command.localRun) {
+    if (fs.existsSync(command.keyFile)) {
+      keyParam = command.keyFile
+    } else if (fs.existsSync(command.keysDirectory)) {
+      keyParam = command.keysDirectory
+    } else {
+      throw new Error('Missing or invalid private key file/directory')
+    }
+  }
 
-if (!commander.localRun) {
-  if (fs.existsSync(commander.keyFile)) {
-    keyParam = commander.keyFile
-  } else if (fs.existsSync(commander.keysDirectory)) {
-    keyParam = commander.keysDirectory
+  const processJob = () => {
+    processDATFile(command.binary, command.endpoint, command.region,
+      keyParam, command.publisherProofKey, command.publisherProofKeyAlt, command.localRun)
+  }
+
+  if (!command.localRun) {
+    await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+      processJob()
+    })
   } else {
-    throw new Error('Missing or invalid private key file/directory')
+    processJob()
   }
 }
 
-if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyParam)
-  })
-} else {
-  processJob(commander, keyParam)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
 }
