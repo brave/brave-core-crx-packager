@@ -6,3 +6,4 @@ allowBuilds:
   adblock-rs: true
 overrides:
   brace-expansion@^1: 1.1.18
+  yargs@17: ^17.7.3 # 17.7.2 ships broken "type": "module" metadata; c8 breaks on Node >= 22
