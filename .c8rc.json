@@ -9,7 +9,15 @@
     "lib/localModelsDownloader.js",
     "lib/localModelsPackager.js",
     "lib/sentry.js",
-    "scripts/ntp-sponsored-images/params.js"
+    "scripts/ntp-sponsored-images/params.js",
+    "scripts/generateAdBlockRustDataFiles.js",
+    "scripts/generateManifestForRustAdblock.js",
+    "scripts/generateNTPBackgroundImages.js",
+    "scripts/generateBraveAdsResourcesComponentInputFiles.js",
+    "scripts/dataFilesBravePsst.js",
+    "scripts/dataFilesWebMcp.js",
+    "scripts/generateLeoLocalModelsDataFiles.js",
+    "scripts/generateAsrLocalModelsDataFiles.js"
   ],
   "exclude": [
     "node_modules/**",

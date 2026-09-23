@@ -19,6 +19,14 @@ if (process.env.CRX_PACKAGER_GIT_FAIL && args.join(' ').includes(process.env.CRX
 if (args[0] === 'clone') {
   const targetDir = args[args.length - 1]
   mkdirSync(targetDir, { recursive: true })
+  // optionally seed the clone with files (e.g. scripts/index.js)
+  if (process.env.CRX_PACKAGER_GIT_SEED) {
+    for (const seededFile of process.env.CRX_PACKAGER_GIT_SEED.split(',')) {
+      const seededPath = path.join(targetDir, seededFile.trim())
+      mkdirSync(path.dirname(seededPath), { recursive: true })
+      writeFileSync(seededPath, 'seeded-content')
+    }
+  }
 }
 
 if (args[0] === 'sparse-checkout' && args[1] === 'set') {

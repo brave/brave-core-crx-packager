@@ -10,6 +10,7 @@ import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
 import { Readable } from 'stream'
 import { finished } from 'stream/promises'
+import { pathToFileURL } from 'url'
 
 const jsonSchemaVersion = 1
 
@@ -98,17 +99,23 @@ async function generateNTPBackgroundImages (dataUrl) {
   await prepareAssets(sourceJsonFileUrl, targetResourceDir)
 }
 
-util.installErrorHandlers()
-
-commander
-  .option('-d, --data-url <url>', 'https: or s3: url that refers to data that has ntp background images')
-  .parse(process.argv)
-
-generateNTPBackgroundImages(commander.dataUrl)
-  .catch(e => {
+export async function main (dataUrl) {
+  util.installErrorHandlers()
+  if (dataUrl === undefined) {
+    commander
+      .option('-d, --data-url <url>', 'https: or s3: url that refers to data that has ntp background images')
+      .parse(process.argv)
+    dataUrl = commander.dataUrl
+  }
+  await generateNTPBackgroundImages(dataUrl).catch(e => {
     console.error('There was a fatal problem:', e.message)
     if (e.cause) {
       console.error(e.cause)
     }
     process.exit(1)
   })
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main()
+}

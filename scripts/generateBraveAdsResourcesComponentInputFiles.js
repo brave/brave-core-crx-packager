@@ -9,6 +9,7 @@ import commander from 'commander'
 import ntpUtil from '../lib/ntpUtil.js'
 import { Readable } from 'stream'
 import { finished } from 'stream/promises'
+import { pathToFileURL } from 'url'
 
 const getComponentList = () => {
   return [
@@ -134,8 +135,16 @@ async function generateComponents (dataUrl) {
   }
 }
 
-commander
-  .option('-d, --data-url <url>', 'url referring to component input files')
-  .parse(process.argv)
+export async function main (dataUrl) {
+  if (dataUrl === undefined) {
+    commander
+      .option('-d, --data-url <url>', 'url referring to component input files')
+      .parse(process.argv)
+    dataUrl = commander.dataUrl
+  }
+  await generateComponents(dataUrl)
+}
 
-generateComponents(commander.dataUrl)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main()
+}
