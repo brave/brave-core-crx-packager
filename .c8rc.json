@@ -4,6 +4,11 @@
     "lib/crx.js",
     "lib/crx3.pb.js",
     "lib/util.js",
+    "lib/contentSign.js",
+    "lib/ntpUtil.js",
+    "lib/localModelsDownloader.js",
+    "lib/localModelsPackager.js",
+    "lib/sentry.js",
     "scripts/ntp-sponsored-images/params.js"
   ],
   "exclude": [
