@@ -1,0 +1,88 @@
+name: uBlock Sync Review
+on:
+  pull_request:
+    paths:
+      - 'submodules/uBlock'
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: uBlock-review-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # Asserts that everything the packager executes from the uBlock submodule
+  # (the scriptlets import graph) stays inside the repo and inside the LLM
+  # review scope declared in .github/pull-merge.json. Sandboxed: no network.
+  check-imports:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Block gate tampering, then check out gate files from master
+        run: |
+          if git diff --name-only origin/master..HEAD -- .github/braveCheckImports.js .github/pull-merge.json .gitmodules | grep -q .; then
+            echo "::error::.github/braveCheckImports.js, .github/pull-merge.json or .gitmodules modified by this PR — refusing to run the gates with it."
+            exit 1
+          fi
+          git checkout origin/master -- .github/braveCheckImports.js .github/pull-merge.json
+      - name: Install patchutils
+        run: sudo apt-get update && sudo apt-get install -y patchutils
+      - name: Check out submodule at the PR pin
+        run: git submodule update --init
+      - name: Run import checker (no network, no secrets)
+        run: sudo unshare -n node .github/braveCheckImports.js
+
+  # puLL-Merge cannot see behind a gitlink hunk, so hand it the submodule
+  # repository plus the old/new pins; the action fetches the real upstream
+  # diff itself and appends it to the PR patch before filterdiff.
+  pull-merge:
+    needs: [check-imports]
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Resolve submodule pins
+        id: pins
+        run: |
+          echo "head=$(git rev-parse HEAD:submodules/uBlock)" >> "$GITHUB_OUTPUT"
+          echo "prev=$(git rev-parse "origin/master:submodules/uBlock")" >> "$GITHUB_OUTPUT"
+      - name: Run puLL-Merge
+        uses: brave/pull-merge@extra-diff-repository
+        with:
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
+          prnum: ${{ github.event.number }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          extra_diff_repository: https://github.com/gorhill/uBlock
+          extra_diff_head: ${{ steps.pins.outputs.head }}
+          extra_diff_prev: ${{ steps.pins.outputs.prev }}
+          debug: 'true'
+
+  on-failure:
+    permissions: {}
+    runs-on: ubuntu-latest
+    if: ${{ always() && github.event_name == 'pull_request' && (needs.check-imports.result == 'failure' || needs.pull-merge.result == 'failure') }}
+    needs:
+      - check-imports
+      - pull-merge
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486 # v3.16.2
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          author_name: Github Actions
+          status: failure
+          fields: repo,message,commit,author,eventName,ref,workflow,pullRequest
+          text: "<!subteam^${{ secrets.UBLOCK_SYNC_REVIEWERS_SLACK_GROUP_ID }}> uBlock sync review failed for ${{ github.repository }} (PR #${{ github.event.number }}). Check the failed run and re-run or fix as needed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
