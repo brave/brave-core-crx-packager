@@ -44,14 +44,14 @@ const processDATFile = (binary, endpoint, region, key, publisherProofKey, publis
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
+    return util.getNextVersion(endpoint, region, id).then((version) => {
       postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
         binary, localRun, version, staging)
     })
-  } else {
-    postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
-      binary, localRun, '1.0.0', staging)
   }
+  postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
+    binary, localRun, '1.0.0', staging)
+  return Promise.resolve()
 }
 
 export async function main (argv = process.argv) {

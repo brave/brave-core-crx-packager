@@ -30,7 +30,7 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   const stagingDir = path.join('build', 'web-mcp')
   const crxFile = path.join(stagingDir, 'web-mcp.crx')
   mkdirp.sync(stagingDir)
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
+  return util.getNextVersion(endpoint, region, componentID).then((version) => {
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       publisherProofKeyAlt, stagingDir)

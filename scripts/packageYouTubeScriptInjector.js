@@ -27,7 +27,7 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   const stagingDir = path.join('build', 'youtube-script-injector')
   const crxFile = path.join(stagingDir, 'youtube-script-injector.crx')
   mkdirp.sync(stagingDir)
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
+  return util.getNextVersion(endpoint, region, componentID).then((version) => {
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       publisherProofKeyAlt, stagingDir)

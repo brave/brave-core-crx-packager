@@ -85,6 +85,7 @@ Feature: Simple component packagers
     And the staged manifest "build/local-data-files-updater/default/manifest.json" declares version "2.0.1"
 
   Scenario: a missing signing key aborts the packager
+    Given a packager sandbox with a signing key "key.pem"
     And the DynamoDB table has version "2.0.0" stored for the component
     When the packager "packageNTPBackgroundImagesComponent.js" runs with "--binary chrome --endpoint http://e --region us-west-2"
     Then the packaging fails with "Missing or invalid private key"

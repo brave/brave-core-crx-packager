@@ -130,8 +130,9 @@ When('the packager {string} runs with {string}', async function (script, flags) 
 })
 
 Then('the staged p3a manifest came from {string}', function (configPackage) {
+  const expected = fs.readFileSync(path.join(this.sandbox, 'node_modules', configPackage, 'dist', 'p3a_manifest.json'), 'utf8')
   const staged = fs.readFileSync(path.join(this.sandbox, 'build', 'p3a-config', 'default', 'p3a_manifest.json'), 'utf8')
-  expect(staged).to.include('staging')
+  expect(staged).to.equal(expected)
 })
 
 Then('the regenerated manifest {string} declares name {string}', function (manifestPath, name) {
