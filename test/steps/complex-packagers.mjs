@@ -75,12 +75,16 @@ Given('the ad-block updater outputs and catalog are staged', function () {
     body: JSON.stringify(catalog)
   })
   const ids = [REGIONAL_CATALOG_ID, RESOURCES_ID, ...CATALOG_IDS]
+  this.idByComponent = {}
   for (const id of ids) {
+    const { publicKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 512 })
+    const key = publicKey.export({ type: 'spki', format: 'der' }).toString('base64')
     const dir = path.join(this.sandbox, 'build', 'ad-block-updater', id)
     fs.mkdirpSync(dir)
-    fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ name: 'Brave Ad Block Updater', version: '0.0.0', key: this.publicKeyBase64 }))
+    fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ name: 'Brave Ad Block Updater', version: '0.0.0', key }))
     const fileToHash = id === REGIONAL_CATALOG_ID ? 'list_catalog.json' : id === RESOURCES_ID ? 'resources.json' : 'list.txt'
     fs.writeFileSync(path.join(dir, fileToHash), `content-for-${id}`)
+    this.idByComponent[id] = key
   }
 })
 
@@ -97,14 +101,18 @@ Given('the DynamoDB stored the current content hash for the ad-block components'
   await loadUtil()
   mockState().dynamodb.replies.ListTablesCommand = { value: { TableNames: ['Extensions'] } }
   const ids = [REGIONAL_CATALOG_ID, RESOURCES_ID, ...CATALOG_IDS]
-  const itemHashes = ids.map(id => {
+  const hashById = {}
+  for (const id of ids) {
     const fileToHash = id === REGIONAL_CATALOG_ID ? 'list_catalog.json' : id === RESOURCES_ID ? 'resources.json' : 'list.txt'
     const contentFile = path.join(this.sandbox, 'build', 'ad-block-updater', id, fileToHash)
-    return util.generateVersionedSHA256HashOfFile(contentFile, 1)
-  })
-  let index = 0
+    const derivedId = util.getIDFromBase64PublicKey(this.idByComponent[id])
+    hashById[derivedId] = util.generateVersionedSHA256HashOfFile(contentFile, 1)
+  }
   mockState().dynamodb.replies.QueryCommand = {
-    value: () => ({ Items: [{ Version: { S: '2.0.0' }, ContentHash: { S: itemHashes[index++] } }] })
+    value: (input) => {
+      const id = input.ExpressionAttributeValues[':id'].S
+      return { Items: [{ Version: { S: '2.0.0' }, ContentHash: { S: hashById[id] } }] }
+    }
   }
 })
 
@@ -197,10 +205,6 @@ Given('a keys directory without per-locale pem files', function () {
 })
 
 When('the complex packager {string} runs with {string}', async function (script, flags) {
-  const commanderInstance = (await import('commander')).default
-  for (const flag of ['localRun', 'staging', 'keyFile', 'keysDirectory', 'binary', 'publisherProofKey', 'publisherProofKeyAlt', 'verifiedContentsKey', 'endpoint', 'region']) {
-    commanderInstance[flag] = undefined
-  }
   process.argv = ['node', 'script', ...flags.split(' ').filter(Boolean)]
   const packager = await import(`../../scripts/${script}`)
   try {

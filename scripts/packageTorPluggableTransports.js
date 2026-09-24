@@ -94,13 +94,15 @@ export async function main (argv = process.argv) {
   }
 
   await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
-    for (const platform of ['darwin', 'linux', 'win32']) {
-      await packageTorPluggableTransports(command.binary, command.endpoint, command.region,
-        platform, keyParam, command.publisherProofKey, command.publisherProofKeyAlt)
-    }
+    await Promise.all(['darwin', 'linux', 'win32'].map(platform =>
+      packageTorPluggableTransports(command.binary, command.endpoint, command.region,
+        platform, keyParam, command.publisherProofKey, command.publisherProofKeyAlt)))
   })
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }

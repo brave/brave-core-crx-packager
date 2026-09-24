@@ -29,6 +29,6 @@ export class DynamoDBClient {
     if (reply && reply.error) throw reply.error
     const value = reply ? reply.value : undefined
     // value may be a factory so fresh bodies/replies are served per send
-    return (typeof value === 'function') ? value() : (value || {})
+    return (typeof value === 'function') ? value(command.input) : (value || {})
   }
 }

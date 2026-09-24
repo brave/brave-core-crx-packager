@@ -108,9 +108,8 @@ const processComponent = (
       }
     })
   }
-  postNextVersionWork(componentSubdir, undefined, publisherProofKey,
+  return postNextVersionWork(componentSubdir, undefined, publisherProofKey,
     publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
-  return Promise.resolve()
 }
 
 const getComponentList = async () => {
@@ -126,15 +125,15 @@ const getComponentList = async () => {
 }
 
 const processJob = async (command, keyDir) => {
-  for (const componentSubdir of await getComponentList()) {
-    await processComponent(command.binary, command.endpoint,
+  const components = await getComponentList()
+  await Promise.all(components.map(componentSubdir =>
+    processComponent(command.binary, command.endpoint,
       command.region, keyDir,
       command.publisherProofKey,
       command.publisherProofKeyAlt,
       command.localRun,
       command.verifiedContentsKey,
-      componentSubdir)
-  }
+      componentSubdir)))
 }
 
 export async function main (argv = process.argv) {
@@ -162,5 +161,8 @@ export async function main (argv = process.argv) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }

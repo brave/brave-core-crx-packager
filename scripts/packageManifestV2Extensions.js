@@ -158,8 +158,8 @@ export async function main (argv = process.argv) {
   const ExtensionsV2 = ['no-script-v2', 'adguard-v2', 'umatrix-v2', 'ublock-v2']
 
   const packageAll = async () => {
-    for (const extensionName of ExtensionsV2) {
-      await packageV2Extension(
+    await Promise.all(ExtensionsV2.map(extensionName =>
+      packageV2Extension(
         extensionName,
         command.endpoint,
         command.region,
@@ -168,8 +168,7 @@ export async function main (argv = process.argv) {
         command.publisherProofKeyAlt,
         command.verifiedContentsKey,
         command.localRun
-      )
-    }
+      )))
   }
   if (!command.localRun) {
     await util.createTableIfNotExists(command.endpoint, command.region).then(packageAll)

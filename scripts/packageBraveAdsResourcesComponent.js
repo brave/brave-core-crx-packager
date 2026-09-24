@@ -303,14 +303,16 @@ export async function main (argv = process.argv) {
 
   await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
     generateManifestFiles()
-    for (const componentData of getComponentDataList()) {
-      await generateCRXFile(command.binary, command.endpoint,
+    await Promise.all(getComponentDataList().map(componentData =>
+      generateCRXFile(command.binary, command.endpoint,
         command.region, keyDir,
-        command.publisherProofKey, command.publisherProofKeyAlt, componentData)
-    }
+        command.publisherProofKey, command.publisherProofKeyAlt, componentData)))
   })
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }

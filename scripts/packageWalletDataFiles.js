@@ -99,14 +99,16 @@ export async function main (argv = process.argv) {
   }
 
   if (!command.localRun) {
-    await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
-      processJob(command, keyParam)
+    return util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+      return processJob(command, keyParam)
     })
-  } else {
-    processJob(command, keyParam)
   }
+  return processJob(command, keyParam)
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }
