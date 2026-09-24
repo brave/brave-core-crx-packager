@@ -11,6 +11,7 @@ import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
+import { pathToFileURL } from 'url'
 
 // Resource directory assembled by scripts/dataFilesWebMcp.js (contains scripts/).
 const webMcpResourceDir = path.join(path.resolve(), 'web-mcp')
@@ -29,7 +30,7 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   const stagingDir = path.join('build', 'web-mcp')
   const crxFile = path.join(stagingDir, 'web-mcp.crx')
   mkdirp.sync(stagingDir)
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
+  return util.getNextVersion(endpoint, region, componentID).then((version) => {
     stageFiles(version, stagingDir)
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       publisherProofKeyAlt, stagingDir)
@@ -37,22 +38,31 @@ const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
   })
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
-  .parse(process.argv)
+  const command = util.addCommonScriptOptions(
+    new commander.Command()
+      .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
+  command.parse(argv)
 
-let privateKeyFile = ''
-if (commander.keyFile && fs.existsSync(commander.keyFile)) {
-  privateKeyFile = commander.keyFile
-} else {
-  throw new Error('Missing or invalid private key')
+  let privateKeyFile = ''
+  if (command.keyFile && fs.existsSync(command.keyFile)) {
+    privateKeyFile = command.keyFile
+  } else {
+    throw new Error('Missing or invalid private key')
+  }
+
+  await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+    const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+    return generateCRXFile(command.binary, command.endpoint, command.region,
+      componentID, privateKeyFile, command.publisherProofKey, command.publisherProofKeyAlt)
+  })
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
-})
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
+}

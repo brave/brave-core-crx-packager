@@ -9,6 +9,7 @@ import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
+import { pathToFileURL } from 'url'
 
 const getOriginalManifest = () => {
   return path.join('manifests', 'local-data-files-updater', 'default-manifest.json')
@@ -53,46 +54,52 @@ const processDATFile = (binary, endpoint, region, key, publisherProofKey, publis
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
+    return util.getNextVersion(endpoint, region, id).then((version) => {
       postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
         binary, localRun, version)
     })
-  } else {
-    postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
-      binary, localRun, '1.0.0')
   }
+  postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
+    binary, localRun, '1.0.0')
+  return Promise.resolve()
 }
 
-const processJob = (commander, keyParam) => {
-  processDATFile(commander.binary, commander.endpoint, commander.region,
-    keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt, commander.localRun)
-}
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.installErrorHandlers()
+  const command = util.addCommonScriptOptions(
+    new commander.Command()
+      .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+      .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
+      .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
+  command.parse(argv)
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
-  .parse(process.argv)
+  let keyParam = ''
 
-let keyParam = ''
-
-if (!commander.localRun) {
-  if (fs.existsSync(commander.keyFile)) {
-    keyParam = commander.keyFile
-  } else if (fs.existsSync(commander.keysDirectory)) {
-    keyParam = commander.keysDirectory
-  } else {
-    throw new Error('Missing or invalid private key file/directory')
+  if (!command.localRun) {
+    if (fs.existsSync(command.keyFile)) {
+      keyParam = command.keyFile
+    } else if (fs.existsSync(command.keysDirectory)) {
+      keyParam = command.keysDirectory
+    } else {
+      throw new Error('Missing or invalid private key file/directory')
+    }
   }
+
+  const processJob = () => {
+    return processDATFile(command.binary, command.endpoint, command.region,
+      keyParam, command.publisherProofKey, command.publisherProofKeyAlt, command.localRun)
+  }
+
+  if (!command.localRun) {
+    return util.createTableIfNotExists(command.endpoint, command.region).then(() => processJob())
+  }
+  return processJob()
 }
 
-if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    processJob(commander, keyParam)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
   })
-} else {
-  processJob(commander, keyParam)
 }
