@@ -146,5 +146,8 @@ export async function main (dataUrl) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }

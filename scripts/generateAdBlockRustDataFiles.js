@@ -168,7 +168,10 @@ export async function main (mirrorCommitHash) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(e => {
+    console.error('Caught exception:', e)
+    process.exit(1)
+  })
 }
 
 process.on('uncaughtException', (err) => {
