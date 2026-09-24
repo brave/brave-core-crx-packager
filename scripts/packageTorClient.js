@@ -68,13 +68,13 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
 }
 
-const packageTorClient = (binary, endpoint, region, platform, key,
+const packageTorClient = async (binary, endpoint, region, platform, key,
   publisherProofKey, publisherProofKeyAlt) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
+  return util.getNextVersion(endpoint, region, id).then((version) => {
     const stagingDir = path.join('build', 'tor-client-updater', platform)
     const torClient = downloadTorClient(platform)
     const crxOutputDir = path.join('build', 'tor-client-updater')
@@ -108,7 +108,7 @@ export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
       .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
   command.parse(argv)
@@ -123,9 +123,9 @@ export async function main (argv = process.argv) {
     throw new Error('Missing or invalid private key file/directory')
   }
 
-  await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+  await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
     for (const platform of ['darwin', 'linux', 'linux-arm64', 'win32']) {
-      packageTorClient(command.binary, command.endpoint, command.region,
+      await packageTorClient(command.binary, command.endpoint, command.region,
         platform, keyParam, command.publisherProofKey, command.publisherProofKeyAlt)
     }
   })

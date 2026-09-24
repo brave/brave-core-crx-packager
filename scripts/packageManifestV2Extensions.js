@@ -100,7 +100,7 @@ const packageV2Extension = (
       return
     }
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
-    crx
+    return crx
       .generateCrx(
         sources.unpacked,
         extensionKeyFile,
@@ -113,7 +113,7 @@ const packageV2Extension = (
         }
 
         if (!localRun) {
-          util
+          return util
             .getNextVersion(endpoint, region, id, sources.sha256)
             .then((version) => {
               if (version !== undefined) {
@@ -122,21 +122,21 @@ const packageV2Extension = (
                 console.log(`${config.name} extension: no updates detected!`)
               }
             })
-        } else {
-          console.log(`Sources hash: ${sources.sha256}`)
-          writeOutputFiles(extension)
         }
+        console.log(`Sources hash: ${sources.sha256}`)
+        writeOutputFiles(extension)
+        return Promise.resolve()
       })
   }
 
-  processExtension()
+  return processExtension()
 }
 
 export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option(
         '-d, --keys-directory <dir>',
         'directory containing private keys for signing crx files'
@@ -157,23 +157,9 @@ export async function main (argv = process.argv) {
 
   const ExtensionsV2 = ['no-script-v2', 'adguard-v2', 'umatrix-v2', 'ublock-v2']
 
-  if (!command.localRun) {
-    await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
-      ExtensionsV2.forEach((extensionName) => {
-        packageV2Extension(
-          extensionName,
-          command.endpoint,
-          command.region,
-          keysDir,
-          command.publisherProofKey,
-          command.publisherProofKeyAlt,
-          command.verifiedContentsKey
-        )
-      })
-    })
-  } else {
-    ExtensionsV2.forEach((extensionName) => {
-      packageV2Extension(
+  const packageAll = async () => {
+    for (const extensionName of ExtensionsV2) {
+      await packageV2Extension(
         extensionName,
         command.endpoint,
         command.region,
@@ -183,10 +169,18 @@ export async function main (argv = process.argv) {
         command.verifiedContentsKey,
         command.localRun
       )
-    })
+    }
+  }
+  if (!command.localRun) {
+    await util.createTableIfNotExists(command.endpoint, command.region).then(packageAll)
+  } else {
+    await packageAll()
   }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }

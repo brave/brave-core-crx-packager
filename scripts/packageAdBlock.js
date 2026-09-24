@@ -35,7 +35,7 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
   const crxOutputDir = path.join('build', 'ad-block-updater')
   const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
   const contentHashFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.contentHash`)
-  stageFiles(version, stagingDir).then(() => {
+  return stageFiles(version, stagingDir).then(() => {
     // Remove any existing `.contentHash` file for determinism
     if (fs.existsSync(contentHashFile)) {
       fs.unlinkSync(contentHashFile)
@@ -98,18 +98,19 @@ const processComponent = (
   }
 
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
+    return util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
       if (version !== undefined) {
-        postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
+        return postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
           publisherProofKeyAlt, binary, localRun, version, contentHash, verifiedContentsKey)
       } else {
         console.log('content for ' + id + ' was not updated, skipping!')
+        return Promise.resolve()
       }
     })
-  } else {
-    postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
   }
+  postNextVersionWork(componentSubdir, undefined, publisherProofKey,
+    publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
+  return Promise.resolve()
 }
 
 const getComponentList = async () => {
@@ -125,20 +126,22 @@ const getComponentList = async () => {
 }
 
 const processJob = async (command, keyDir) => {
-  (await getComponentList())
-    .forEach(processComponent.bind(null, command.binary, command.endpoint,
+  for (const componentSubdir of await getComponentList()) {
+    await processComponent(command.binary, command.endpoint,
       command.region, keyDir,
       command.publisherProofKey,
       command.publisherProofKeyAlt,
       command.localRun,
-      command.verifiedContentsKey))
+      command.verifiedContentsKey,
+      componentSubdir)
+  }
 }
 
 export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
       .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
   command.parse(argv)

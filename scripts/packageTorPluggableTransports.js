@@ -46,12 +46,12 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', TOR_PLUGGABLE_TRANSPORTS_UPDATER, `${TOR_PLUGGABLE_TRANSPORTS_UPDATER}-${platform}-manifest.json`)
 }
 
-const packageTorPluggableTransports = (binary, endpoint, region, platform, key, publisherProofKey, publisherProofKeyAlt) => {
+const packageTorPluggableTransports = async (binary, endpoint, region, platform, key, publisherProofKey, publisherProofKeyAlt) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
+  return util.getNextVersion(endpoint, region, id).then((version) => {
     const snowflake = downloadTorPluggableTransport(platform, 'snowflake')
     const obfs4 = downloadTorPluggableTransport(platform, 'obfs4')
 
@@ -78,7 +78,7 @@ export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
       .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
   command.parse(argv)
@@ -93,9 +93,9 @@ export async function main (argv = process.argv) {
     throw new Error('Missing or invalid private key file/directory')
   }
 
-  await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+  await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
     for (const platform of ['darwin', 'linux', 'win32']) {
-      packageTorPluggableTransports(command.binary, command.endpoint, command.region,
+      await packageTorPluggableTransports(command.binary, command.endpoint, command.region,
         platform, keyParam, command.publisherProofKey, command.publisherProofKeyAlt)
     }
   })

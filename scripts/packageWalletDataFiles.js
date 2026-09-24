@@ -60,18 +60,18 @@ const processDATFile = (binary, endpoint, region, key, publisherProofKey, publis
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id).then((version) => {
+    return util.getNextVersion(endpoint, region, id).then((version) => {
       postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
         binary, localRun, version)
     })
-  } else {
-    postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
-      binary, localRun, '1.0.0')
   }
+  postNextVersionWork(key, publisherProofKey, publisherProofKeyAlt,
+    binary, localRun, '1.0.0')
+  return Promise.resolve()
 }
 
 const processJob = (command, keyParam) => {
-  processDATFile(command.binary, command.endpoint,
+  return processDATFile(command.binary, command.endpoint,
     command.region, keyParam, command.publisherProofKey, command.publisherProofKeyAlt,
     command.localRun)
 }
@@ -80,7 +80,7 @@ export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
       .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
       .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))

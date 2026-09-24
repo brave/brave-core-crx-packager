@@ -252,9 +252,6 @@ Then('the run exited with code {int}', function (code) {
 })
 
 Then('every manifest v2 extension output exists', async function () {
-  if (!fs.existsSync(path.join(this.sandbox, 'build', 'extensions-v2'))) {
-    process.stderr.write('MV2 LOGS: ' + JSON.stringify(this.state.logs.map(l => l.args.map(String))) + ' ERR: ' + (this.packageError && this.packageError.message) + '\n')
-  }
   const util = (await import('../../lib/util.js')).default
   for (const name of EXTENSIONS_V2) {
     const config = JSON.parse(fs.readFileSync(path.join(this.sandbox, 'manifests', name, 'config.json'), 'utf8'))

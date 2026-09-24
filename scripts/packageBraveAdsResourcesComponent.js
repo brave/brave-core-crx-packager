@@ -268,7 +268,7 @@ const getOriginalManifest = (locale) => {
   return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
+const generateCRXFile = async (binary, endpoint, region, keyDir, publisherProofKey,
   publisherProofKeyAlt, componentData) => {
   const locale = componentData.locale
   const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
@@ -276,7 +276,7 @@ const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
-  util.getNextVersion(endpoint, region, componentData.id).then((version) => {
+  return util.getNextVersion(endpoint, region, componentData.id).then((version) => {
     const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
     const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
     stageFiles(locale, version, stagingDir)
@@ -290,7 +290,7 @@ export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
   command.parse(argv)
 
@@ -301,12 +301,13 @@ export async function main (argv = process.argv) {
     throw new Error('Missing or invalid private key directory')
   }
 
-  await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
+  await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
     generateManifestFiles()
-    getComponentDataList().forEach(
-      generateCRXFile.bind(null, command.binary, command.endpoint,
+    for (const componentData of getComponentDataList()) {
+      await generateCRXFile(command.binary, command.endpoint,
         command.region, keyDir,
-        command.publisherProofKey, command.publisherProofKeyAlt))
+        command.publisherProofKey, command.publisherProofKeyAlt, componentData)
+    }
   })
 }
 

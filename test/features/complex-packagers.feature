@@ -74,6 +74,6 @@ Feature: Complex component packagers
   Scenario: the brave ads resources packager stages manifests and aborts on missing keys
     Given brave ads resources for every locale
     And a keys directory without per-locale pem files
-    When the complex packager "packageBraveAdsResourcesComponent.js" runs with "--binary chrome --keys-directory keys --endpoint http://e --region us-west-2"
+    When the complex packager "packageBraveAdsResourcesComponent.js" runs with "--binary chrome --keys-directory keys --endpoint http://e --region us-west-2 --publisher-proof-key proof.pem"
     Then the file "build/user-model-installer/manifiest-files/iso_3166_1_gb-manifest.json" exists
-    And the run exited with code 1
+    And the packaging fails with "Private key file"
