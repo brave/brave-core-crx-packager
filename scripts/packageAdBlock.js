@@ -11,6 +11,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
 import { getListCatalog, regionalCatalogComponentId, resourcesComponentId } from '../lib/adBlockRustUtils.js'
+import { pathToFileURL } from 'url'
 
 async function stageFiles (version, outputDir) {
   // ad-block components are already written in the output directory
@@ -34,7 +35,7 @@ const postNextVersionWork = (componentSubdir, key, publisherProofKey,
   const crxOutputDir = path.join('build', 'ad-block-updater')
   const crxFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.crx`)
   const contentHashFile = path.join(crxOutputDir, `ad-block-updater-${componentSubdir}.contentHash`)
-  stageFiles(version, stagingDir).then(() => {
+  return stageFiles(version, stagingDir).then(() => {
     // Remove any existing `.contentHash` file for determinism
     if (fs.existsSync(contentHashFile)) {
       fs.unlinkSync(contentHashFile)
@@ -97,18 +98,18 @@ const processComponent = (
   }
 
   if (!localRun) {
-    util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
+    return util.getNextVersion(endpoint, region, id, contentHash).then((version) => {
       if (version !== undefined) {
-        postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
+        return postNextVersionWork(componentSubdir, keyDir, publisherProofKey,
           publisherProofKeyAlt, binary, localRun, version, contentHash, verifiedContentsKey)
       } else {
         console.log('content for ' + id + ' was not updated, skipping!')
+        return Promise.resolve()
       }
     })
-  } else {
-    postNextVersionWork(componentSubdir, undefined, publisherProofKey,
-      publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
   }
+  return postNextVersionWork(componentSubdir, undefined, publisherProofKey,
+    publisherProofKeyAlt, binary, localRun, '1.0.0', contentHash, verifiedContentsKey)
 }
 
 const getComponentList = async () => {
@@ -123,34 +124,45 @@ const getComponentList = async () => {
   return output
 }
 
-const processJob = async (commander, keyDir) => {
-  (await getComponentList())
-    .forEach(processComponent.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey,
-      commander.publisherProofKeyAlt,
-      commander.localRun,
-      commander.verifiedContentsKey))
+const processJob = async (command, keyDir) => {
+  const components = await getComponentList()
+  await Promise.all(components.map(componentSubdir =>
+    processComponent(command.binary, command.endpoint,
+      command.region, keyDir,
+      command.publisherProofKey,
+      command.publisherProofKeyAlt,
+      command.localRun,
+      command.verifiedContentsKey,
+      componentSubdir)))
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
-    .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
-  .parse(process.argv)
+  const command = util.addCommonScriptOptions(
+    new commander.Command()
+      .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
+      .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
+  command.parse(argv)
 
-if (!commander.localRun) {
-  let keyDir = ''
-  if (fs.existsSync(commander.keysDirectory)) {
-    keyDir = commander.keysDirectory
+  if (!command.localRun) {
+    let keyDir = ''
+    if (fs.existsSync(command.keysDirectory)) {
+      keyDir = command.keysDirectory
+    } else {
+      throw new Error('Missing or invalid private key file/directory')
+    }
+    await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
+      await processJob(command, keyDir)
+    })
   } else {
-    throw new Error('Missing or invalid private key file/directory')
+    await processJob(command, undefined)
   }
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(async () => {
-    await processJob(commander, keyDir)
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
   })
-} else {
-  processJob(commander, undefined)
 }

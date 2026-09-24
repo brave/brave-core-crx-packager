@@ -10,6 +10,7 @@ import commander from 'commander'
 import glob from 'glob'
 import util from '../lib/util.js'
 import crx from '../lib/crx.js'
+import { pathToFileURL } from 'url'
 
 const downloadExtension = async (config) => {
   const buildPath = path.join('build', config.name)
@@ -99,7 +100,7 @@ const packageV2Extension = (
       return
     }
     const extensionKeyFile = path.join(keysDir, `${extensionName}-key.pem`)
-    crx
+    return crx
       .generateCrx(
         sources.unpacked,
         extensionKeyFile,
@@ -112,7 +113,7 @@ const packageV2Extension = (
         }
 
         if (!localRun) {
-          util
+          return util
             .getNextVersion(endpoint, region, id, sources.sha256)
             .then((version) => {
               if (version !== undefined) {
@@ -121,21 +122,21 @@ const packageV2Extension = (
                 console.log(`${config.name} extension: no updates detected!`)
               }
             })
-        } else {
-          console.log(`Sources hash: ${sources.sha256}`)
-          writeOutputFiles(extension)
         }
+        console.log(`Sources hash: ${sources.sha256}`)
+        writeOutputFiles(extension)
+        return Promise.resolve()
       })
   }
 
-  processExtension()
+  return processExtension()
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util
-  .addCommonScriptOptions(
-    commander
+  const command = util.addCommonScriptOptions(
+    new commander.Command()
       .option(
         '-d, --keys-directory <dir>',
         'directory containing private keys for signing crx files'
@@ -145,42 +146,40 @@ util
         'Runs updater job without connecting anywhere remotely'
       )
   )
-  .parse(process.argv)
+  command.parse(argv)
 
-let keysDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keysDir = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
-}
+  let keysDir = ''
+  if (fs.existsSync(command.keysDirectory)) {
+    keysDir = command.keysDirectory
+  } else {
+    throw new Error('Missing or invalid private key file/directory')
+  }
 
-const ExtensionsV2 = ['no-script-v2', 'adguard-v2', 'umatrix-v2', 'ublock-v2']
+  const ExtensionsV2 = ['no-script-v2', 'adguard-v2', 'umatrix-v2', 'ublock-v2']
 
-if (!commander.localRun) {
-  util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-    ExtensionsV2.forEach((extensionName) => {
+  const packageAll = async () => {
+    await Promise.all(ExtensionsV2.map(extensionName =>
       packageV2Extension(
         extensionName,
-        commander.endpoint,
-        commander.region,
+        command.endpoint,
+        command.region,
         keysDir,
-        commander.publisherProofKey,
-        commander.publisherProofKeyAlt,
-        commander.verifiedContentsKey
-      )
-    })
-  })
-} else {
-  ExtensionsV2.forEach((extensionName) => {
-    packageV2Extension(
-      extensionName,
-      commander.endpoint,
-      commander.region,
-      keysDir,
-      commander.publisherProofKey,
-      commander.publisherProofKeyAlt,
-      commander.verifiedContentsKey,
-      commander.localRun
-    )
+        command.publisherProofKey,
+        command.publisherProofKeyAlt,
+        command.verifiedContentsKey,
+        command.localRun
+      )))
+  }
+  if (!command.localRun) {
+    await util.createTableIfNotExists(command.endpoint, command.region).then(packageAll)
+  } else {
+    await packageAll()
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
   })
 }

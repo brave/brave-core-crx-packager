@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+// Fake aws CLI. Records the invocation; `s3 cp <url> <dest>` writes the
+// destination with scripted content.
+import { appendFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import path from 'node:path'
+
+const args = process.argv.slice(2)
+if (process.env.CRX_PACKAGER_RECORD) {
+  appendFileSync(process.env.CRX_PACKAGER_RECORD, JSON.stringify({ bin: 'aws', argv: args }) + '\n')
+}
+
+if (args[0] === 's3' && args[1] === 'cp' && args.length >= 4) {
+  const dest = args[3]
+  mkdirSync(path.dirname(dest), { recursive: true })
+  writeFileSync(dest, process.env.CRX_PACKAGER_AWS_CONTENT || 'tor-bytes')
+}
+process.exit(0)
