@@ -34,7 +34,7 @@
   },
   "scripts": {
     "clean": "rimraf build/",
-    "test": "c8 cucumber-js",
+    "test": "c8 cucumber-js && node --test test/*.js scripts/**/*.test.js lib/*.test.js",
     "test:bdd": "cucumber-js",
     "data-files-ad-block-rust": "node scripts/generateAdBlockRustDataFiles.js",
     "data-files-local-data-files": "mkdir -p brave-lists && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls.json -O brave-lists/clean-urls.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/clean-urls-permissions.json -O brave-lists/clean-urls-permissions.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/debounce.json -O brave-lists/debounce.json && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/request-otr.json -O brave-lists/request-otr.json && wget https://raw.githubusercontent.com/brave/adblock-lists/refs/heads/master/brave-lists/https-upgrade-exceptions-list.txt -O brave-lists/https-upgrade-exceptions-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/localhost-permission-allow-list.txt -O brave-lists/localhost-permission-allow-list.txt && wget https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/webcompat-exceptions.json -O brave-lists/webcompat-exceptions.json",
@@ -77,6 +77,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/brave/brave-core-crx-packager.git"
+  },
+  "tap": {
+    "check-coverage": true,
+    "branches": 25,
+    "lines": 72,
+    "functions": 50,
+    "statements": 71
   },
   "packageManager": "pnpm@11.23.0",
   "engines": {
