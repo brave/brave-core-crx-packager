@@ -68,7 +68,7 @@ export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files')
       .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem')
       .option('-l, --local-run', 'Runs updater job without connecting anywhere remotely'))
@@ -92,14 +92,14 @@ export async function main (argv = process.argv) {
   }
 
   if (!command.localRun) {
-    await util.createTableIfNotExists(command.endpoint, command.region).then(() => {
-      processJob()
-    })
-  } else {
-    processJob()
+    return util.createTableIfNotExists(command.endpoint, command.region).then(() => processJob())
   }
+  return processJob()
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }

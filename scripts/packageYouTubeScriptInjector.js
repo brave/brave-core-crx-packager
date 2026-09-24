@@ -39,7 +39,7 @@ export async function main (argv = process.argv) {
   util.installErrorHandlers()
 
   const command = util.addCommonScriptOptions(
-    commander
+    new commander.Command()
       .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
   command.parse(argv)
 
@@ -58,5 +58,8 @@ export async function main (argv = process.argv) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
 }

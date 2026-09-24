@@ -9,7 +9,7 @@ import { packageLocalModelsComponent } from '../lib/localModelsPackager.js'
 import { pathToFileURL } from 'url'
 
 export async function main () {
-  packageLocalModelsComponent({
+  return packageLocalModelsComponent({
     componentType: 'asr-local-models-updater',
     resourceDir: 'asr-local-models'
   })
