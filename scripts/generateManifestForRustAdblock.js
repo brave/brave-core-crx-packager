@@ -7,6 +7,7 @@ import path from 'path'
 
 import { getListCatalog, regionalCatalogComponentId, regionalCatalogPubkey, resourcesComponentId, resourcesPubkey } from '../lib/adBlockRustUtils.js'
 import util from '../lib/util.js'
+import { pathToFileURL } from 'url'
 
 const outPath = path.join('build', 'ad-block-updater')
 
@@ -38,16 +39,25 @@ const generateManifestFilesForAllLists = async () => {
   }))
 }
 
-generateManifestFileForRegionalCatalog()
-  .then(generateManifestFileForResources)
-  .then(generateManifestFilesForAllLists)
-  .then(() => {
-    console.log('Thank you for updating the data files, don\'t forget to upload them too!')
-  })
-  .catch((e) => {
-    console.error(`Something went wrong, aborting: ${e}`)
+export async function main () {
+  await generateManifestFileForRegionalCatalog()
+    .then(generateManifestFileForResources)
+    .then(generateManifestFilesForAllLists)
+    .then(() => {
+      console.log('Thank you for updating the data files, don\'t forget to upload them too!')
+    })
+    .catch((e) => {
+      console.error(`Something went wrong, aborting: ${e}`)
+      process.exit(1)
+    })
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(e => {
+    console.error('Caught exception:', e)
     process.exit(1)
   })
+}
 
 process.on('uncaughtException', (err) => {
   console.error('Caught exception:', err)

@@ -19,6 +19,7 @@ import util from '../lib/util.js'
 import path from 'path'
 import fs from 'fs'
 import crypto from 'node:crypto'
+import { pathToFileURL } from 'url'
 
 /**
  * Obtains the output path to store a file given the specied name and subdir
@@ -145,22 +146,33 @@ const generateDataFilesForResourcesComponent = () => {
 const generateDataFilesForDefaultAdblock = (mirrorCommitHash) => getDefaultLists()
   .then(defaultLists => Promise.all(defaultLists.map(list => generateDataFilesForCatalogEntry(list, mirrorCommitHash))))
 
-commander
-  .option('-c, --commit-hash <hash>', 'Use lists from a specified commit of the brave/adblock-lists-mirror repo. Defaults to the latest commit.')
-  .parse(process.argv)
+export async function main (mirrorCommitHash) {
+  util.installErrorHandlers()
+  if (mirrorCommitHash === undefined) {
+    commander
+      .option('-c, --commit-hash <hash>', 'Use lists from a specified commit of the brave/adblock-lists-mirror repo. Defaults to the latest commit.')
+      .parse(process.argv)
+    mirrorCommitHash = commander.commitHash
+  }
 
-const mirrorCommitHash = commander.commitHash
+  await generateDataFilesForDefaultAdblock(mirrorCommitHash)
+    .then(generateDataFilesForResourcesComponent)
+    .then(generateDataFilesForAllRegions.bind(null, mirrorCommitHash))
+    .then(() => {
+      console.log('Thank you for updating the data files, don\'t forget to upload them too!')
+    })
+    .catch((e) => {
+      console.error(`Something went wrong, aborting: ${e} ${e.stack} ${e.message}`)
+      process.exit(1)
+    })
+}
 
-generateDataFilesForDefaultAdblock(mirrorCommitHash)
-  .then(generateDataFilesForResourcesComponent)
-  .then(generateDataFilesForAllRegions.bind(null, mirrorCommitHash))
-  .then(() => {
-    console.log('Thank you for updating the data files, don\'t forget to upload them too!')
-  })
-  .catch((e) => {
-    console.error(`Something went wrong, aborting: ${e} ${e.stack} ${e.message}`)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(e => {
+    console.error('Caught exception:', e)
     process.exit(1)
   })
+}
 
 process.on('uncaughtException', (err) => {
   console.error('Caught exception:', err)

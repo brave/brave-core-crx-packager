@@ -14,23 +14,30 @@ import { execSync } from 'child_process'
 import { existsSync } from 'fs'
 import fs from 'fs-extra'
 import path from 'path'
+import { pathToFileURL } from 'url'
 
 const sourcePrefix = './brave-webmcp'
 const sourceRepo = 'git@github.com:brave/brave-webmcp.git'
 const resourceDir = './web-mcp'
 
-if (existsSync(sourcePrefix)) {
-  // Repo already cloned — fetch and reset to latest master
-  execSync(`git -C ${sourcePrefix} fetch origin master`, { stdio: 'inherit' })
-  execSync(`git -C ${sourcePrefix} reset --hard origin/master`, { stdio: 'inherit' })
-} else {
-  // Fresh clone
-  execSync(`git clone --branch master --depth 1 ${sourceRepo} ${sourcePrefix}`, { stdio: 'inherit' })
+export function main () {
+  if (existsSync(sourcePrefix)) {
+    // Repo already cloned — fetch and reset to latest master
+    execSync(`git -C ${sourcePrefix} fetch origin master`, { stdio: 'inherit' })
+    execSync(`git -C ${sourcePrefix} reset --hard origin/master`, { stdio: 'inherit' })
+  } else {
+    // Fresh clone
+    execSync(`git clone --branch master --depth 1 ${sourceRepo} ${sourcePrefix}`, { stdio: 'inherit' })
+  }
+
+  // Assemble a clean resource directory containing only what the component ships.
+  // The source repo also holds README.md / LICENSE / manifest.json / key.pem,
+  // none of which belong in the CRX — the manifest is generated from the template
+  // in manifests/web-mcp/ and the key is provisioned separately at signing time.
+  fs.removeSync(resourceDir)
+  fs.copySync(path.join(sourcePrefix, 'scripts'), path.join(resourceDir, 'scripts'))
 }
 
-// Assemble a clean resource directory containing only what the component ships.
-// The source repo also holds README.md / LICENSE / manifest.json / key.pem,
-// none of which belong in the CRX — the manifest is generated from the template
-// in manifests/web-mcp/ and the key is provisioned separately at signing time.
-fs.removeSync(resourceDir)
-fs.copySync(path.join(sourcePrefix, 'scripts'), path.join(resourceDir, 'scripts'))
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}
