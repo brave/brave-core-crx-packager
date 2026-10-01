@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+// Fake git. Records every invocation. For the local-models downloader flow
+// it emulates: clone --sparse (creates the target dir), sparse-checkout set
+// (creates the checked-out dir with a placeholder model file), lfs pull.
+// Fails when GIT_SHIM_FAIL matches an argument fragment.
+import { mkdirSync, writeFileSync, appendFileSync, existsSync, rmSync } from 'node:fs'
+import path from 'node:path'
+
+const args = process.argv.slice(2)
+if (process.env.CRX_PACKAGER_RECORD) {
+  appendFileSync(process.env.CRX_PACKAGER_RECORD, JSON.stringify({ bin: 'git', argv: args }) + '\n')
+}
+
+if (process.env.CRX_PACKAGER_GIT_FAIL && args.join(' ').includes(process.env.CRX_PACKAGER_GIT_FAIL)) {
+  process.stderr.write(`fake git: simulated failure for: ${args.join(' ')}\n`)
+  process.exit(1)
+}
+
+if (args[0] === 'clone') {
+  const targetDir = args[args.length - 1]
+  mkdirSync(targetDir, { recursive: true })
+}
+
+if (args[0] === 'sparse-checkout' && args[1] === 'set') {
+  const sparsePath = args[2]
+  // cwd is the cloned temp dir; create the checked-out directory content
+  mkdirSync(sparsePath, { recursive: true })
+  writeFileSync(path.join(sparsePath, 'weights.bin'), 'model-weights')
+  writeFileSync(path.join(sparsePath, 'model.gguf'), 'model-gguf-bytes')
+}
+
+if (args[0] === 'lfs' && args[1] === 'pull') {
+  // no-op, content already in place
+}
+
+process.exit(0)
