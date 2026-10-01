@@ -17,7 +17,18 @@
     "scripts/dataFilesBravePsst.js",
     "scripts/dataFilesWebMcp.js",
     "scripts/generateLeoLocalModelsDataFiles.js",
-    "scripts/generateAsrLocalModelsDataFiles.js"
+    "scripts/generateAsrLocalModelsDataFiles.js",
+    "scripts/packageNTPBackgroundImagesComponent.js",
+    "scripts/packageBraveUserAgentComponent.js",
+    "scripts/packagePlaylistExclusionsComponent.js",
+    "scripts/packageBravePsstComponent.js",
+    "scripts/packageWebMcpComponent.js",
+    "scripts/packageYouTubeScriptInjector.js",
+    "scripts/packageQueryFilterComponent.js",
+    "scripts/packageP3AConfig.js",
+    "scripts/packageLocalDataFiles.js",
+    "scripts/packageLeoLocalModels.js",
+    "scripts/packageAsrLocalModels.js"
   ],
   "exclude": [
     "node_modules/**",
