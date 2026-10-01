@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+// Fake npm. Records the invocation and exits successfully.
+import { appendFileSync } from 'node:fs'
+
+const args = process.argv.slice(2)
+if (process.env.CRX_PACKAGER_RECORD) {
+  appendFileSync(process.env.CRX_PACKAGER_RECORD, JSON.stringify({ bin: 'npm', argv: args }) + '\n')
+}
+process.exit(0)

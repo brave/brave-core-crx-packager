@@ -12,25 +12,33 @@
 
 import { execSync } from 'child_process'
 import { existsSync } from 'fs'
+import { pathToFileURL } from 'url'
 
-const mode = (process.argv[2] || 'dev').toLowerCase()
+export function main (argv = process.argv) {
+  const mode = (argv[2] || 'dev').toLowerCase()
 
-if (mode !== 'dev' && mode !== 'prod') {
-  console.error(`Invalid mode "${mode}". Expected "dev" or "prod".`)
-  process.exit(1)
+  if (mode !== 'dev' && mode !== 'prod') {
+    console.error(`Invalid mode "${mode}". Expected "dev" or "prod".`)
+    process.exit(1)
+    return
+  }
+
+  const psstPrefix = './psst-component'
+  const psstRepo = 'git@github.com:brave/psst-component.git'
+
+  if (existsSync(psstPrefix)) {
+    // Repo already cloned — fetch and reset to latest main
+    execSync(`git -C ${psstPrefix} fetch origin main`, { stdio: 'inherit' })
+    execSync(`git -C ${psstPrefix} reset --hard origin/main`, { stdio: 'inherit' })
+  } else {
+    // Fresh clone
+    execSync(`git clone --branch main --depth 1 ${psstRepo} ${psstPrefix}`, { stdio: 'inherit' })
+  }
+
+  execSync(`npm install --prefix ${psstPrefix}`, { stdio: 'inherit' })
+  execSync(`npm run --prefix ${psstPrefix} bundle:${mode}`, { stdio: 'inherit' })
 }
 
-const psstPrefix = './psst-component'
-const psstRepo = 'git@github.com:brave/psst-component.git'
-
-if (existsSync(psstPrefix)) {
-  // Repo already cloned — fetch and reset to latest main
-  execSync(`git -C ${psstPrefix} fetch origin main`, { stdio: 'inherit' })
-  execSync(`git -C ${psstPrefix} reset --hard origin/main`, { stdio: 'inherit' })
-} else {
-  // Fresh clone
-  execSync(`git clone --branch main --depth 1 ${psstRepo} ${psstPrefix}`, { stdio: 'inherit' })
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
 }
-
-execSync(`npm install --prefix ${psstPrefix}`, { stdio: 'inherit' })
-execSync(`npm run --prefix ${psstPrefix} bundle:${mode}`, { stdio: 'inherit' })

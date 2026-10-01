@@ -5,11 +5,18 @@
 // Downloads leo-local-models data files from the leo-local-models repository
 
 import { downloadLocalModels } from '../lib/localModelsDownloader.js'
+import { pathToFileURL } from 'url'
 
-downloadLocalModels({
-  targetDir: 'leo-local-models',
-  sparseCheckoutPath: 'embeddinggemma-300m',
-  renames: {
-    'embeddinggemma-300m-Q4_0.gguf': 'model.gguf'
-  }
-})
+export function main () {
+  downloadLocalModels({
+    targetDir: 'leo-local-models',
+    sparseCheckoutPath: 'embeddinggemma-300m',
+    renames: {
+      'embeddinggemma-300m-Q4_0.gguf': 'model.gguf'
+    }
+  })
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}
