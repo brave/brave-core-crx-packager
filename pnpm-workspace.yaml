@@ -6,3 +6,10 @@ allowBuilds:
   adblock-rs: true
 overrides:
   brace-expansion@^1: 1.1.18
+  yargs@17: ^17.7.3 # 17.7.2 ships broken "type": "module" metadata; c8 breaks on Node >= 22
+auditConfig:
+  ignoreGhsas:
+    # GHSA-w5hq-g745-h8pq: uuid buffer bounds check (moderate) reaches us only
+    # through the @cucumber/* devDependency chain; the advisory affects uuid
+    # v3/v5/v6 APIs that the cucumber toolchain never calls.
+    - GHSA-w5hq-g745-h8pq

@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+// Fake openssl. Emulates `openssl rsa -in <file> -pubout -out <file>` using
+// node crypto, and records the invocation.
+import { createPublicKey } from 'node:crypto'
+import { readFileSync, writeFileSync, appendFileSync } from 'node:fs'
+
+const args = process.argv.slice(2)
+if (process.env.CRX_PACKAGER_RECORD) {
+  appendFileSync(process.env.CRX_PACKAGER_RECORD, JSON.stringify({ bin: 'openssl', argv: args }) + '\n')
+}
+
+const inIndex = args.indexOf('-in')
+const outIndex = args.indexOf('-out')
+if (inIndex === -1 || outIndex === -1) {
+  process.stderr.write('fake openssl: -in and -out are required\n')
+  process.exit(1)
+}
+const privateKeyPem = readFileSync(args[inIndex + 1], 'utf8')
+const publicKey = createPublicKey(privateKeyPem)
+writeFileSync(args[outIndex + 1], publicKey.export({ type: 'spki', format: 'pem' }))

@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+// Fake puffin. Emulates `-puffdiff <src> <dst> <out>`, creates the output
+// file, and records the invocation. Exit code configurable via PUFFIN_EXIT.
+import { writeFileSync, appendFileSync } from 'node:fs'
+
+const args = process.argv.slice(2)
+if (process.env.CRX_PACKAGER_RECORD) {
+  appendFileSync(process.env.CRX_PACKAGER_RECORD, JSON.stringify({ bin: 'puffin', argv: args }) + '\n')
+}
+
+if (args[0] === '-puffdiff' && args.length >= 4) {
+  writeFileSync(args[3], 'puffpatch-placeholder')
+}
+process.exit(Number(process.env.PUFFIN_EXIT || 0))

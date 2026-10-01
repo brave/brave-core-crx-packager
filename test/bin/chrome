@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+// Fake Chromium binary. Emulates `--pack-extension=<dir>` by zipping the
+// directory (via the zip CLI) into `<dir>.crx`, records the invocation.
+import { execFileSync } from 'node:child_process'
+import { appendFileSync } from 'node:fs'
+import path from 'node:path'
+
+const args = process.argv.slice(2)
+if (process.env.CRX_PACKAGER_RECORD) {
+  appendFileSync(process.env.CRX_PACKAGER_RECORD, JSON.stringify({ bin: 'chrome', argv: args }) + '\n')
+}
+
+const packArg = args.find(arg => arg.startsWith('--pack-extension='))
+if (!packArg) {
+  process.stderr.write('fake chrome: --pack-extension is required\n')
+  process.exit(1)
+}
+const inputDir = packArg.split('=').slice(1).join('=')
+const outputFile = `${inputDir}.crx`
+
+// Pack the directory contents into a zip archive, like Chrome would.
+execFileSync('zip', ['-q', '-r', path.resolve(outputFile), '.'], { cwd: inputDir })
