@@ -12,6 +12,7 @@ import fs from 'fs'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { pathToFileURL } from 'url'
 
 // Downloads the current (platform-specific) Tor client from S3
 const downloadTorClient = (platform) => {
@@ -67,13 +68,13 @@ const getOriginalManifest = (platform) => {
   return path.join('manifests', 'tor-client-updater', `tor-client-updater-${platform}-manifest.json`)
 }
 
-const packageTorClient = (binary, endpoint, region, platform, key,
+const packageTorClient = async (binary, endpoint, region, platform, key,
   publisherProofKey, publisherProofKeyAlt) => {
   const originalManifest = getOriginalManifest(platform)
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
-  util.getNextVersion(endpoint, region, id).then((version) => {
+  return util.getNextVersion(endpoint, region, id).then((version) => {
     const stagingDir = path.join('build', 'tor-client-updater', platform)
     const torClient = downloadTorClient(platform)
     const crxOutputDir = path.join('build', 'tor-client-updater')
@@ -103,27 +104,35 @@ const verifyChecksum = (file, hash) => {
   return hash === computedHash
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
-    .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
-  .parse(process.argv)
+  const command = util.addCommonScriptOptions(
+    new commander.Command()
+      .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files', 'abc')
+      .option('-f, --key-file <file>', 'private key file for signing crx', 'key.pem'))
+  command.parse(argv)
 
-let keyParam = ''
+  let keyParam = ''
 
-if (fs.existsSync(commander.keyFile)) {
-  keyParam = commander.keyFile
-} else if (fs.existsSync(commander.keysDirectory)) {
-  keyParam = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key file/directory')
+  if (fs.existsSync(command.keyFile)) {
+    keyParam = command.keyFile
+  } else if (fs.existsSync(command.keysDirectory)) {
+    keyParam = command.keysDirectory
+  } else {
+    throw new Error('Missing or invalid private key file/directory')
+  }
+
+  await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
+    await Promise.all(['darwin', 'linux', 'linux-arm64', 'win32'].map(platform =>
+      packageTorClient(command.binary, command.endpoint, command.region,
+        platform, keyParam, command.publisherProofKey, command.publisherProofKeyAlt)))
+  })
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  for (const platform of ['darwin', 'linux', 'linux-arm64', 'win32']) {
-    packageTorClient(commander.binary, commander.endpoint, commander.region,
-      platform, keyParam, commander.publisherProofKey, commander.publisherProofKeyAlt)
-  }
-})
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
+}

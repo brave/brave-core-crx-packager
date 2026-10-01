@@ -28,7 +28,14 @@
     "scripts/packageP3AConfig.js",
     "scripts/packageLocalDataFiles.js",
     "scripts/packageLeoLocalModels.js",
-    "scripts/packageAsrLocalModels.js"
+    "scripts/packageLeoLocalModels.js",
+    "scripts/packageAsrLocalModels.js",
+    "scripts/packageAdBlock.js",
+    "scripts/packageTorClient.js",
+    "scripts/packageTorPluggableTransports.js",
+    "scripts/packageWalletDataFiles.js",
+    "scripts/packageManifestV2Extensions.js",
+    "scripts/packageBraveAdsResourcesComponent.js"
   ],
   "exclude": [
     "node_modules/**",

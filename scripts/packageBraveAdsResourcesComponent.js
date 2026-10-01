@@ -7,6 +7,7 @@ import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { pathToFileURL } from 'url'
 
 const getComponentDataList = () => {
   return [
@@ -267,7 +268,7 @@ const getOriginalManifest = (locale) => {
   return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
+const generateCRXFile = async (binary, endpoint, region, keyDir, publisherProofKey,
   publisherProofKeyAlt, componentData) => {
   const locale = componentData.locale
   const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
@@ -275,7 +276,7 @@ const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
   const crxOutputDir = path.join(rootBuildDir, 'output')
   mkdirp.sync(stagingDir)
   mkdirp.sync(crxOutputDir)
-  util.getNextVersion(endpoint, region, componentData.id).then((version) => {
+  return util.getNextVersion(endpoint, region, componentData.id).then((version) => {
     const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
     const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
     stageFiles(locale, version, stagingDir)
@@ -285,24 +286,33 @@ const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
   })
 }
 
-util.installErrorHandlers()
+export async function main (argv = process.argv) {
+  util.installErrorHandlers()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
-  .parse(process.argv)
+  const command = util.addCommonScriptOptions(
+    new commander.Command()
+      .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
+  command.parse(argv)
 
-let keyDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keyDir = commander.keysDirectory
-} else {
-  throw new Error('Missing or invalid private key directory')
+  let keyDir = ''
+  if (fs.existsSync(command.keysDirectory)) {
+    keyDir = command.keysDirectory
+  } else {
+    throw new Error('Missing or invalid private key directory')
+  }
+
+  await util.createTableIfNotExists(command.endpoint, command.region).then(async () => {
+    generateManifestFiles()
+    await Promise.all(getComponentDataList().map(componentData =>
+      generateCRXFile(command.binary, command.endpoint,
+        command.region, keyDir,
+        command.publisherProofKey, command.publisherProofKeyAlt, componentData)))
+  })
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  generateManifestFiles()
-  getComponentDataList().forEach(
-    generateCRXFile.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey, commander.publisherProofKeyAlt))
-})
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(err => {
+    console.error('Caught exception:', err)
+    process.exit(1)
+  })
+}
