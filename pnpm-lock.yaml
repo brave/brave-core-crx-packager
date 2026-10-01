@@ -30,8 +30,8 @@ importers:
         specifier: 7.2.0
         version: 7.2.0
       jszip:
-        specifier: 3.10.1
-        version: 3.10.1
+        specifier: 3.10.2
+        version: 3.10.2
       p3a-config:
         specifier: github:brave/p3a-config
         version: https://codeload.github.com/brave/p3a-config/tar.gz/2e2403674a60efa0438157e74226b19fa16241bb
@@ -1301,8 +1301,8 @@ packages:
     resolution: {integrity: sha512-XzO9luP6L0xkxwhIJMTJQpZo/eeN60K08jHdexfD569AGxeNug6UketeHXEhROoM8aR7EcUoOQmIhcJQjcuq8Q==}
     engines: {node: '>=4.0'}
 
-  jszip@3.10.1:
-    resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
+  jszip@3.10.2:
+    resolution: {integrity: sha512-3l+rb15IOWtUhU0H5MFqES/T6Kh7abYwjosBey/vD6hDt8zoEffkSC5Ws5SGtgVw3gBx2NEbhTeSW1+kWkpyTQ==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -3736,7 +3736,7 @@ snapshots:
       array-includes: 3.1.9
       object.assign: 4.1.7
 
-  jszip@3.10.1:
+  jszip@3.10.2:
     dependencies:
       lie: 3.3.0
       pako: 1.0.11
@@ -4283,7 +4283,7 @@ snapshots:
 
   unzip-crx-3@0.2.0:
     dependencies:
-      jszip: 3.10.1
+      jszip: 3.10.2
       mkdirp: 0.5.5
       yaku: 0.16.7
 
