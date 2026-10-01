@@ -35,7 +35,9 @@
     "scripts/packageTorPluggableTransports.js",
     "scripts/packageWalletDataFiles.js",
     "scripts/packageManifestV2Extensions.js",
-    "scripts/packageBraveAdsResourcesComponent.js"
+    "scripts/packageBraveAdsResourcesComponent.js",
+    "scripts/uploadComponent.js",
+    "scripts/generatePuffpatches.js"
   ],
   "exclude": [
     "node_modules/**",
@@ -45,7 +47,10 @@
     "submodules/**",
     "lib/adBlockRust0_8_6/**"
   ],
-  "reporter": ["text", "text-summary"],
+  "reporter": [
+    "text",
+    "text-summary"
+  ],
   "check-coverage": true,
   "lines": 80,
   "statements": 80,
