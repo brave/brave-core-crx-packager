@@ -70,6 +70,7 @@ brave-lists
 
 # Wallet data files for data-files-wallet-lists
 wallet-lists
+wallet-lists-*
 
 # Leo local model files
 leo-local-models
