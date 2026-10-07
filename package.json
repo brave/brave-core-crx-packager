@@ -25,7 +25,8 @@
     "neostandard": "0.13.0",
     "p-all": "5.0.1",
     "replace-in-file": "6.3.5",
-    "rimraf": "6.1.3"
+    "rimraf": "6.1.3",
+    "yaml": "^2.9.1"
   },
   "scripts": {
     "clean": "rimraf build/",
