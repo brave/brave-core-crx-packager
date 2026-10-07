@@ -5,4 +5,4 @@ minimumReleaseAgeExclude:
 allowBuilds:
   adblock-rs: true
 overrides:
-  brace-expansion@^1: 1.1.21
+  brace-expansion@^1: 5.0.12
