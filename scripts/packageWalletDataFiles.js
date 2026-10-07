@@ -3,39 +3,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Example usage:
+//  GH_TOKEN=... pnpm data-files-wallet-lists
 //  pnpm package-wallet-data-files -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/wallet-data-files-updater.pem
 
-import { createRequire } from 'module'
 import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
 import util from '../lib/util.js'
+import { WALLET_LISTS_DIR } from '../lib/walletLists.js'
 
-const require = createRequire(import.meta.url)
-
-const stageFiles = (version, outputDir) => {
-  util.stageDir(getPackageDir(), getOriginalManifest(), version, outputDir)
-
-  fs.unlinkSync(path.join(outputDir, 'package.json'))
-}
-
-const getPackageDir = () => {
-  try {
-    return path.dirname(require.resolve('@brave/wallet-lists/package.json'))
-  } catch (err) {
-    const fallback = path.join('node_modules', '@brave', 'wallet-lists')
-    if (fs.existsSync(path.join(fallback, 'manifest.json'))) {
-      return fallback
-    }
-    throw new Error(
-      `Unable to locate @brave/wallet-lists. Install it before packaging (${err.message})`
-    )
-  }
-}
-
-const getOriginalManifest = () => {
-  return path.join(getPackageDir(), 'manifest.json')
-}
+const originalManifest = path.join(WALLET_LISTS_DIR, 'manifest.json')
 
 const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binary, localRun, version) => {
   const componentType = 'wallet-data-files-updater'
@@ -45,7 +22,7 @@ const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binar
   if (!localRun) {
     privateKeyFile = !fs.lstatSync(key).isDirectory() ? key : path.join(key, `${componentType}.pem`)
   }
-  stageFiles(version, stagingDir)
+  util.stageDir(WALLET_LISTS_DIR, originalManifest, version, stagingDir)
   if (!localRun) {
     util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
       publisherProofKeyAlt, stagingDir)
@@ -54,7 +31,9 @@ const postNextVersionWork = (key, publisherProofKey, publisherProofKeyAlt, binar
 }
 
 const processDATFile = (binary, endpoint, region, key, publisherProofKey, publisherProofKeyAlt, localRun) => {
-  const originalManifest = getOriginalManifest()
+  if (!fs.existsSync(originalManifest)) {
+    throw new Error(`${WALLET_LISTS_DIR}/ is missing. Run \`pnpm data-files-wallet-lists\` before packaging`)
+  }
   const parsedManifest = util.parseManifest(originalManifest)
   const id = util.getIDFromBase64PublicKey(parsedManifest.key)
 
