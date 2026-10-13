@@ -39,8 +39,8 @@ importers:
         specifier: github:brave/p3a-config#staging
         version: p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/55f03ba0ac582df143f3d7bb712d0755151a9c33
       pbf:
-        specifier: 4.0.1
-        version: 4.0.1
+        specifier: 5.1.2
+        version: 5.1.2
       unzip-crx-3:
         specifier: 0.2.0
         version: 0.2.0
@@ -1497,8 +1497,8 @@ packages:
     resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
     engines: {node: 18 || 20 || >=22}
 
-  pbf@4.0.1:
-    resolution: {integrity: sha512-SuLdBvS42z33m8ejRbInMapQe8n0D3vN/Xd5fmWM3tufNgRQFBpaW2YVJxQZV4iPNqb0vEFvssMEo5w9c6BTIA==}
+  pbf@5.1.2:
+    resolution: {integrity: sha512-mnvGdvOrIvJOBGUEdGkrVXjN8E/VkIJCkf2eS1DH2yv82ORUlLttmDt0rWY38yYZmVwciZwBUvHM20qxBZf40w==}
     hasBin: true
 
   peowly@1.3.3:
@@ -3950,7 +3950,7 @@ snapshots:
       lru-cache: 11.1.0
       minipass: 7.1.3
 
-  pbf@4.0.1:
+  pbf@5.1.2:
     dependencies:
       resolve-protobuf-schema: 2.1.0
 

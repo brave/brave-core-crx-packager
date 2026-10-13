@@ -13,7 +13,7 @@
     "jszip": "3.10.1",
     "p3a-config": "github:brave/p3a-config",
     "p3a-config-staging": "github:brave/p3a-config#staging",
-    "pbf": "4.0.1",
+    "pbf": "5.1.2",
     "unzip-crx-3": "0.2.0"
   },
   "devDependencies": {
