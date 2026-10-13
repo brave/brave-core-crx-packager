@@ -24,8 +24,8 @@ importers:
         specifier: 4.6.1
         version: 4.6.1
       adblock-rs:
-        specifier: 0.13.2
-        version: 0.13.2
+        specifier: 0.13.3
+        version: 0.13.3
       glob:
         specifier: 7.2.0
         version: 7.2.0
@@ -642,8 +642,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  adblock-rs@0.13.2:
-    resolution: {integrity: sha512-P9DPy+R94aLeMHiHRtplx6s3okzbwBjEkgAl+wNwyUsC1gOPlKiqkvNUh/WRVZrgXjqYzCRAIqNgLB1H+/xVZA==}
+  adblock-rs@0.13.3:
+    resolution: {integrity: sha512-HX1Jjo1wyB1x/NSGAW37grXhcyIB1taAoUHsqodCn2hdQiQmgcVLzU5pvpcQ7B5PWEtL2xU2iO/DPr2f1Aq4ZQ==}
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
@@ -2893,7 +2893,7 @@ snapshots:
 
   acorn@8.18.0: {}
 
-  adblock-rs@0.13.2:
+  adblock-rs@0.13.3:
     dependencies:
       cargo-cp-artifact: 0.1.9
 
