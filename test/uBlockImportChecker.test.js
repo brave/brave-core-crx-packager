@@ -26,12 +26,11 @@ const WATCHED_SAMPLE = [
   'submodules/uBlock/assets/assets.json'
 ]
 
-test('pull-merge.json review scope covers gitlink, carrier diff and watch list', () => {
+test('pull-merge.json review scope covers the gitlink and watch list', () => {
   const args = config.filterdiff_args.split(/\s+/)
-  // The LLM must see the submodule pin change and the carried upstream diff.
-  for (const glob of ['**/submodules/uBlock', '**/.github/uBlock-sync-review.diff']) {
-    assert.ok(args.includes(`--include=${glob}`), `missing include glob ${glob}`)
-  }
+  // The LLM must see the submodule pin change; the upstream content behind it
+  // is appended by brave/pull-merge's extra_diff_* inputs at review time.
+  assert.ok(args.includes('--include=**/submodules/uBlock'), 'missing gitlink include glob')
   // Upstream-relative globs stay intact (they also match the submodule-prefixed
   // paths that the import checker loads — verified with real filterdiff below).
   for (const glob of [
@@ -55,7 +54,7 @@ test('pull-merge.json system prompt keeps the verdict format and untrusted-diff 
   for (const marker of ['### Verdict', '### Risk', '### Summary', '### Findings', 'UNTRUSTED DATA', 'MUST flag']) {
     assert.ok(config.system_prompt.includes(marker), `system_prompt missing ${marker}`)
   }
-  assert.match(config.system_prompt, /uBlock-sync-review\.diff/)
+  assert.match(config.system_prompt, /upstream diff between the old and new submodule pins/)
   assert.match(config.system_prompt, /submodule/)
 })
 
