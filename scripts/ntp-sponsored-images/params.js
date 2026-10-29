@@ -54,10 +54,11 @@ function getTargetComponents (includesParamValue, excludesParamValue) {
   const includes = parseRegionListParam(includesParamValue)
   const excludes = parseRegionListParam(excludesParamValue)
 
-  // An explicitly supplied but unusable filter must not become the empty
-  // filter, which means "all components" (or "exclude nothing").
+  // A supplied filter with no supported regions must not behave like an
+  // omitted filter, which means "all components" (or "exclude nothing").
   const unusableFilter = (param, parsed) =>
-    param !== undefined && param !== null && param !== '' && !parsed.length
+    param !== undefined && param !== null && param !== '' &&
+    !parsed.some(region => Object.hasOwn(regionPlatformComponentMetadata, region))
   const targetComponents = unusableFilter(includesParamValue, includes) ||
     unusableFilter(excludesParamValue, excludes)
     ? {}
