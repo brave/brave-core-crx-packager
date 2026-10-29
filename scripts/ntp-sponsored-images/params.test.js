@@ -34,3 +34,10 @@ test('ntp getTargetComponentsFromArrays', (t, done) => {
 
   done()
 })
+
+test('a malformed non-empty region filter never broadens the selection', () => {
+  assert.deepStrictEqual(params.getTargetComponents('!!!', ''), {})
+  assert.deepStrictEqual(params.getTargetComponents(',,,', ''), {})
+  assert.deepStrictEqual(params.getTargetComponents('', '!!!'), {})
+  assert.deepStrictEqual(params.getTargetComponents(undefined, undefined), allComponents)
+})

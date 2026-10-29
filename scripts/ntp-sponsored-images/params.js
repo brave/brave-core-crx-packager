@@ -54,7 +54,14 @@ function getTargetComponents (includesParamValue, excludesParamValue) {
   const includes = parseRegionListParam(includesParamValue)
   const excludes = parseRegionListParam(excludesParamValue)
 
-  const targetComponents = getTargetComponentsFromArrays(includes, excludes)
+  // An explicitly supplied but unusable filter must not become the empty
+  // filter, which means "all components" (or "exclude nothing").
+  const unusableFilter = (param, parsed) =>
+    param !== undefined && param !== null && param !== '' && !parsed.length
+  const targetComponents = unusableFilter(includesParamValue, includes) ||
+    unusableFilter(excludesParamValue, excludes)
+    ? {}
+    : getTargetComponentsFromArrays(includes, excludes)
 
   console.log('included keys: ', includes.join(', '))
   console.log('excluded keys: ', excludes.join(', '))
