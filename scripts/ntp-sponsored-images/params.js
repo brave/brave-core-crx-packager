@@ -54,7 +54,15 @@ function getTargetComponents (includesParamValue, excludesParamValue) {
   const includes = parseRegionListParam(includesParamValue)
   const excludes = parseRegionListParam(excludesParamValue)
 
-  const targetComponents = getTargetComponentsFromArrays(includes, excludes)
+  // A supplied filter with no supported regions must not behave like an
+  // omitted filter, which means "all components" (or "exclude nothing").
+  const unusableFilter = (param, parsed) =>
+    param !== undefined && param !== null && param !== '' &&
+    !parsed.some(region => Object.hasOwn(regionPlatformComponentMetadata, region))
+  const targetComponents = unusableFilter(includesParamValue, includes) ||
+    unusableFilter(excludesParamValue, excludes)
+    ? {}
+    : getTargetComponentsFromArrays(includes, excludes)
 
   console.log('included keys: ', includes.join(', '))
   console.log('excluded keys: ', excludes.join(', '))

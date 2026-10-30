@@ -34,3 +34,21 @@ test('ntp getTargetComponentsFromArrays', (t, done) => {
 
   done()
 })
+
+test('a malformed non-empty region filter never broadens the selection', () => {
+  assert.deepStrictEqual(params.getTargetComponents('!!!', ''), {})
+  assert.deepStrictEqual(params.getTargetComponents(',,,', ''), {})
+  assert.deepStrictEqual(params.getTargetComponents('', '!!!'), {})
+  assert.deepStrictEqual(params.getTargetComponents(undefined, undefined), allComponents)
+})
+
+test('filters without recognized components cannot silently include all regions', () => {
+  for (const filter of ['-', '---', 'bogus']) {
+    assert.equal(Object.keys(params.getTargetComponents('', filter)).length, 0, `excluded: ${filter}`)
+    assert.equal(Object.keys(params.getTargetComponents(filter, '')).length, 0, `included: ${filter}`)
+  }
+
+  const expected = { ...allComponents }
+  delete expected['US-android']
+  assert.deepStrictEqual(params.getTargetComponents('', 'bogus,US-android'), expected)
+})
