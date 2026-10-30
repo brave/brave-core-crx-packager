@@ -9,7 +9,7 @@
     "@sentry/node": "7.120.4",
     "@smithy/node-http-handler": "4.6.1",
     "adblock-rs": "0.13.2",
-    "glob": "7.2.0",
+    "glob": "7.2.3",
     "jszip": "3.10.1",
     "p3a-config": "github:brave/p3a-config",
     "p3a-config-staging": "github:brave/p3a-config#staging",
