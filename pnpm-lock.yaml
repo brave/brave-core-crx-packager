@@ -34,10 +34,10 @@ importers:
         version: 3.10.1
       p3a-config:
         specifier: github:brave/p3a-config
-        version: https://codeload.github.com/brave/p3a-config/tar.gz/2e2403674a60efa0438157e74226b19fa16241bb
+        version: https://codeload.github.com/brave/p3a-config/tar.gz/fe1ccb57bae1d2b4eb0084a84075a2abed5841df
       p3a-config-staging:
         specifier: github:brave/p3a-config#staging
-        version: p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/55f03ba0ac582df143f3d7bb712d0755151a9c33
+        version: p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/9a09ec83b4e0d1d8155ce49c8cb911ec846be09b
       pbf:
         specifier: 4.0.1
         version: 4.0.1
@@ -476,6 +476,7 @@ packages:
   '@smithy/smithy-client@4.12.13':
     resolution: {integrity: sha512-y/Pcj1V9+qG98gyu1gvftHB7rDpdh+7kIBIggs55yGm3JdtBV8GT8IFF3a1qxZ79QnaJHX9GXzvBG6tAd+czJA==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/types@4.14.1':
     resolution: {integrity: sha512-59b5HtSVrVR/eYNei3BUj3DCPKD/G7EtDDe7OEJE7i7FtQFugYo6MxbotS8mVJkLNVf8gYaAlEBwwtJ9HzhWSg==}
@@ -1456,12 +1457,12 @@ packages:
     resolution: {integrity: sha512-T8BatKGY+k5rU+Q/GTYgrEf2r4xRMevAN5mtXc2aPc4rS1j3s+vWTaO2Wag94neXuCAUAs8cxBL9EeB5EA6diw==}
     engines: {node: '>=16'}
 
-  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/2e2403674a60efa0438157e74226b19fa16241bb:
-    resolution: {gitHosted: true, integrity: sha512-pF30wP9t9vQ9/TuFg4ywmhUEHIzUTePI2+tCNBVO0pSjQyBUvT7WQutWNJw9Mrte+ASYS7NOMx5TXAe7T36tHg==, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/2e2403674a60efa0438157e74226b19fa16241bb}
+  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/9a09ec83b4e0d1d8155ce49c8cb911ec846be09b:
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/9a09ec83b4e0d1d8155ce49c8cb911ec846be09b}
     version: 1.0.0
 
-  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/55f03ba0ac582df143f3d7bb712d0755151a9c33:
-    resolution: {gitHosted: true, integrity: sha512-DYMSV5OEzHTEs66JKGQeyq5lDsSPCuZvalrS1NLnkwDUDHbfigzQpQj/uQbNRQnBuVseP/fhi3m5RZ+vA+3rpg==, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/55f03ba0ac582df143f3d7bb712d0755151a9c33}
+  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/fe1ccb57bae1d2b4eb0084a84075a2abed5841df:
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/fe1ccb57bae1d2b4eb0084a84075a2abed5841df}
     version: 1.0.0
 
   package-json-from-dist@1.0.1:
@@ -1822,8 +1823,8 @@ packages:
     resolution: {integrity: sha512-4LCcse/U2MHZ63HAJVE+v71o7yOdIe4cZ70Wpf8D/IyjDKYQLV5GD46B+hSTjJsvV5PztjvHoU580EftxjDZFQ==}
     engines: {node: '>=12.20'}
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
 snapshots:
 
@@ -3917,15 +3918,15 @@ snapshots:
 
   p-map@6.0.0: {}
 
-  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/2e2403674a60efa0438157e74226b19fa16241bb:
+  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/9a09ec83b4e0d1d8155ce49c8cb911ec846be09b:
     dependencies:
       js-yaml: 4.3.2
-      zod: 3.25.76
+      zod: 4.6.7
 
-  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/55f03ba0ac582df143f3d7bb712d0755151a9c33:
+  p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/fe1ccb57bae1d2b4eb0084a84075a2abed5841df:
     dependencies:
       js-yaml: 4.3.2
-      zod: 3.25.76
+      zod: 4.6.7
 
   package-json-from-dist@1.0.1: {}
 
@@ -4368,4 +4369,4 @@ snapshots:
 
   yocto-queue@1.2.2: {}
 
-  zod@3.25.76: {}
+  zod@4.6.7: {}
