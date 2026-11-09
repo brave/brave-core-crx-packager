@@ -24,8 +24,8 @@ importers:
         specifier: 4.6.1
         version: 4.6.1
       adblock-rs:
-        specifier: 0.13.2
-        version: 0.13.2
+        specifier: 0.13.5
+        version: 0.13.5
       glob:
         specifier: 7.2.3
         version: 7.2.3
@@ -476,7 +476,9 @@ packages:
   '@smithy/smithy-client@4.12.13':
     resolution: {integrity: sha512-y/Pcj1V9+qG98gyu1gvftHB7rDpdh+7kIBIggs55yGm3JdtBV8GT8IFF3a1qxZ79QnaJHX9GXzvBG6tAd+czJA==}
     engines: {node: '>=18.0.0'}
-    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
+    deprecated: |-
+      Deprecated due to a bug in custom logger data redaction. Upgrade to the latest version. If you used a custom logger with
+        this version, review your logs and rotate any credentials or other secrets. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/types@4.14.1':
     resolution: {integrity: sha512-59b5HtSVrVR/eYNei3BUj3DCPKD/G7EtDDe7OEJE7i7FtQFugYo6MxbotS8mVJkLNVf8gYaAlEBwwtJ9HzhWSg==}
@@ -643,8 +645,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  adblock-rs@0.13.2:
-    resolution: {integrity: sha512-P9DPy+R94aLeMHiHRtplx6s3okzbwBjEkgAl+wNwyUsC1gOPlKiqkvNUh/WRVZrgXjqYzCRAIqNgLB1H+/xVZA==}
+  adblock-rs@0.13.5:
+    resolution: {integrity: sha512-p8WGpDQ0lKcYhgVUlvWKeUXD1RNXBEE52UYsrM1V4wRekKv/1cKLSaa0Koy2XxBiSxW3WCPtJsnhtlzQa3LE/w==}
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
@@ -1458,11 +1460,11 @@ packages:
     engines: {node: '>=16'}
 
   p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/9a09ec83b4e0d1d8155ce49c8cb911ec846be09b:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/9a09ec83b4e0d1d8155ce49c8cb911ec846be09b}
+    resolution: {gitHosted: true, integrity: sha512-W/o/ienD0H9uQ5d8TKEoZ+6zBsLqgjdzAtZEteeG3oo0z2VsJbBY8ZY1ZSnQHIByb4ZpALjpYBXmkNyXxV2Tow==, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/9a09ec83b4e0d1d8155ce49c8cb911ec846be09b}
     version: 1.0.0
 
   p3a-config@https://codeload.github.com/brave/p3a-config/tar.gz/fe1ccb57bae1d2b4eb0084a84075a2abed5841df:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/fe1ccb57bae1d2b4eb0084a84075a2abed5841df}
+    resolution: {gitHosted: true, integrity: sha512-RnGEJL0eqxs9NrQAUhXxv6TaiyM28ZWU6OW4y4lJFeskDRxQY1aVEiX0zuk6eIAPKUM9Bros09+XVAy7M43qsA==, tarball: https://codeload.github.com/brave/p3a-config/tar.gz/fe1ccb57bae1d2b4eb0084a84075a2abed5841df}
     version: 1.0.0
 
   package-json-from-dist@1.0.1:
@@ -2894,7 +2896,7 @@ snapshots:
 
   acorn@8.18.0: {}
 
-  adblock-rs@0.13.2:
+  adblock-rs@0.13.5:
     dependencies:
       cargo-cp-artifact: 0.1.9
 
