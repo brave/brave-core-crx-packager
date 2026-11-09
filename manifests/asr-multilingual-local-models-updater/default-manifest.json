@@ -1,0 +1,7 @@
+{
+  "description": "ASR Multilingual Local Files Updater extension",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArXcZgjqHyOQh6XslFrhH3xVienEzOKCpVnpXUL2dhY4Qi1LDmwQAq3cbUdJEhJ4tH+y3GKm+qgMlAlXqFRDJJH2WceHjyfMnEW8oW30dEEqS++aQVndilqi+929QhCDzVkT17yiV4qnHGLAE8OKXcPT+lKJlZKW8Dkhg52trvPXAPmhrGNwDZkeHpwyOHN2wwGIe3L1JDWFPmSfEslU76ySlcGRbG/Y1TALJ/YimixCYRlpSY8+n+1PP6m1mH6nD9SxKi+5uiw9mFYQPkCqAnNIQSsFA118M4CcZWlRexkMbEteib7hgKhhrhBvRBv7hlWHxA50a3vxg5LubHCFM4QIDAQAB",
+  "manifest_version": 2,
+  "name": "ASR Multilingual Local Files Updater",
+  "version": "0.0.0"
+}
