@@ -1,0 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Example usage:
+//  pnpm package-asr-multilingual-local-models -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/asr-multilingual-local-models-component.pem
+
+import { packageLocalModelsComponent } from '../lib/localModelsPackager.js'
+
+packageLocalModelsComponent({
+  componentType: 'asr-multilingual-local-models-updater',
+  resourceDir: 'asr-multilingual-local-models'
+})

@@ -73,6 +73,7 @@ leo-local-models
 
 # ASR local model files
 asr-local-models
+asr-multilingual-local-models
 # localstack
 .localstack/
 .vscode/
