@@ -67,6 +67,7 @@
     "package-playlist-exclusions": "node ./scripts/packagePlaylistExclusionsComponent.js",
     "package-brave-psst": "node ./scripts/packageBravePsstComponent.js",
     "package-web-mcp": "node ./scripts/packageWebMcpComponent.js",
+    "package-extension-malware-blocklist": "node ./scripts/packageExtensionMalwareBlocklistComponent.js",
     "generate-puffpatches": "node ./scripts/generatePuffpatches",
     "upload-component": "node ./scripts/uploadComponent"
   },
