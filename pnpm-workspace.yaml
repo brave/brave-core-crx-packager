@@ -6,3 +6,5 @@ allowBuilds:
   adblock-rs: true
 overrides:
   brace-expansion@^1: 1.1.21
+  minimatch@^10: 11.0.5
+  fast-xml-parser@<5.12.0: 5.12.0
