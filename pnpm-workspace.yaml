@@ -2,6 +2,7 @@ engineStrict: true
 minimumReleaseAge: 10080   # minutes; 7 days = 10080
 minimumReleaseAgeExclude:
   - p3a-config  # git sourced
+  - adblock-rs
 allowBuilds:
   adblock-rs: true
 overrides:
