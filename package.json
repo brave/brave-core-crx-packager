@@ -22,7 +22,7 @@
     "eslint-plugin-import": "2.32.0",
     "fs-extra": "11.3.4",
     "mkdirp": "3.0.1",
-    "neostandard": "0.13.0",
+    "neostandard": "0.14.1",
     "p-all": "5.0.1",
     "replace-in-file": "6.3.5",
     "rimraf": "6.1.4"
