@@ -50,13 +50,24 @@ const getPrivateKeyFile = async (packagingArgs, componentDescriptor) => {
   throw new Error('Missing or invalid private key file/directory')
 }
 
+// Jobs packaging several components (e.g. one per platform or region) only
+// need a single table check per endpoint/region.
+const createTablePromises = new Map()
+const createTableIfNotExistsOnce = (endpoint, region) => {
+  const key = `${region}:${endpoint}`
+  if (!createTablePromises.has(key)) {
+    createTablePromises.set(key, util.createTableIfNotExists(endpoint, region))
+  }
+  return createTablePromises.get(key)
+}
+
 const packageComponent = async (packagingArgs, componentDescriptor) => {
   // Resolve the private key first so a missing or invalid key fails fast,
   // before any connection is attempted.
   const privateKeyFile = await getPrivateKeyFile(packagingArgs, componentDescriptor)
 
   if (packagingArgs.localRun !== true) {
-    await util.createTableIfNotExists(packagingArgs.endpoint, packagingArgs.region)
+    await createTableIfNotExistsOnce(packagingArgs.endpoint, packagingArgs.region)
   }
 
   await util.prepareNextVersionCRX({
