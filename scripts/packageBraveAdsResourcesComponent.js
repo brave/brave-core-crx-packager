@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import commander from 'commander'
 import fs from 'fs-extra'
 import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
 const getComponentDataList = () => {
   return [
@@ -233,13 +233,7 @@ const getComponentDataList = () => {
   ]
 }
 
-const stageFiles = (locale, version, outputDir) => {
-  util.stageDir(
-    path.join(path.resolve(), 'build', 'user-model-installer', 'resources', locale, '/'),
-    getOriginalManifest(locale),
-    version,
-    outputDir)
-}
+const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
 
 const generateManifestFile = (componentData) => {
   const manifestFile = getOriginalManifest(componentData.locale)
@@ -253,12 +247,8 @@ const generateManifestFile = (componentData) => {
   fs.writeFileSync(manifestFile, JSON.stringify(manifestContent))
 }
 
-const generateManifestFiles = () => {
-  getComponentDataList().forEach(generateManifestFile)
-}
-
 const getManifestsDir = () => {
-  const targetResourceDir = path.join(path.resolve(), 'build', 'user-model-installer', 'manifiest-files')
+  const targetResourceDir = path.join(rootBuildDir, 'manifiest-files')
   mkdirp.sync(targetResourceDir)
   return targetResourceDir
 }
@@ -267,42 +257,36 @@ const getOriginalManifest = (locale) => {
   return path.join(getManifestsDir(), `${locale}-manifest.json`)
 }
 
-const generateCRXFile = (binary, endpoint, region, keyDir, publisherProofKey,
-  publisherProofKeyAlt, componentData) => {
-  const locale = componentData.locale
-  const rootBuildDir = path.join(path.resolve(), 'build', 'user-model-installer')
-  const stagingDir = path.join(rootBuildDir, 'staging', locale)
-  const crxOutputDir = path.join(rootBuildDir, 'output')
-  mkdirp.sync(stagingDir)
-  mkdirp.sync(crxOutputDir)
-  util.getNextVersion(endpoint, region, componentData.id).then((version) => {
-    const crxFile = path.join(crxOutputDir, `user-model-installer-${locale}.crx`)
-    const privateKeyFile = path.join(keyDir, `user-model-installer-${locale}.pem`)
-    stageFiles(locale, version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      publisherProofKeyAlt, stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+class UserModelInstaller {
+  constructor (componentData) {
+    this.locale = componentData.locale
+    this.componentId = componentData.id
+
+    this.stagingDir = path.join(rootBuildDir, 'staging', componentData.locale)
+    this.crxFile = path.join(rootBuildDir, 'output', `user-model-installer-${componentData.locale}.crx`)
+  }
+
+  privateKeyFromDir (keyDir) {
+    return path.join(keyDir, `user-model-installer-${this.locale}.pem`)
+  }
+
+  async stageFiles (version, outputDir) {
+    util.stageDir(
+      path.join(rootBuildDir, 'resources', this.locale, '/'),
+      getOriginalManifest(this.locale),
+      version,
+      outputDir)
+  }
 }
 
-util.installErrorHandlers()
+const args = getPackagingArgs()
 
-util.addCommonScriptOptions(
-  commander
-    .option('-d, --keys-directory <dir>', 'directory containing private keys for signing crx files'))
-  .parse(process.argv)
-
-let keyDir = ''
-if (fs.existsSync(commander.keysDirectory)) {
-  keyDir = commander.keysDirectory
-} else {
+if (!fs.existsSync(args.keysDirectory)) {
   throw new Error('Missing or invalid private key directory')
 }
 
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  generateManifestFiles()
-  getComponentDataList().forEach(
-    generateCRXFile.bind(null, commander.binary, commander.endpoint,
-      commander.region, keyDir,
-      commander.publisherProofKey, commander.publisherProofKeyAlt))
-})
+const components = getComponentDataList()
+components.forEach(generateManifestFile)
+
+Promise.all(components.map(componentData =>
+  packageComponent(args, new UserModelInstaller(componentData))))
