@@ -6,12 +6,15 @@ The CRX Packager creates and packages CRX files for the components and extension
 
 When developing a new component extension, you must generate a new unique extension ID and public/private key pair. You can do that by
 
-1. Generating a new keypair with `openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -out key.pem`
-2. Storing the new PEM in 1Password for Teams
+1. Generating a new keypair with `openssl genrsa 4096 | openssl pkcs8 -topk8 -nocrypt -out key.pem`
+2. Storing the new PEM in 1Password for Teams following the instructions in Step
+   1 of
+   https://github.com/brave/internal/wiki/Uploading-new-adblock-list-PEM-file-to-1Password.
 3. Generating the public key for the `manifest.json` with `openssl rsa -in key.pem -pubout -outform DER | openssl base64 -A`
 4. Generating the component ID with `openssl rsa -in key.pem -pubout -outform DER | shasum -a 256 | head -c32 | tr 0-9a-f a-p`
-5. Updating https://github.com/brave/adblock-resources/blob/master/filter_lists/regional.json with the right component_id and base64_public_key (if this is for AdBlock)
-5. Updating the CRX packager to use the new PEM
+5. Deleting key.pem locally (do NOT retain any copies outside of 1Password)
+6. Updating https://github.com/brave/adblock-resources/blob/master/filter_lists/regional.json with the right component_id and base64_public_key (if this is for AdBlock)
+7. Updating the CRX packager to use the new PEM
 
 ## Cloning and Installation
 
