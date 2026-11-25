@@ -46,7 +46,7 @@ test('prepareNextVersionCRX stages and writes the content hash file on a local r
 test('prepareNextVersionCRX omits the content hash file when no hash is provided', async (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prepare-next-version-crx-'))
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }))
-  const { descriptor } = makeDescriptor(dir, {
+  const { descriptor, staged } = makeDescriptor(dir, {
     contentHashFile: path.join(dir, 'testcomponent.contentHash')
   })
 
@@ -57,6 +57,46 @@ test('prepareNextVersionCRX omits the content hash file when no hash is provided
   })
 
   assert.equal(fs.existsSync(descriptor.contentHashFile), false)
+  assert.deepEqual(staged, [{ version: '1.0.0', outputDir: descriptor.stagingDir }])
+})
+
+test('prepareNextVersionCRX packages without a hash when contentHash reports unavailability', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prepare-next-version-crx-'))
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }))
+  const { descriptor, staged } = makeDescriptor(dir, {
+    // e.g. first run, before the content has been generated
+    contentHash: () => undefined,
+    contentHashFile: path.join(dir, 'testcomponent.contentHash')
+  })
+
+  await util.prepareNextVersionCRX({
+    componentDescriptor: descriptor,
+    privateKeyFile: '',
+    localRun: true
+  })
+
+  assert.equal(fs.existsSync(descriptor.contentHashFile), false)
+  assert.deepEqual(staged, [{ version: '1.0.0', outputDir: descriptor.stagingDir }])
+})
+
+test('prepareNextVersionCRX propagates errors thrown by contentHash', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prepare-next-version-crx-'))
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }))
+  const { descriptor, staged } = makeDescriptor(dir, {
+    contentHash: () => {
+      throw new Error('boom')
+    }
+  })
+
+  await assert.rejects(
+    util.prepareNextVersionCRX({
+      componentDescriptor: descriptor,
+      privateKeyFile: '',
+      localRun: true
+    }),
+    /boom/
+  )
+  assert.deepEqual(staged, [])
 })
 
 test('prepareNextVersionCRX replaces a stale content hash file', async (t) => {
