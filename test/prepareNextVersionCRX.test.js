@@ -79,6 +79,22 @@ test('prepareNextVersionCRX packages without a hash when contentHash reports una
   assert.deepEqual(staged, [{ version: '1.0.0', outputDir: descriptor.stagingDir }])
 })
 
+test('prepareNextVersionCRX creates a missing CRX output directory', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prepare-next-version-crx-'))
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }))
+  // e.g. build/<component>/output, which nothing else creates
+  const crxFile = path.join(dir, 'output', 'nested', 'testcomponent.crx')
+  const { descriptor } = makeDescriptor(dir, { crxFile })
+
+  await util.prepareNextVersionCRX({
+    componentDescriptor: descriptor,
+    privateKeyFile: '',
+    localRun: true
+  })
+
+  assert.ok(fs.statSync(path.dirname(crxFile)).isDirectory())
+})
+
 test('prepareNextVersionCRX propagates errors thrown by contentHash', async (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prepare-next-version-crx-'))
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }))
