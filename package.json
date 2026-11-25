@@ -82,7 +82,7 @@
     "functions": 50,
     "statements": 71
   },
-  "packageManager": "pnpm@11.23.0",
+  "packageManager": "pnpm@11.28.13",
   "engines": {
     "node": ">=24.0.0"
   },
