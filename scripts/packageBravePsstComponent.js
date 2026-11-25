@@ -5,53 +5,34 @@
 // Example usage:
 //  pnpm package-brave-psst -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/brave-psst.pem
 
-import commander from 'commander'
-import fs from 'fs-extra'
-import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
 
+const componentType = 'psst'
 const psstOutputDir = path.join(path.resolve(), 'psst-component', 'out')
 
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'manifests', 'psst', 'default-manifest.json')
 }
 
-const stageFiles = util.stageDir.bind(
-  undefined,
-  path.join(psstOutputDir),
-  getOriginalManifest())
+class BravePsst {
+  constructor (privateKeyFile) {
+    const [, componentId] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+    this.componentId = componentId
 
-const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-  publisherProofKey, publisherProofKeyAlt) => {
-  const stagingDir = path.join('build', 'psst')
-  const crxFile = path.join(stagingDir, 'psst.crx')
-  mkdirp.sync(stagingDir)
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
-    stageFiles(version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      publisherProofKeyAlt, stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+    this.stagingDir = path.join('build', componentType)
+    this.crxFile = path.join(this.stagingDir, `${componentType}.crx`)
+  }
+
+  async stageFiles (version, outputDir) {
+    util.stageDir(psstOutputDir, getOriginalManifest(), version, outputDir)
+  }
 }
 
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
-  .parse(process.argv)
-
-let privateKeyFile = ''
-if (commander.keyFile && fs.existsSync(commander.keyFile)) {
-  privateKeyFile = commander.keyFile
-} else {
-  throw new Error('Missing or invalid private key')
+const args = getPackagingArgs()
+if (args.keyFile === undefined) {
+  throw new Error('--key-file is required')
 }
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
-})
+packageComponent(args, new BravePsst(args.keyFile))

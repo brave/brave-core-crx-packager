@@ -5,51 +5,34 @@
 // Example usage:
 //  pnpm package-youtube-script-injector -- --binary "/Applications/Google\\ Chrome\\ Canary.app/Contents/MacOS/Google\\ Chrome\\ Canary" --key-file path/to/key.pem
 
-import commander from 'commander'
-import fs from 'fs-extra'
-import { mkdirp } from 'mkdirp'
 import path from 'path'
 import util from '../lib/util.js'
 import ntpUtil from '../lib/ntpUtil.js'
+import { getPackagingArgs, packageComponent } from './packageComponent.js'
+
+const componentType = 'youtube-script-injector'
+const resourceDir = path.join(path.resolve(), 'component-data', 'youtube-script-injector')
 
 const getOriginalManifest = () => {
   return path.join(path.resolve(), 'component-data', 'youtube-script-injector', 'manifest.json')
 }
 
-const stageFiles = util.stageDir.bind(
-  undefined,
-  path.join(path.resolve(), 'component-data', 'youtube-script-injector'),
-  getOriginalManifest())
+class YouTubeScriptInjector {
+  constructor (privateKeyFile) {
+    const [, componentId] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
+    this.componentId = componentId
 
-const generateCRXFile = (binary, endpoint, region, componentID, privateKeyFile,
-  publisherProofKey, publisherProofKeyAlt) => {
-  const stagingDir = path.join('build', 'youtube-script-injector')
-  const crxFile = path.join(stagingDir, 'youtube-script-injector.crx')
-  mkdirp.sync(stagingDir)
-  util.getNextVersion(endpoint, region, componentID).then((version) => {
-    stageFiles(version, stagingDir)
-    util.generateCRXFile(binary, crxFile, privateKeyFile, publisherProofKey,
-      publisherProofKeyAlt, stagingDir)
-    console.log(`Generated ${crxFile} with version number ${version}`)
-  })
+    this.stagingDir = path.join('build', componentType)
+    this.crxFile = path.join(this.stagingDir, `${componentType}.crx`)
+  }
+
+  async stageFiles (version, outputDir) {
+    util.stageDir(resourceDir, getOriginalManifest(), version, outputDir)
+  }
 }
 
-util.installErrorHandlers()
-
-util.addCommonScriptOptions(
-  commander
-    .option('-k, --key-file <file>', 'file containing private key for signing crx file'))
-  .parse(process.argv)
-
-let privateKeyFile = ''
-if (fs.existsSync(commander.keyFile)) {
-  privateKeyFile = commander.keyFile
-} else {
-  throw new Error('Missing or invalid private key')
+const args = getPackagingArgs()
+if (args.keyFile === undefined) {
+  throw new Error('--key-file is required')
 }
-
-util.createTableIfNotExists(commander.endpoint, commander.region).then(() => {
-  const [, componentID] = ntpUtil.generatePublicKeyAndID(privateKeyFile)
-  generateCRXFile(commander.binary, commander.endpoint, commander.region,
-    componentID, privateKeyFile, commander.publisherProofKey, commander.publisherProofKeyAlt)
-})
+packageComponent(args, new YouTubeScriptInjector(args.keyFile))
